@@ -1,4 +1,4 @@
-[![Unit Tests Status](https://github.com/xefino/protobuf-gen-go/workflows/test.yml/badge.svg)](https://github.com/xefino/protobuf-gen-go/actions)
+[![Unit Tests Status](https://github.com/xefino/protobuf-gen-go/actions/workflows/test.yml/badge.svg)](https://github.com/xefino/protobuf-gen-go/actions)
 
 # protobuf-gen-go
 This repository contains data types generated from files in Xefino's protobuf repository, that are intended to act as common dependencies to both public and private protobuf repositories.
