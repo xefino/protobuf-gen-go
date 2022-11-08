@@ -7,8 +7,22 @@ import (
 	"strings"
 )
 
-// None is an empty list that can be used in place of alternate values for the unmarshaller
+// None is an empty map that can be used in place of alternate values for the unmarshaller
 var None = make(map[string]int32)
+
+// Ignore is an empty map that can be used in place of alternate values for the marshaller
+var Ignore = make(map[int32]string)
+
+// MarshalString converts an enum value to a string based on the _value mapping and a possible alternative mapping
+func MarshalString[TIn ~int32, TMap ~int32, TAlt ~int32](data TIn, mapping map[TMap]string, alternates map[TAlt]string) string {
+	if alternate, ok := alternates[TAlt(data)]; ok {
+		return alternate
+	} else if mapped, ok := mapping[TMap(data)]; ok {
+		return mapped
+	} else {
+		return fmt.Sprintf("%d", data)
+	}
+}
 
 // UnmarshalValue converts JSON to a protobuf enum value
 func UnmarshalValue[TMap ~int32, TAlt ~int32, TOut ~int32](raw []byte, mapping map[string]TMap,

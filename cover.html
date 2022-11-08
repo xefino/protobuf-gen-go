@@ -1,0 +1,814 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>gopb: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/xefino/protobuf-gen-go/gopb/extensions.go (86.7%)</option>
+				
+				<option value="file1">github.com/xefino/protobuf-gen-go/gopb/time.pb.go (32.3%)</option>
+				
+				<option value="file2">github.com/xefino/protobuf-gen-go/gopb/utils.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package gopb
+
+import (
+        "fmt"
+        "math"
+        "strconv"
+        "time"
+)
+
+// Now constructs a new Timestamp from the current time.
+func Now() *UnixTimestamp <span class="cov1" title="1">{
+        return NewUnixTimestamp(time.Now())
+}</span>
+
+// NewUnixTimestamp constructs a new Timestamp from the provided time.Time.
+func NewUnixTimestamp(t time.Time) *UnixTimestamp <span class="cov2" title="2">{
+        return &amp;UnixTimestamp{Seconds: int64(t.Unix()), Nanoseconds: int32(t.Nanosecond())}
+}</span>
+
+// AsTime converts x to a time.Time.
+func (x *UnixTimestamp) AsTime() time.Time <span class="cov1" title="1">{
+        return time.Unix(int64(x.GetSeconds()), int64(x.GetNanoseconds())).UTC()
+}</span>
+
+// Equals returns true if rhs is equal to lhs, false otherwise
+func (rhs *UnixTimestamp) Equals(lhs *UnixTimestamp) bool <span class="cov7" title="12">{
+        if rhs != nil &amp;&amp; lhs != nil </span><span class="cov6" title="6">{
+                return rhs.Seconds == lhs.Seconds &amp;&amp; rhs.Nanoseconds == lhs.Nanoseconds
+        }</span> else<span class="cov6" title="6"> {
+                return rhs == lhs
+        }</span>
+}
+
+// NotEquals returns true if rhs is not equal to lhs, false otherwise
+func (rhs *UnixTimestamp) NotEquals(lhs *UnixTimestamp) bool <span class="cov6" title="6">{
+        return !rhs.Equals(lhs)
+}</span>
+
+// GreaterThan returns true if rhs represents a later time than lhs, or false otherwise
+func (rhs *UnixTimestamp) GreaterThan(lhs *UnixTimestamp) bool <span class="cov8" title="16">{
+        if rhs != nil &amp;&amp; lhs != nil </span><span class="cov7" title="10">{
+                return rhs.Seconds &gt; lhs.Seconds ||
+                        (rhs.Seconds == lhs.Seconds &amp;&amp; rhs.Nanoseconds &gt; lhs.Nanoseconds)
+        }</span> else<span class="cov6" title="6"> {
+                return rhs != nil
+        }</span>
+}
+
+// GreaterThanOrEqualTo returns true if rhs represents a time at least as late as lhs, or false otherwise
+func (rhs *UnixTimestamp) GreaterThanOrEqualTo(lhs *UnixTimestamp) bool <span class="cov6" title="8">{
+        return !rhs.LessThan(lhs)
+}</span>
+
+// LessThan returns true if rhs represents an earlier time than lhs, or false otherwise
+func (rhs *UnixTimestamp) LessThan(lhs *UnixTimestamp) bool <span class="cov8" title="16">{
+        if rhs != nil &amp;&amp; lhs != nil </span><span class="cov7" title="10">{
+                return rhs.Seconds &lt; lhs.Seconds ||
+                        (rhs.Seconds == lhs.Seconds &amp;&amp; rhs.Nanoseconds &lt; lhs.Nanoseconds)
+        }</span> else<span class="cov6" title="6"> {
+                return lhs != nil
+        }</span>
+}
+
+// LessThanOrEqualTo returns true if rhs represents a time at least as early as lhs, or false otherwise
+func (rhs *UnixTimestamp) LessThanOrEqualTo(lhs *UnixTimestamp) bool <span class="cov6" title="8">{
+        return !rhs.GreaterThan(lhs)
+}</span>
+
+// Add adds a timestamp to another timestamp, modifying it. The modified timestamp is then returned
+func (rhs *UnixTimestamp) Add(lhs *UnixTimestamp) *UnixTimestamp <span class="cov4" title="4">{
+
+        // First, check if the lhs is nil. If it is then return the rhs
+        if lhs == nil </span><span class="cov1" title="1">{
+                return rhs
+        }</span>
+
+        // Next, add the seconds and nanoseconds to the timestamp
+        <span class="cov4" title="3">rhs.Nanoseconds += lhs.Nanoseconds
+        rhs.Seconds += lhs.Seconds
+
+        // Now, if the nanoseconds is greater than a second or less than zero then roll them over
+        if rhs.Nanoseconds &gt;= 1e9 </span><span class="cov1" title="1">{
+                rhs.Seconds += 1
+                rhs.Nanoseconds -= 1e9
+        }</span> else<span class="cov2" title="2"> if rhs.Nanoseconds &lt; 0 </span><span class="cov1" title="1">{
+                rhs.Seconds -= 1
+                rhs.Nanoseconds += 1e9
+        }</span>
+
+        // Finally, return the modified timestamp
+        <span class="cov4" title="3">return rhs</span>
+}
+
+// AddDuration adds a duration to the timestamp, modifying it. The modified timestamp is then returned
+func (rhs *UnixTimestamp) AddDuration(duration time.Duration) *UnixTimestamp <span class="cov6" title="8">{
+
+        // First, extract the seconds from the duration
+        seconds := duration.Seconds()
+        rhs.Seconds += int64(seconds)
+
+        // Next, if we have a fractional second then convert it to nanoseconds and add it to the total number
+        // of nanoseconds; we'll ignore any fractional nanoseconds
+        if seconds != math.Floor(seconds) </span><span class="cov5" title="5">{
+                _, frac := math.Modf(seconds)
+                rhs.Nanoseconds += int32(0.5 + (frac * 1e9))
+        }</span>
+
+        // Now, if the nanoseconds is greater than a second then roll them over
+        <span class="cov6" title="8">if rhs.Nanoseconds &gt;= 1e9 </span><span class="cov1" title="1">{
+                rhs.Seconds += 1
+                rhs.Nanoseconds -= 1e9
+        }</span> else<span class="cov6" title="7"> if rhs.Nanoseconds &lt; 0 </span><span class="cov1" title="1">{
+                rhs.Seconds -= 1
+                rhs.Nanoseconds += 1e9
+        }</span>
+
+        // Finally, return the modified timestamp
+        <span class="cov6" title="8">return rhs</span>
+}
+
+// AddUnixDuration adds a UnixDuration to the UnixTimestamp, modifying it. The modified timestamp is then returned
+func (rhs *UnixTimestamp) AddUnixDuration(lhs *UnixDuration) *UnixTimestamp <span class="cov4" title="4">{
+
+        // First, check if the lhs is nil. If it is then return the rhs
+        if lhs == nil </span><span class="cov1" title="1">{
+                return rhs
+        }</span>
+
+        // Next, add the seconds and nanoseconds to the timestamp
+        <span class="cov4" title="3">rhs.Nanoseconds += lhs.Nanoseconds
+        rhs.Seconds += lhs.Seconds
+
+        // Now, if the nanoseconds is greater than a second then roll them over
+        if rhs.Nanoseconds &gt;= 1e9 </span><span class="cov1" title="1">{
+                rhs.Seconds += 1
+                rhs.Nanoseconds -= 1e9
+        }</span> else<span class="cov2" title="2"> if rhs.Nanoseconds &lt; 0 </span><span class="cov1" title="1">{
+                rhs.Seconds -= 1
+                rhs.Nanoseconds += 1e9
+        }</span>
+
+        // Finally, return the modified timestamp
+        <span class="cov4" title="3">return rhs</span>
+}
+
+// IsValid reports whether the timestamp is valid.
+// It is equivalent to CheckValid == nil.
+func (x *UnixTimestamp) IsValid() bool <span class="cov6" title="6">{
+        return x.check() == 0
+}</span>
+
+// CheckValid returns an error if the timestamp is invalid.
+// In particular, it checks whether the value represents a date that is
+// in the range of 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.
+// An error is reported for a nil Timestamp.
+func (x *UnixTimestamp) CheckValid() error <span class="cov9" title="19">{
+        switch x.check() </span>{
+        case invalidNil:<span class="cov1" title="1">
+                return fmt.Errorf("invalid nil Timestamp")</span>
+        case invalidUnderflow:<span class="cov4" title="4">
+                return fmt.Errorf("timestamp (%d, %d) before 0001-01-01", x.Seconds, x.Nanoseconds)</span>
+        case invalidOverflow:<span class="cov4" title="4">
+                return fmt.Errorf("timestamp (%d, %d) after 9999-12-31", x.Seconds, x.Nanoseconds)</span>
+        case invalidNanos:<span class="cov4" title="3">
+                return fmt.Errorf("timestamp (%d, %d) has out-of-range nanos", x.Seconds, x.Nanoseconds)</span>
+        default:<span class="cov6" title="7">
+                return nil</span>
+        }
+}
+
+// ToEpoch converts the timestamp to a UNIX epoch value
+func (timestamp *UnixTimestamp) ToEpoch() string <span class="cov6" title="8">{
+
+        // If the timestamp is nil then return an empty value
+        if timestamp == nil </span><span class="cov4" title="4">{
+                return ""
+        }</span>
+
+        // Otherwise, convert the timestamp to a UNIX epoch value and return it
+        <span class="cov4" title="4">return fmt.Sprintf("%d%09d", timestamp.Seconds, timestamp.Nanoseconds)</span>
+}
+
+// FromString creates a new timestamp from a string
+func (timestamp *UnixTimestamp) FromString(raw string) error <span class="cov10" title="25">{
+
+        // First, check that the timestamp is long enough for us to parse
+        // If it isn't then return an error. Also, check if the string is empty
+        // If it is then we're probably looking at an empty timestamp
+        if raw == "" </span><span class="cov4" title="3">{
+                timestamp = nil
+                return nil
+        }</span> else<span class="cov9" title="22"> if len(raw) &lt; 10 </span><span class="cov4" title="3">{
+                return fmt.Errorf("value (%s) was not long enough to be converted to a timestamp", raw)
+        }</span>
+
+        // Next, attempt to parse the number of seconds to a 64-bit integer
+        // If this fails then return an error
+        <span class="cov9" title="19">partition := len(raw) - 9
+        seconds, err := strconv.ParseInt(raw[:partition], 10, 64)
+        if err != nil </span><span class="cov4" title="3">{
+                return fmt.Errorf("failed to convert seconds part to integer, error: %v", err)
+        }</span>
+
+        // Now, attempt to parse the number of nanoseconds to a 32-bit integer
+        // If this fails then return an error
+        <span class="cov8" title="16">nanos, err := strconv.ParseInt(raw[partition:], 10, 32)
+        if err != nil </span><span class="cov4" title="3">{
+                return fmt.Errorf("failed to convert nanoseconds part to integer, error: %v", err)
+        }</span>
+
+        // Finally, create a new timestamp from the seconds and nanoseconds and then
+        // check that the timestamp is valid; return any error that occurs
+        <span class="cov8" title="13">timestamp.Seconds = seconds
+        timestamp.Nanoseconds = int32(nanos)
+        return timestamp.CheckValid()</span>
+}
+
+func (x *UnixTimestamp) check() uint <span class="cov10" title="25">{
+        const minTimestamp = -62135596800  // Seconds between 1970-01-01T00:00:00Z and 0001-01-01T00:00:00Z, inclusive
+        const maxTimestamp = +253402300799 // Seconds between 1970-01-01T00:00:00Z and 9999-12-31T23:59:59Z, inclusive
+        secs := x.GetSeconds()
+        nanos := x.GetNanoseconds()
+        switch </span>{
+        case x == nil:<span class="cov2" title="2">
+                return invalidNil</span>
+        case secs &lt; minTimestamp:<span class="cov5" title="5">
+                return invalidUnderflow</span>
+        case secs &gt; maxTimestamp:<span class="cov5" title="5">
+                return invalidOverflow</span>
+        case nanos &lt; 0 || nanos &gt;= 1e9:<span class="cov5" title="5">
+                return invalidNanos</span>
+        default:<span class="cov6" title="8">
+                return 0</span>
+        }
+}
+
+// NewUnixDuration constructs a new UnixDuration from the provided time.Duration.
+func NewUnixDuration(d time.Duration) *UnixDuration <span class="cov1" title="1">{
+        nanos := d.Nanoseconds()
+        secs := nanos / 1e9
+        nanos -= secs * 1e9
+        return &amp;UnixDuration{
+                Seconds:     int64(secs),
+                Nanoseconds: int32(nanos),
+        }
+}</span>
+
+// AsDuration converts x to a time.Duration, returning an error in the event of an overflow
+func (x *UnixDuration) AsDuration() (time.Duration, error) <span class="cov4" title="4">{
+
+        // First, get the seconds and nanoseconds from the Unix duration
+        secs := x.GetSeconds()
+        nanos := x.GetNanoseconds()
+
+        // Next, attempt to set the seconds on the duration; if the Unix duration contains too many seconds
+        // then return an error as this represents an overflow/underflow error
+        duration := time.Duration(secs) * time.Second
+        if duration/time.Second != time.Duration(secs) </span><span class="cov1" title="1">{
+                return time.Duration(0), fmt.Errorf("Seconds count was malformed")
+        }</span>
+
+        // Now, add the nanoseconds to the duration; if the additional results in a duration of a different
+        // sign from the Unix duration then return an error
+        <span class="cov4" title="3">duration += time.Duration(nanos) * time.Nanosecond
+        if secs &lt; 0 &amp;&amp; nanos &lt; 0 &amp;&amp; duration &gt; 0 </span><span class="cov1" title="1">{
+                return time.Duration(math.MinInt64), fmt.Errorf("Duration underflow")
+        }</span> else<span class="cov2" title="2"> if secs &gt; 0 &amp;&amp; nanos &gt; 0 &amp;&amp; duration &lt; 0 </span><span class="cov1" title="1">{
+                return time.Duration(math.MaxInt64), fmt.Errorf("Duration overflow")
+        }</span>
+
+        // Finally, return the duration
+        <span class="cov1" title="1">return duration, nil</span>
+}
+
+// IsValid reports whether the duration is valid. It is equivalent to CheckValid == nil.
+func (x *UnixDuration) IsValid() bool <span class="cov6" title="8">{
+        return x.check() == 0
+}</span>
+
+// CheckValid returns an error if the duration is invalid. In particular, it checks whether the value
+// is within the range of -10000 years to +10000 years inclusive. An error is reported for a nil Duration.
+func (x *UnixDuration) CheckValid() error <span class="cov6" title="8">{
+        switch x.check() </span>{
+        case invalidNil:<span class="cov1" title="1">
+                return fmt.Errorf("invalid nil Duration")</span>
+        case invalidUnderflow:<span class="cov1" title="1">
+                return fmt.Errorf("duration (%v, %v) exceeds -10000 years", x.Seconds, x.Nanoseconds)</span>
+        case invalidOverflow:<span class="cov1" title="1">
+                return fmt.Errorf("duration (%v, %v) exceeds +10000 years", x.Seconds, x.Nanoseconds)</span>
+        case invalidNanosRange:<span class="cov2" title="2">
+                return fmt.Errorf("duration (%v, %v) has out-of-range nanos", x.Seconds, x.Nanoseconds)</span>
+        case invalidNanosSign:<span class="cov2" title="2">
+                return fmt.Errorf("duration (%v, %v) has seconds and nanos with different signs", x.Seconds, x.Nanoseconds)</span>
+        default:<span class="cov1" title="1">
+                return nil</span>
+        }
+}
+
+// ToEpoch converts the timestamp to a UNIX epoch value
+func (duration *UnixDuration) ToEpoch() string <span class="cov0" title="0">{
+
+        // If the timestamp is nil then return an empty value
+        if duration == nil </span><span class="cov0" title="0">{
+                return ""
+        }</span>
+
+        // Otherwise, convert the timestamp to a UNIX epoch value and return it
+        <span class="cov0" title="0">return fmt.Sprintf("%d%09d", duration.Seconds, duration.Nanoseconds)</span>
+}
+
+// FromString creates a new timestamp from a string
+func (duration *UnixDuration) FromString(raw string) error <span class="cov0" title="0">{
+
+        // First, check that the duration is long enough for us to parse
+        // If it isn't then return an error. Also, check if the string is empty
+        // If it is then we're probably looking at an empty duration
+        if raw == "" </span><span class="cov0" title="0">{
+                duration = nil
+                return nil
+        }</span> else<span class="cov0" title="0"> if len(raw) &lt; 10 </span><span class="cov0" title="0">{
+                return fmt.Errorf("value (%s) was not long enough to be converted to a duration", raw)
+        }</span>
+
+        // Next, attempt to parse the number of seconds to a 64-bit integer
+        // If this fails then return an error
+        <span class="cov0" title="0">partition := len(raw) - 9
+        seconds, err := strconv.ParseInt(raw[:partition], 10, 64)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to convert seconds part to integer, error: %v", err)
+        }</span>
+
+        // Now, attempt to parse the number of nanoseconds to a 32-bit integer
+        // If this fails then return an error
+        <span class="cov0" title="0">nanos, err := strconv.ParseInt(raw[partition:], 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to convert nanoseconds part to integer, error: %v", err)
+        }</span>
+
+        // Finally, create a new duration from the seconds and nanoseconds and then
+        // check that the duration is valid; return any error that occurs
+        <span class="cov0" title="0">duration.Seconds = seconds
+        duration.Nanoseconds = int32(nanos)
+        return duration.CheckValid()</span>
+}
+
+func (x *UnixDuration) check() uint <span class="cov8" title="16">{
+        const absDuration = 315576000000 // 10000yr * 365.25day/yr * 24hr/day * 60min/hr * 60sec/min
+        secs := x.GetSeconds()
+        nanos := x.GetNanoseconds()
+        switch </span>{
+        case x == nil:<span class="cov2" title="2">
+                return invalidNil</span>
+        case secs &lt; -absDuration:<span class="cov2" title="2">
+                return invalidUnderflow</span>
+        case secs &gt; +absDuration:<span class="cov2" title="2">
+                return invalidOverflow</span>
+        case nanos &lt;= -1e9 || nanos &gt;= +1e9:<span class="cov4" title="4">
+                return invalidNanosRange</span>
+        case (secs &gt; 0 &amp;&amp; nanos &lt; 0) || (secs &lt; 0 &amp;&amp; nanos &gt; 0):<span class="cov4" title="4">
+                return invalidNanosSign</span>
+        default:<span class="cov2" title="2">
+                return 0</span>
+        }
+}
+
+const (
+        _ = iota
+        invalidNil
+        invalidUnderflow
+        invalidOverflow
+        invalidNanos
+        invalidNanosRange
+        invalidNanosSign
+)
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">// Code generated by protoc-gen-go. DO NOT EDIT.
+// versions:
+//         protoc-gen-go v1.28.1
+//         protoc        v3.20.3
+// source: protos/common/time.proto
+
+package gopb
+
+import (
+        protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+        protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+        reflect "reflect"
+        sync "sync"
+)
+
+const (
+        // Verify that this generated code is sufficiently up-to-date.
+        _ = protoimpl.EnforceVersion(20 - protoimpl.MinVersion)
+        // Verify that runtime/protoimpl is sufficiently up-to-date.
+        _ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
+)
+
+// Type that we'll use to encode nano-second epochs because the Google variant for Timestamp doesn't
+// support JSON deserialization from a numeric value
+type UnixTimestamp struct {
+        state         protoimpl.MessageState
+        sizeCache     protoimpl.SizeCache
+        unknownFields protoimpl.UnknownFields
+
+        // Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z
+        // to 9999-12-31T23:59:59Z inclusive.
+        Seconds int64 `protobuf:"varint,1,opt,name=seconds,proto3" json:"seconds,omitempty"`
+        // Non-negative fractions of a second at nanosecond resolution. Negative second values with fractions
+        // must still have non-negative nanos values that count forward in time. Must be from 0 to 999,999,999
+        // inclusive.
+        Nanoseconds int32 `protobuf:"varint,2,opt,name=nanoseconds,proto3" json:"nanoseconds,omitempty"`
+}
+
+func (x *UnixTimestamp) Reset() <span class="cov0" title="0">{
+        *x = UnixTimestamp{}
+        if protoimpl.UnsafeEnabled </span><span class="cov0" title="0">{
+                mi := &amp;file_protos_common_time_proto_msgTypes[0]
+                ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+                ms.StoreMessageInfo(mi)
+        }</span>
+}
+
+func (x *UnixTimestamp) String() string <span class="cov0" title="0">{
+        return protoimpl.X.MessageStringOf(x)
+}</span>
+
+func (*UnixTimestamp) ProtoMessage() {<span class="cov0" title="0">}</span>
+
+func (x *UnixTimestamp) ProtoReflect() protoreflect.Message <span class="cov0" title="0">{
+        mi := &amp;file_protos_common_time_proto_msgTypes[0]
+        if protoimpl.UnsafeEnabled &amp;&amp; x != nil </span><span class="cov0" title="0">{
+                ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+                if ms.LoadMessageInfo() == nil </span><span class="cov0" title="0">{
+                        ms.StoreMessageInfo(mi)
+                }</span>
+                <span class="cov0" title="0">return ms</span>
+        }
+        <span class="cov0" title="0">return mi.MessageOf(x)</span>
+}
+
+// Deprecated: Use UnixTimestamp.ProtoReflect.Descriptor instead.
+func (*UnixTimestamp) Descriptor() ([]byte, []int) <span class="cov0" title="0">{
+        return file_protos_common_time_proto_rawDescGZIP(), []int{0}
+}</span>
+
+func (x *UnixTimestamp) GetSeconds() int64 <span class="cov10" title="26">{
+        if x != nil </span><span class="cov9" title="24">{
+                return x.Seconds
+        }</span>
+        <span class="cov2" title="2">return 0</span>
+}
+
+func (x *UnixTimestamp) GetNanoseconds() int32 <span class="cov10" title="26">{
+        if x != nil </span><span class="cov9" title="24">{
+                return x.Nanoseconds
+        }</span>
+        <span class="cov2" title="2">return 0</span>
+}
+
+// Duration represents a signed, fixed-length span of time represented as a count of seconds and fractions
+// of seconds at nanosecond resolution. It is independent of any calendar and concepts like "day" or
+// "month". It is related to Timestamp in that the difference between two Timestamp values is a Duration
+// and it can be added or subtracted from a Timestamp. Range is approximately +-10,000 years.
+type UnixDuration struct {
+        state         protoimpl.MessageState
+        sizeCache     protoimpl.SizeCache
+        unknownFields protoimpl.UnknownFields
+
+        // Signed seconds of the span of time. Must be from -315,576,000,000 to +315,576,000,000 inclusive.
+        // Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
+        Seconds int64 `protobuf:"varint,1,opt,name=seconds,proto3" json:"seconds,omitempty"`
+        // Signed fractions of a second at nanosecond resolution of the span of time. Durations less than
+        // one second are represented with a 0 `seconds` field and a positive or negative `nanos` field.
+        // For durations of one second or more, a non-zero value for the `nanos` field must be of the same
+        // sign as the `seconds` field. Must be from -999,999,999 to +999,999,999 inclusive.
+        Nanoseconds int32 `protobuf:"varint,2,opt,name=nanoseconds,proto3" json:"nanoseconds,omitempty"`
+}
+
+func (x *UnixDuration) Reset() <span class="cov0" title="0">{
+        *x = UnixDuration{}
+        if protoimpl.UnsafeEnabled </span><span class="cov0" title="0">{
+                mi := &amp;file_protos_common_time_proto_msgTypes[1]
+                ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+                ms.StoreMessageInfo(mi)
+        }</span>
+}
+
+func (x *UnixDuration) String() string <span class="cov0" title="0">{
+        return protoimpl.X.MessageStringOf(x)
+}</span>
+
+func (*UnixDuration) ProtoMessage() {<span class="cov0" title="0">}</span>
+
+func (x *UnixDuration) ProtoReflect() protoreflect.Message <span class="cov0" title="0">{
+        mi := &amp;file_protos_common_time_proto_msgTypes[1]
+        if protoimpl.UnsafeEnabled &amp;&amp; x != nil </span><span class="cov0" title="0">{
+                ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+                if ms.LoadMessageInfo() == nil </span><span class="cov0" title="0">{
+                        ms.StoreMessageInfo(mi)
+                }</span>
+                <span class="cov0" title="0">return ms</span>
+        }
+        <span class="cov0" title="0">return mi.MessageOf(x)</span>
+}
+
+// Deprecated: Use UnixDuration.ProtoReflect.Descriptor instead.
+func (*UnixDuration) Descriptor() ([]byte, []int) <span class="cov0" title="0">{
+        return file_protos_common_time_proto_rawDescGZIP(), []int{1}
+}</span>
+
+func (x *UnixDuration) GetSeconds() int64 <span class="cov9" title="20">{
+        if x != nil </span><span class="cov8" title="18">{
+                return x.Seconds
+        }</span>
+        <span class="cov2" title="2">return 0</span>
+}
+
+func (x *UnixDuration) GetNanoseconds() int32 <span class="cov9" title="20">{
+        if x != nil </span><span class="cov8" title="18">{
+                return x.Nanoseconds
+        }</span>
+        <span class="cov2" title="2">return 0</span>
+}
+
+var File_protos_common_time_proto protoreflect.FileDescriptor
+
+var file_protos_common_time_proto_rawDesc = []byte{
+        0x0a, 0x18, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2f,
+        0x74, 0x69, 0x6d, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0d, 0x70, 0x72, 0x6f, 0x74,
+        0x6f, 0x73, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x22, 0x4b, 0x0a, 0x0d, 0x55, 0x6e, 0x69,
+        0x78, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x65,
+        0x63, 0x6f, 0x6e, 0x64, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x07, 0x73, 0x65, 0x63,
+        0x6f, 0x6e, 0x64, 0x73, 0x12, 0x20, 0x0a, 0x0b, 0x6e, 0x61, 0x6e, 0x6f, 0x73, 0x65, 0x63, 0x6f,
+        0x6e, 0x64, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0b, 0x6e, 0x61, 0x6e, 0x6f, 0x73,
+        0x65, 0x63, 0x6f, 0x6e, 0x64, 0x73, 0x22, 0x4a, 0x0a, 0x0c, 0x55, 0x6e, 0x69, 0x78, 0x44, 0x75,
+        0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64,
+        0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x07, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x73,
+        0x12, 0x20, 0x0a, 0x0b, 0x6e, 0x61, 0x6e, 0x6f, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x73, 0x18,
+        0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0b, 0x6e, 0x61, 0x6e, 0x6f, 0x73, 0x65, 0x63, 0x6f, 0x6e,
+        0x64, 0x73, 0x42, 0x28, 0x5a, 0x26, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
+        0x2f, 0x78, 0x65, 0x66, 0x69, 0x6e, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+        0x2d, 0x67, 0x65, 0x6e, 0x2d, 0x67, 0x6f, 0x2f, 0x67, 0x6f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72,
+        0x6f, 0x74, 0x6f, 0x33,
+}
+
+var (
+        file_protos_common_time_proto_rawDescOnce sync.Once
+        file_protos_common_time_proto_rawDescData = file_protos_common_time_proto_rawDesc
+)
+
+func file_protos_common_time_proto_rawDescGZIP() []byte <span class="cov0" title="0">{
+        file_protos_common_time_proto_rawDescOnce.Do(func() </span><span class="cov0" title="0">{
+                file_protos_common_time_proto_rawDescData = protoimpl.X.CompressGZIP(file_protos_common_time_proto_rawDescData)
+        }</span>)
+        <span class="cov0" title="0">return file_protos_common_time_proto_rawDescData</span>
+}
+
+var file_protos_common_time_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_protos_common_time_proto_goTypes = []interface{}{
+        (*UnixTimestamp)(nil), // 0: protos.common.UnixTimestamp
+        (*UnixDuration)(nil),  // 1: protos.common.UnixDuration
+}
+var file_protos_common_time_proto_depIdxs = []int32{
+        0, // [0:0] is the sub-list for method output_type
+        0, // [0:0] is the sub-list for method input_type
+        0, // [0:0] is the sub-list for extension type_name
+        0, // [0:0] is the sub-list for extension extendee
+        0, // [0:0] is the sub-list for field type_name
+}
+
+func init() <span class="cov1" title="1">{ file_protos_common_time_proto_init() }</span>
+func file_protos_common_time_proto_init() <span class="cov1" title="1">{
+        if File_protos_common_time_proto != nil </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov1" title="1">if !protoimpl.UnsafeEnabled </span><span class="cov0" title="0">{
+                file_protos_common_time_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} </span><span class="cov0" title="0">{
+                        switch v := v.(*UnixTimestamp); i </span>{
+                        case 0:<span class="cov0" title="0">
+                                return &amp;v.state</span>
+                        case 1:<span class="cov0" title="0">
+                                return &amp;v.sizeCache</span>
+                        case 2:<span class="cov0" title="0">
+                                return &amp;v.unknownFields</span>
+                        default:<span class="cov0" title="0">
+                                return nil</span>
+                        }
+                }
+                <span class="cov0" title="0">file_protos_common_time_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} </span><span class="cov0" title="0">{
+                        switch v := v.(*UnixDuration); i </span>{
+                        case 0:<span class="cov0" title="0">
+                                return &amp;v.state</span>
+                        case 1:<span class="cov0" title="0">
+                                return &amp;v.sizeCache</span>
+                        case 2:<span class="cov0" title="0">
+                                return &amp;v.unknownFields</span>
+                        default:<span class="cov0" title="0">
+                                return nil</span>
+                        }
+                }
+        }
+        <span class="cov1" title="1">type x struct{}
+        out := protoimpl.TypeBuilder{
+                File: protoimpl.DescBuilder{
+                        GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
+                        RawDescriptor: file_protos_common_time_proto_rawDesc,
+                        NumEnums:      0,
+                        NumMessages:   2,
+                        NumExtensions: 0,
+                        NumServices:   0,
+                },
+                GoTypes:           file_protos_common_time_proto_goTypes,
+                DependencyIndexes: file_protos_common_time_proto_depIdxs,
+                MessageInfos:      file_protos_common_time_proto_msgTypes,
+        }.Build()
+        File_protos_common_time_proto = out.File
+        file_protos_common_time_proto_rawDesc = nil
+        file_protos_common_time_proto_goTypes = nil
+        file_protos_common_time_proto_depIdxs = nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package gopb
+
+import (
+        "database/sql/driver"
+        "fmt"
+
+        "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+)
+
+// MarhsalJSON converts a Timestamp to JSON
+func (timestamp *UnixTimestamp) MarshalJSON() ([]byte, error) <span class="cov3" title="2">{
+        return []byte(timestamp.ToEpoch()), nil
+}</span>
+
+// MarshalCSV converts a Timestamp to a CSV format
+func (timestamp *UnixTimestamp) MarshalCSV() (string, error) <span class="cov3" title="2">{
+        return timestamp.ToEpoch(), nil
+}</span>
+
+// Marshaler converts a Timestamp to a DynamoDB attribute value
+func (timestamp *UnixTimestamp) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) <span class="cov3" title="2">{
+        return &amp;types.AttributeValueMemberS{
+                Value: timestamp.ToEpoch(),
+        }, nil
+}</span>
+
+// Value converts a Timestamp to an SQL value
+func (timestamp *UnixTimestamp) Value() (driver.Value, error) <span class="cov3" title="2">{
+        return driver.Value(timestamp.ToEpoch()), nil
+}</span>
+
+// UnmarshalJSON converts JSON data into a Timestamp
+func (timestamp *UnixTimestamp) UnmarshalJSON(data []byte) error <span class="cov9" title="8">{
+
+        // Check if the value is nil; if this is the case then return nil
+        if data == nil </span><span class="cov1" title="1">{
+                return nil
+        }</span>
+
+        // Otherwise, convert the data from a string into a timestamp
+        <span class="cov8" title="7">return timestamp.FromString(string(data))</span>
+}
+
+// UnmarshalCSV converts a CSV column into a Timestamp
+func (timestamp *UnixTimestamp) UnmarshalCSV(raw string) error <span class="cov8" title="7">{
+        return timestamp.FromString(raw)
+}</span>
+
+// UnmarshalDynamoDBAttributeValue converts a DynamoDB attribute value to a timestamp
+func (timestamp *UnixTimestamp) UnmarshalDynamoDBAttributeValue(value types.AttributeValue) error <span class="cov7" title="5">{
+        switch casted := value.(type) </span>{
+        case *types.AttributeValueMemberB:<span class="cov1" title="1">
+                return timestamp.FromString(string(casted.Value))</span>
+        case *types.AttributeValueMemberN:<span class="cov1" title="1">
+                return timestamp.FromString(casted.Value)</span>
+        case *types.AttributeValueMemberNULL:<span class="cov1" title="1">
+                return nil</span>
+        case *types.AttributeValueMemberS:<span class="cov1" title="1">
+                return timestamp.FromString(casted.Value)</span>
+        default:<span class="cov1" title="1">
+                return fmt.Errorf("Attribute value of %T could not be converted to a UnixTimestamp", value)</span>
+        }
+}
+
+// Scan converts an SQL value into a Timestamp
+func (timestamp *UnixTimestamp) Scan(value interface{}) error <span class="cov10" title="9">{
+
+        // Check if the value is nil; if this is the case then return nil
+        if value == nil </span><span class="cov1" title="1">{
+                return nil
+        }</span>
+
+        // Otherwise, convert the data from a string into a timestamp
+        <span class="cov9" title="8">return timestamp.FromString(value.(string))</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
