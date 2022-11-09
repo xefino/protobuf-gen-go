@@ -14,7 +14,7 @@ var None = make(map[string]int32)
 var Ignore = make(map[int32]string)
 
 // MarshalString converts an enum value to a string based on the _value mapping and a possible alternative mapping
-func MarshalString[TIn ~int32, TMap ~int32, TAlt ~int32](data TIn, mapping map[TMap]string, alternates map[TAlt]string) string {
+func MarshalString[TIn ~int32, TMap ~int32, TAlt ~int32](data TIn, mapping map[TMap]string, alternates map[TAlt]string, quote bool) string {
 	var asStr string
 	if alternate, ok := alternates[TAlt(data)]; ok {
 		asStr = alternate
@@ -24,7 +24,11 @@ func MarshalString[TIn ~int32, TMap ~int32, TAlt ~int32](data TIn, mapping map[T
 		asStr = fmt.Sprintf("%d", data)
 	}
 
-	return "\"" + asStr + "\""
+	if quote {
+		return "\"" + asStr + "\""
+	} else {
+		return asStr
+	}
 }
 
 // UnmarshalValue converts JSON to a protobuf enum value
