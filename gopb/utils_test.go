@@ -293,7 +293,7 @@ var _ = Describe("UnixTimestamp Marshal/Unmarshal Tests", func() {
 
 var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 
-	// Test that converting a Duration to JSON works for all values
+	// Test that converting a UnixDuration to JSON works for all values
 	DescribeTable("MarshalJSON Tests",
 		func(duration *UnixDuration, value string) {
 			data, err := duration.MarshalJSON()
@@ -302,9 +302,11 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		},
 		Entry("Duration is nil - Works", nil, ""),
 		Entry("Duration has value - Works",
-			&UnixDuration{Seconds: 1654127993, Nanoseconds: 983651350}, "1654127993983651350"))
+			&UnixDuration{Seconds: 1654127993, Nanoseconds: 983651350}, "1654127993983651350"),
+		Entry("Duration was negative - Works",
+			&UnixDuration{Seconds: -1654127993, Nanoseconds: -983651350}, "-1654127993983651350"))
 
-	// Test that converting a Duration to a CSV column works for all values
+	// Test that converting a UnixDuration to a CSV column works for all values
 	DescribeTable("MarshalCSV Tests",
 		func(duration *UnixDuration, value string) {
 			data, err := duration.MarshalCSV()
@@ -313,9 +315,11 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		},
 		Entry("Duration is nil - Works", nil, ""),
 		Entry("Duration has value - Works",
-			&UnixDuration{Seconds: 1654127993, Nanoseconds: 983651350}, "1654127993983651350"))
+			&UnixDuration{Seconds: 1654127993, Nanoseconds: 983651350}, "1654127993983651350"),
+		Entry("Duration was negative - Works",
+			&UnixDuration{Seconds: -1654127993, Nanoseconds: -983651350}, "-1654127993983651350"))
 
-	// Test that converting a Duration to a AttributeValue works for all values
+	// Test that converting a UnixDuration to a AttributeValue works for all values
 	DescribeTable("MarshalDynamoDBAttributeValue Tests",
 		func(duration *UnixDuration, value string) {
 			data, err := duration.MarshalDynamoDBAttributeValue()
@@ -324,9 +328,11 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		},
 		Entry("Duration is nil - Works", nil, ""),
 		Entry("Duration has value - Works",
-			&UnixDuration{Seconds: 1654127993, Nanoseconds: 983651350}, "1654127993983651350"))
+			&UnixDuration{Seconds: 1654127993, Nanoseconds: 983651350}, "1654127993983651350"),
+		Entry("Duration was negative - Works",
+			&UnixDuration{Seconds: -1654127993, Nanoseconds: -983651350}, "-1654127993983651350"))
 
-	// Test that converting a Duration to an SQL value for all values
+	// Test that converting a UnixDuration to an SQL value for all values
 	DescribeTable("Value Tests",
 		func(duration *UnixDuration, value string) {
 			data, err := duration.Value()
@@ -335,9 +341,11 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		},
 		Entry("Duration is nil - Works", nil, ""),
 		Entry("Duration has value - Works",
-			&UnixDuration{Seconds: 1654127993, Nanoseconds: 983651350}, "1654127993983651350"))
+			&UnixDuration{Seconds: 1654127993, Nanoseconds: 983651350}, "1654127993983651350"),
+		Entry("Duration was negative - Works",
+			&UnixDuration{Seconds: -1654127993, Nanoseconds: -983651350}, "-1654127993983651350"))
 
-	// Test that attempting to deserialize a Duration will fail and return an error if the
+	// Test that attempting to deserialize a UnixDuration will fail and return an error if the
 	// value canno be deserialized from a JSON value to a string
 	DescribeTable("UnmarshalJSON - Failures",
 		func(rawValue string, callDirectly bool, message string) {
@@ -365,16 +373,15 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		Entry("Nanoseconds cannot be converted to an integer - Error", "165412799398365135j", true,
 			"failed to convert nanoseconds part to integer, error: strconv.ParseInt: "+
 				"parsing \"98365135j\": invalid syntax"),
-		Entry("Seconds < Minimum Duration - Error", "-62135596801983651350", false,
-			"duration (-62135596801, 983651350) before 0001-01-01"),
-		Entry("Seconds > Maximum Duration - Error", "253402300800983651350", false,
-			"duration (253402300800, 983651350) after 9999-12-31"))
+		Entry("Seconds < Minimum Duration - Error", "-315576000001983651350", false,
+			"duration (-315576000001, -983651350) exceeds -10000 years"),
+		Entry("Seconds > Maximum Duration - Error", "315576000001983651350", false,
+			"duration (315576000001, 983651350) exceeds +10000 years"))
 
 	// Test that, if UnmarshalJSON is called with a value of nil then the duration will be nil
 	It("UnmarshalJSON - Nil - Nil", func() {
 
-		// Attempt to convert a non-parseable string value into a duration
-		// This should not return an error
+		// Attempt to convert a nil string value into a duration; this should not return an error
 		var duration *UnixDuration
 		err := duration.UnmarshalJSON(nil)
 		Expect(err).ShouldNot(HaveOccurred())
@@ -386,8 +393,7 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 	// Test that, if UnmarshalJSON is called with an empty string then the duration will be nil
 	It("UnmarshalJSON - Empty string - Nil", func() {
 
-		// Attempt to convert a non-parseable string value into a duration
-		// This should not return an error
+		// Attempt to convert an empty string value into a duration; this should not return an error
 		var duration *UnixDuration
 		err := duration.UnmarshalJSON([]byte(""))
 		Expect(err).ShouldNot(HaveOccurred())
@@ -397,11 +403,10 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 	})
 
 	// Test that, if the UnmarshalJSON function is called with a valid UNIX duration, then it
-	// will be parsed into a Duration object
+	// will be parsed into a UnixDuration object
 	It("UnmarshalJSON - Non-empty string - Works", func() {
 
-		// Attempt to convert a non-parseable string value into a duration
-		// This should not return an error
+		// Attempt to convert a parseable string value into a duration; this should not return an error
 		var duration *UnixDuration
 		err := json.Unmarshal([]byte("1654127993983651350"), &duration)
 		Expect(err).ShouldNot(HaveOccurred())
@@ -410,6 +415,21 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		Expect(duration).ShouldNot(BeNil())
 		Expect(duration.Seconds).Should(Equal(int64(1654127993)))
 		Expect(duration.Nanoseconds).Should(Equal(int32(983651350)))
+	})
+
+	// Test that, if the UnmarshalJSON function is called with a valid UNIX duration that is negative,
+	// then it will be parsed into a UnixDuration object
+	It("UnmarshalJSON - Negative duration - Works", func() {
+
+		// Attempt to convert a parseable string value into a duration; this should not return an error
+		var duration *UnixDuration
+		err := json.Unmarshal([]byte("-1654127993983651350"), &duration)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		// Verify the duration
+		Expect(duration).ShouldNot(BeNil())
+		Expect(duration.Seconds).Should(Equal(int64(-1654127993)))
+		Expect(duration.Nanoseconds).Should(Equal(int32(-983651350)))
 	})
 
 	// Test that attempting to deserialize a Duration will fail and return an error if the
@@ -434,16 +454,15 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		Entry("Nanoseconds cannot be converted to an integer - Error", "165412799398365135j",
 			"failed to convert nanoseconds part to integer, error: strconv.ParseInt: "+
 				"parsing \"98365135j\": invalid syntax"),
-		Entry("Seconds < Minimum Duration - Error", "-62135596801983651350",
-			"duration (-62135596801, 983651350) before 0001-01-01"),
-		Entry("Seconds > Maximum Duration - Error", "253402300800983651350",
-			"duration (253402300800, 983651350) after 9999-12-31"))
+		Entry("Seconds < Minimum Duration - Error", "-315576000001983651350",
+			"duration (-315576000001, -983651350) exceeds -10000 years"),
+		Entry("Seconds > Maximum Duration - Error", "315576000001983651350",
+			"duration (315576000001, 983651350) exceeds +10000 years"))
 
 	// Test that, if UnmarshalCSV is called with an empty string then the duration will be nil
 	It("UnmarshalCSV - Empty string - Nil", func() {
 
-		// Attempt to convert a non-parseable string value into a duration
-		// This should not return an error
+		// Attempt to convert an empty string value into a duration; this should not return an error
 		var duration *UnixDuration
 		err := duration.UnmarshalCSV("")
 		Expect(err).ShouldNot(HaveOccurred())
@@ -453,11 +472,10 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 	})
 
 	// Test that, if the UnmarshalCSV function is called with a valid UNIX duration, then it
-	// will be parsed into a Duration object
+	// will be parsed into a UnixDuration object
 	It("UnmarshalCSV - Non-empty string - Works", func() {
 
-		// Attempt to convert a non-parseable string value into a duration
-		// This should not return an error
+		// Attempt to convert a parseable string value into a duration; this should not return an error
 		duration := new(UnixDuration)
 		err := duration.UnmarshalCSV("1654127993983651350")
 		Expect(err).ShouldNot(HaveOccurred())
@@ -466,6 +484,21 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		Expect(duration).ShouldNot(BeNil())
 		Expect(duration.Seconds).Should(Equal(int64(1654127993)))
 		Expect(duration.Nanoseconds).Should(Equal(int32(983651350)))
+	})
+
+	// Test that, if the UnmarshalCSV function is called with a valid UNIX duration that is negative,
+	// then it will be parsed into a UnixDuration object
+	It("UnmarshalCSV - Negative duration - Works", func() {
+
+		// Attempt to convert a parseable string value into a duration; this should not return an error
+		duration := new(UnixDuration)
+		err := duration.UnmarshalCSV("-1654127993983651350")
+		Expect(err).ShouldNot(HaveOccurred())
+
+		// Verify the duration
+		Expect(duration).ShouldNot(BeNil())
+		Expect(duration.Seconds).Should(Equal(int64(-1654127993)))
+		Expect(duration.Nanoseconds).Should(Equal(int32(-983651350)))
 	})
 
 	// Tests that, if the UnmarshalDynamoDBAttributeValue function is called with an invalid AttributeValue
@@ -502,7 +535,7 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		Entry("Value is string - Works",
 			&types.AttributeValueMemberS{Value: "1654127993983651350"}))
 
-	// Test that attempting to deserialize a Duration will fail and return an error if the
+	// Test that attempting to deserialize a UnixDuration will fail and return an error if the
 	// value canno be deserialized from a driver value to a string
 	DescribeTable("Scan - Failures",
 		func(rawValue string, message string) {
@@ -523,18 +556,17 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		Entry("Nanoseconds cannot be converted to an integer - Error", "165412799398365135j",
 			"failed to convert nanoseconds part to integer, error: strconv.ParseInt: "+
 				"parsing \"98365135j\": invalid syntax"),
-		Entry("Seconds < Minimum Duration - Error", "-62135596801983651350",
-			"duration (-62135596801, 983651350) before 0001-01-01"),
-		Entry("Seconds > Maximum Duration - Error", "253402300800983651350",
-			"duration (253402300800, 983651350) after 9999-12-31"),
+		Entry("Seconds < Minimum Duration - Error", "-315576000001983651350",
+			"duration (-315576000001, -983651350) exceeds -10000 years"),
+		Entry("Seconds > Maximum Duration - Error", "315576000001983651350",
+			"duration (315576000001, 983651350) exceeds +10000 years"),
 		Entry("Nanoseconds > 1 second - Error", "1654127993-10000000",
-			"duration (1654127993, -10000000) has out-of-range nanos"))
+			"duration (1654127993, -10000000) has seconds and nanos with different signs"))
 
 	// Test that, if Scan is called with a value of nil then the duration will be nil
 	It("Scan - Nil - Nil", func() {
 
-		// Attempt to convert nil string value into a duration
-		// This should not return an error
+		// Attempt to convert nil string value into a duration; this should not return an error
 		var duration *UnixDuration
 		err := duration.Scan(nil)
 		Expect(err).ShouldNot(HaveOccurred())
@@ -546,8 +578,7 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 	// Test that, if Scan is called with an empty string then the duration will be nil
 	It("Scan - Empty string - Nil", func() {
 
-		// Attempt to convert an empty string value into a duration
-		// This should not return an error
+		// Attempt to convert an empty string value into a duration; this should not return an error
 		var duration *UnixDuration
 		err := duration.Scan("")
 		Expect(err).ShouldNot(HaveOccurred())
@@ -557,11 +588,10 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 	})
 
 	// Test that, if the Scan function is called with a valid UNIX duration, then it
-	// will be parsed into a Duration object
+	// will be parsed into a UnixDuration object
 	It("Scan - Non-empty string - Works", func() {
 
-		// Attempt to convert a UNIX duration string value into a duration
-		// This should not return an error
+		// Attempt to convert a UNIX duration string value into a duration; this should not return an error
 		duration := new(UnixDuration)
 		err := duration.Scan("1654127993983651350")
 		Expect(err).ShouldNot(HaveOccurred())
@@ -570,5 +600,20 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		Expect(duration).ShouldNot(BeNil())
 		Expect(duration.Seconds).Should(Equal(int64(1654127993)))
 		Expect(duration.Nanoseconds).Should(Equal(int32(983651350)))
+	})
+
+	// Test that, if the Scan function is called with a valid UNIX duration that is negative,
+	// then it will be parsed into a UnixDuration object
+	It("Scan - Negative duration - Works", func() {
+
+		// Attempt to convert a parseable string value into a duration; this should not return an error
+		duration := new(UnixDuration)
+		err := duration.Scan("-1654127993983651350")
+		Expect(err).ShouldNot(HaveOccurred())
+
+		// Verify the duration
+		Expect(duration).ShouldNot(BeNil())
+		Expect(duration.Seconds).Should(Equal(int64(-1654127993)))
+		Expect(duration.Nanoseconds).Should(Equal(int32(-983651350)))
 	})
 })

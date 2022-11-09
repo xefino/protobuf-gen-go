@@ -299,13 +299,19 @@ func (x *UnixDuration) CheckValid() error {
 // ToEpoch converts the timestamp to a UNIX epoch value
 func (duration *UnixDuration) ToEpoch() string {
 
-	// If the timestamp is nil then return an empty value
+	// First, if the timestamp is nil then return an empty value
 	if duration == nil {
 		return ""
 	}
 
-	// Otherwise, convert the timestamp to a UNIX epoch value and return it
-	return fmt.Sprintf("%d%09d", duration.Seconds, duration.Nanoseconds)
+	// Next, if the duration is negative then we'll attach a minus sign to the
+	// front of the string; otherwise we won't
+	if duration.Seconds < 0 || duration.Nanoseconds < 0 {
+		duration.Nanoseconds *= -1
+	}
+
+	// Finally, convert the timestamp to a UNIX epoch value and return it
+	return fmt.Sprintf("%d%d", duration.Seconds, duration.Nanoseconds)
 }
 
 // FromString creates a new timestamp from a string
@@ -334,6 +340,12 @@ func (duration *UnixDuration) FromString(raw string) error {
 	nanos, err := strconv.ParseInt(raw[partition:], 10, 32)
 	if err != nil {
 		return fmt.Errorf("failed to convert nanoseconds part to integer, error: %v", err)
+	}
+
+	// If the number of seconds is less than 0 then the number of nanoseconds must
+	// also be less than 0 so multiply them by -1
+	if seconds < 0 {
+		nanos *= -1
 	}
 
 	// Finally, create a new duration from the seconds and nanoseconds and then
