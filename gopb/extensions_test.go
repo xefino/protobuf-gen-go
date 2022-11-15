@@ -171,6 +171,14 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 		Entry("Nanoseconds < 0 - Works", generateTimestamp(1655510000, 900838091),
 			generateTimestamp(1655510000, -999999999), generateTimestamp(3311019999, 900838092)))
 
+	// Test the conditions describing how the AddDate function works
+	DescribeTable("AddDate - Works",
+		func(years int, months int, days int, expected *UnixTimestamp) {
+			Expect(generateTimestamp(1655510000, 900838091).AddDate(years, months, days)).Should(Equal(expected))
+		},
+		Entry("Time is positive - Works", 1, 1, 10, generateTimestamp(1690502000, 900838091)),
+		Entry("Time is negative - Works", -1, -1, -10, generateTimestamp(1620431600, 900838091)))
+
 	// Tests that the AddDuration function works under various conditions
 	DescribeTable("AddDuration - Works",
 		func(duration time.Duration, result *UnixTimestamp) {

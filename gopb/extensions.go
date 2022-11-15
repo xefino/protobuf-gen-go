@@ -91,6 +91,11 @@ func (rhs *UnixTimestamp) Add(lhs *UnixTimestamp) *UnixTimestamp {
 	return rhs
 }
 
+// AddDate adds a number of years, months and days to the time associated with the timestamp
+func (rhs *UnixTimestamp) AddDate(years int, months int, days int) *UnixTimestamp {
+	return NewUnixTimestamp(rhs.AsTime().AddDate(years, months, days))
+}
+
 // AddDuration adds a duration to the timestamp, modifying it. The modified timestamp is then returned
 func (rhs *UnixTimestamp) AddDuration(duration time.Duration) *UnixTimestamp {
 
