@@ -8,10 +8,10 @@ import (
 )
 
 // Create a new test runner we'll use to test all the
-// modules in the time package
-func TestTime(t *testing.T) {
+// modules in the common package
+func TestCommon(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Time Suite")
+	RunSpecs(t, "Common Suite")
 }
 
 // Helper function that generates a UnixTimestamp from a value for seconds and nanoseconds

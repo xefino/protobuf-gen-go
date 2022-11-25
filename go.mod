@@ -7,6 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.17.3
 	github.com/onsi/ginkgo/v2 v2.4.0
 	github.com/onsi/gomega v1.23.0
+	github.com/shopspring/decimal v1.3.1
 	google.golang.org/protobuf v1.28.1
 )
 
