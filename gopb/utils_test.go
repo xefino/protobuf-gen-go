@@ -4,10 +4,263 @@ import (
 	"encoding/json"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"gopkg.in/yaml.v3"
 )
+
+var _ = Describe("Provider Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Provider enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Provider, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("None - Works", Provider_None, "\"\""),
+		Entry("Polygon - Works", Provider_Polygon, "\"polygon\""))
+
+	// Test that converting the Provider enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Provider, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("None - Works", Provider_None, ""),
+		Entry("Polygon - Works", Provider_Polygon, "polygon"))
+
+	// Test that converting the Provider enum to a YAML node works for all values
+	DescribeTable("MarshalYAML - Works",
+		func(enum Provider, value string) {
+			data, err := enum.MarshalYAML()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data).Should(Equal(value))
+		},
+		Entry("None - Works", Provider_None, ""),
+		Entry("Polygon - Works", Provider_Polygon, "polygon"))
+
+	// Test that converting the Provider enum to a DynamoDB AttributeVAlue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue - Works",
+		func(enum Provider, value string) {
+			data, err := attributevalue.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("None - Works", Provider_None, ""),
+		Entry("Polygon - Works", Provider_Polygon, "polygon"))
+
+	// Test that converting the Provider enum to an SQL value for all values
+	DescribeTable("Value Tests",
+		func(enum Provider, value string) {
+			data, err := enum.Value()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data).Should(Equal(value))
+		},
+		Entry("None - Works", Provider_None, ""),
+		Entry("Polygon - Works", Provider_Polygon, "polygon"))
+
+	// Test that attempting to deserialize a Provider will fail and return an error if the value
+	// cannot be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Provider; this should return an error
+		enum := new(Provider)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Provider"))
+	})
+
+	// Test that attempting to deserialize a Provider will fail and return an error if the value
+	// cannot be converted to either the name value or integer value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Provider; this should return an error
+		enum := new(Provider)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Provider"))
+	})
+
+	// Test the conditions under which values should be convertible to a Provider
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Provider) {
+
+			// Attempt to convert the string value into a Provider; this should not fail
+			var enum Provider
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Empty String - Works", "\"\"", Provider_None),
+		Entry("Polygon - Works", "\"polygon\"", Provider_Polygon),
+		Entry("None - Works", "\"None\"", Provider_None),
+		Entry("Polygon - Works", "\"Polygon\"", Provider_Polygon),
+		Entry("0 - Works", "\"0\"", Provider_None),
+		Entry("1 - Works", "\"1\"", Provider_Polygon))
+
+	// Test that attempting to deserialize a Provider will fail and return an error if the value
+	// cannot be converted to either the name value or integer value of the enum option
+	It("UnmarshalCSV - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Provider; this should return an error
+		enum := new(Provider)
+		err := enum.UnmarshalCSV("derp")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Provider"))
+	})
+
+	// Test the conditions under which values should be convertible to a Provider
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Provider) {
+
+			// Attempt to convert the value into a Provider; this should not fail
+			var enum Provider
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Empty String - Works", "", Provider_None),
+		Entry("Polygon - Works", "polygon", Provider_Polygon),
+		Entry("None - Works", "None", Provider_None),
+		Entry("Polygon - Works", "Polygon", Provider_Polygon),
+		Entry("0 - Works", "0", Provider_None),
+		Entry("1 - Works", "1", Provider_Polygon))
+
+	// Test that attempting to deserialize a Provider will fail and return an error if the YAML
+	// node does not represent a scalar value
+	It("UnmarshalYAML - Node type is not scalar - Error", func() {
+		enum := new(Provider)
+		err := enum.UnmarshalYAML(&yaml.Node{Kind: yaml.AliasNode})
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("YAML node had an invalid kind (expected scalar value)"))
+	})
+
+	// Test that attempting to deserialize a Provider will fail and return an error if the YAML
+	// node value cannot be converted to either the name value or integer value of the enum option
+	It("UnmarshalYAML - Parse fails - Error", func() {
+		enum := new(Provider)
+		err := enum.UnmarshalYAML(&yaml.Node{Kind: yaml.ScalarNode, Value: "derp"})
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Provider"))
+	})
+
+	// Test the conditions under which YAML node values should be convertible to a Provider
+	DescribeTable("UnmarshalYAML Tests",
+		func(value string, shouldBe Provider) {
+			var enum Provider
+			err := enum.UnmarshalYAML(&yaml.Node{Kind: yaml.ScalarNode, Value: value})
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Empty String - Works", "", Provider_None),
+		Entry("Polygon - Works", "polygon", Provider_Polygon),
+		Entry("None - Works", "None", Provider_None),
+		Entry("Polygon - Works", "Polygon", Provider_Polygon),
+		Entry("0 - Works", "0", Provider_None),
+		Entry("1 - Works", "1", Provider_Polygon))
+
+	// Tests that, if the attribute type submitted to UnmarshalDynamoDBAttributeValue is not one we
+	// recognize, then the function will return an error
+	It("UnmarshalDynamoDBAttributeValue - AttributeValue type invalid - Error", func() {
+		enum := new(Provider)
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberBOOL{Value: true}, &enum)
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("Attribute value of *types.AttributeValueMemberBOOL could not be converted to a Provider"))
+	})
+
+	// Tests that, if time parsing fails, then calling UnmarshalDynamoDBAttributeValue will return an error
+	It("UnmarshalDynamoDBAttributeValue - Parse fails - Error", func() {
+		enum := new(Provider)
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: "derp"}, &enum)
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Provider"))
+	})
+
+	// Tests the conditions under which UnmarshalDynamoDBAttributeValue is called and no error is generated
+	DescribeTable("UnmarshalDynamoDBAttributeValue - AttributeValue Conditions",
+		func(value types.AttributeValue, expected Provider) {
+			var enum Provider
+			err := attributevalue.Unmarshal(value, &enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(expected))
+		},
+		Entry("Value is []bytes, Empty String - Works",
+			&types.AttributeValueMemberB{Value: []byte("")}, Provider_None),
+		Entry("Value is []bytes, polygon - Works",
+			&types.AttributeValueMemberB{Value: []byte("polygon")}, Provider_Polygon),
+		Entry("Value is []bytes, None - Works",
+			&types.AttributeValueMemberB{Value: []byte("None")}, Provider_None),
+		Entry("Value is []bytes, Polygon - Works",
+			&types.AttributeValueMemberB{Value: []byte("Polygon")}, Provider_Polygon),
+		Entry("Value is []bytes, 0 - Works",
+			&types.AttributeValueMemberB{Value: []byte("0")}, Provider_None),
+		Entry("Value is []bytes, 1 - Works",
+			&types.AttributeValueMemberB{Value: []byte("1")}, Provider_Polygon),
+		Entry("Value is int, 0 - Works",
+			&types.AttributeValueMemberN{Value: "0"}, Provider_None),
+		Entry("Value is int, 1 - Works",
+			&types.AttributeValueMemberN{Value: "1"}, Provider_Polygon),
+		Entry("Value is NULL - Works", new(types.AttributeValueMemberNULL), Provider(0)),
+		Entry("Value is string, Empty String - Works",
+			&types.AttributeValueMemberS{Value: ""}, Provider_None),
+		Entry("Value is string, polygon - Works",
+			&types.AttributeValueMemberS{Value: "polygon"}, Provider_Polygon),
+		Entry("Value is string, None - Works",
+			&types.AttributeValueMemberS{Value: "None"}, Provider_None),
+		Entry("Value is string, Polygon - Works",
+			&types.AttributeValueMemberS{Value: "Polygon"}, Provider_Polygon),
+		Entry("Value is string, 0 - Works",
+			&types.AttributeValueMemberS{Value: "0"}, Provider_None),
+		Entry("Value is string, 1 - Works",
+			&types.AttributeValueMemberS{Value: "1"}, Provider_Polygon))
+
+	// Test that attempting to deserialize a Provider will fial and return an error if the value
+	// cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Provider; this should return an error
+		var enum *Provider
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Provider
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Provider) {
+
+			// Attempt to convert the value into a Provider; this should not fail
+			var enum Provider
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Empty String - Works", "", Provider_None),
+		Entry("Polygon - Works", "polygon", Provider_Polygon),
+		Entry("None - Works", "None", Provider_None),
+		Entry("Polygon - Works", "Polygon", Provider_Polygon),
+		Entry("0 - Works", 0, Provider_None),
+		Entry("1 - Works", 1, Provider_Polygon))
+})
 
 var _ = Describe("UnixTimestamp Marshal/Unmarshal Tests", func() {
 

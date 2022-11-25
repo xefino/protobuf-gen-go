@@ -5,7 +5,88 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/xefino/protobuf-gen-go/utils"
+	"gopkg.in/yaml.v3"
 )
+
+// ProviderAlternates contains alternate values for the Provider enum
+var ProviderAlternates = map[string]Provider{
+	"":        Provider_None,
+	"polygon": Provider_Polygon,
+}
+
+// ProviderMapping contains alternate names for the Provider enum
+var ProviderMapping = map[Provider]string{
+	Provider_None:    "",
+	Provider_Polygon: "polygon",
+}
+
+// MarshalJSON converts a Provider value to a JSON value
+func (enum Provider) MarshalJSON() ([]byte, error) {
+	return []byte(utils.MarshalString(enum, Provider_name, ProviderMapping, true)), nil
+}
+
+// MarshalCSV converts a Provider value to CSV cell value
+func (enum Provider) MarshalCSV() (string, error) {
+	return utils.MarshalString(enum, Provider_name, ProviderMapping, false), nil
+}
+
+// MarshalYAML converts a Provider value to a YAML node value
+func (enum Provider) MarshalYAML() (interface{}, error) {
+	return utils.MarshalString(enum, Provider_name, ProviderMapping, false), nil
+}
+
+// MarshalDynamoDBAttributeValue converts a Provider value to a DynamoDB AttributeValue
+func (enum Provider) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
+	return &types.AttributeValueMemberS{Value: utils.MarshalString(enum, Provider_name, ProviderMapping, false)}, nil
+}
+
+// Value converts a Provider value to an SQL driver value
+func (enum Provider) Value() (driver.Value, error) {
+	return utils.MarshalString(enum, Provider_name, ProviderMapping, false), nil
+}
+
+// UnmarshalJSON attempts to convert a JSON value to a new Provider value
+func (enum *Provider) UnmarshalJSON(raw []byte) error {
+	return utils.UnmarshalValue(raw, Provider_value, ProviderAlternates, enum)
+}
+
+// UnmarshalCSV attempts to convert a CSV cell value to a new Provider value
+func (enum *Provider) UnmarshalCSV(raw string) error {
+	return utils.UnmarshalString(raw, Provider_value, ProviderAlternates, enum)
+}
+
+// UnmarshalYAML attempts to convert a YAML node to a new Provider value
+func (enum *Provider) UnmarshalYAML(value *yaml.Node) error {
+	if value.Kind != yaml.ScalarNode {
+		return fmt.Errorf("YAML node had an invalid kind (expected scalar value)")
+	} else {
+		return utils.UnmarshalString(value.Value, Provider_value, ProviderAlternates, enum)
+	}
+}
+
+// UnmarshalDynamoDBAttributeValue attempts to convert a DynamoDB AttributeVAlue to a Provider
+// value. This function can handle []bytes, numerics, or strings. If the AttributeValue is NULL then
+// the Provider value will not be modified.
+func (enum *Provider) UnmarshalDynamoDBAttributeValue(value types.AttributeValue) error {
+	switch casted := value.(type) {
+	case *types.AttributeValueMemberB:
+		return utils.UnmarshalValue(casted.Value, Provider_value, ProviderAlternates, enum)
+	case *types.AttributeValueMemberN:
+		return utils.UnmarshalString(casted.Value, Provider_value, ProviderAlternates, enum)
+	case *types.AttributeValueMemberNULL:
+		return nil
+	case *types.AttributeValueMemberS:
+		return utils.UnmarshalString(casted.Value, Provider_value, ProviderAlternates, enum)
+	default:
+		return fmt.Errorf("Attribute value of %T could not be converted to a Provider", value)
+	}
+}
+
+// Scan attempts to convert an SQL driver value to a new Provider value
+func (enum *Provider) Scan(value interface{}) error {
+	return utils.ScanValue(value, Provider_value, ProviderAlternates, enum)
+}
 
 // MarhsalJSON converts a Timestamp to JSON
 func (timestamp *UnixTimestamp) MarshalJSON() ([]byte, error) {
