@@ -304,6 +304,13 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 			&UnixTimestamp{Seconds: 1654127993, Nanoseconds: -1}, true,
 			"timestamp (1654127993, -1) has out-of-range nanos"),
 		Entry("Valid - True", &UnixTimestamp{Seconds: 1654127993, Nanoseconds: 983651350}, false, ""))
+
+	// Test that the ToDate function converts the UnixTimestamp to a string describing the date associated
+	// with the timestamp value, in a YYYY-MM-DD format
+	It("ToDate - Works", func() {
+		stamp := &UnixTimestamp{Seconds: 1654127993, Nanoseconds: 983651350}
+		Expect(stamp.ToDate()).Should(Equal("2022-06-01"))
+	})
 })
 
 var _ = Describe("UnixDuration Extensions Tests", func() {
