@@ -203,6 +203,28 @@ func (rhs *UnixTimestamp) AddUnixDuration(lhs *UnixDuration) *UnixTimestamp {
 	return &ans
 }
 
+// IsWhole checks whether or not the duration fits into the UnixTimestamp provided. This function will
+// return true if the duration evenly fits into the UnixTimestamp, or false otherwise. This can be used
+// to see if the UnixTimestamp represents the beginning of an arbitrary time period
+func (rhs *UnixTimestamp) IsWhole(duration time.Duration) bool {
+	quo, _ := decimal.NewFromString(rhs.ToEpoch())
+	div := big.NewInt(duration.Nanoseconds())
+	rem := new(big.Int)
+	new(big.Int).QuoRem(quo.BigInt(), div, rem)
+	return rem.Int64() == 0
+}
+
+// IsWhole checks whether or not the UnixDuration fits into the UnixTimestamp provided. This function
+// will return true if the UnixDuration evenly fits into the UnixTimestamp, or false otherwise. This
+// can be used to see if the UnixTimestamp represents the beginning of an arbitrary time period
+func (rhs *UnixTimestamp) IsWholeUnix(duration *UnixDuration) bool {
+	quo, _ := decimal.NewFromString(rhs.ToEpoch())
+	div, _ := decimal.NewFromString(duration.ToEpoch())
+	rem := new(big.Int)
+	new(big.Int).QuoRem(quo.BigInt(), div.BigInt(), rem)
+	return rem.Int64() == 0
+}
+
 // IsValid reports whether the timestamp is valid. It is equivalent to CheckValid == nil.
 func (x *UnixTimestamp) IsValid() bool {
 	return x.check() == 0
@@ -373,7 +395,7 @@ func (duration *UnixDuration) ToEpoch() string {
 	}
 
 	// Finally, convert the timestamp to a UNIX epoch value and return it
-	return fmt.Sprintf("%d%d", duration.Seconds, duration.Nanoseconds)
+	return fmt.Sprintf("%d%09d", duration.Seconds, duration.Nanoseconds)
 }
 
 // FromString creates a new timestamp from a string

@@ -262,6 +262,48 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 		Entry("Nanoseconds < 0 - Works", generateDuration(1655510000, -999999999),
 			generateTimestamp(3311019999, 900838092)))
 
+	// Tests the conditions describing how the IsWhole function works
+	DescribeTable("IsWhole - Conditions",
+		func(rhs *UnixTimestamp, lhs time.Duration, result bool) {
+			Expect(rhs.IsWhole(lhs)).Should(Equal(result))
+		},
+		Entry("rhs has no nanoseconds, lhs has no nanoseconds, fits - True",
+			&UnixTimestamp{Seconds: 1669704178}, 2*time.Second, true),
+		Entry("rhs has no nanoseconds, lhs has no nanoseconds, not fits - False",
+			&UnixTimestamp{Seconds: 1669704178}, 3*time.Second, false),
+		Entry("rhs has no nanoseconds, lhs has nanoseconds, fits - True",
+			&UnixTimestamp{Seconds: 1669704177}, time.Second+500*time.Millisecond, true),
+		Entry("rhs has no nanoseconds, lhs has nanoseconds, not fits - False",
+			&UnixTimestamp{Seconds: 1669704177}, 2*time.Second+500*time.Millisecond, false),
+		Entry("rhs has nanoseconds, lhs has no nanoseconds - False",
+			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000}, 2*time.Second, false),
+		Entry("rhs has nanoseconds, lhs has nanoseconds, fits - True",
+			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000}, time.Second+500*time.Millisecond, true),
+		Entry("rhs has nanoseconds, lhs has nanoseconds, not fits - False",
+			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000}, 2*time.Second+500*time.Millisecond, false))
+
+	// Tests the conditions describing how the IsWholeUnix function works
+	DescribeTable("IsWholeUnix - Conditions",
+		func(rhs *UnixTimestamp, lhs *UnixDuration, result bool) {
+			Expect(rhs.IsWholeUnix(lhs)).Should(Equal(result))
+		},
+		Entry("rhs has no nanoseconds, lhs has no nanoseconds, fits - True",
+			&UnixTimestamp{Seconds: 1669704178}, &UnixDuration{Seconds: 2}, true),
+		Entry("rhs has no nanoseconds, lhs has no nanoseconds, not fits - False",
+			&UnixTimestamp{Seconds: 1669704178}, &UnixDuration{Seconds: 3}, false),
+		Entry("rhs has no nanoseconds, lhs has nanoseconds, fits - True",
+			&UnixTimestamp{Seconds: 1669704177}, &UnixDuration{Seconds: 1, Nanoseconds: 500000000}, true),
+		Entry("rhs has no nanoseconds, lhs has nanoseconds, not fits - False",
+			&UnixTimestamp{Seconds: 1669704177}, &UnixDuration{Seconds: 2, Nanoseconds: 500000000}, false),
+		Entry("rhs has nanoseconds, lhs has no nanoseconds - False",
+			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000}, &UnixDuration{Seconds: 2}, false),
+		Entry("rhs has nanoseconds, lhs has nanoseconds, fits - True",
+			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000},
+			&UnixDuration{Seconds: 1, Nanoseconds: 500000000}, true),
+		Entry("rhs has nanoseconds, lhs has nanoseconds, not fits - False",
+			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000},
+			&UnixDuration{Seconds: 2, Nanoseconds: 500000000}, false))
+
 	// Tests the conditions determining whether IsValid will return true or false
 	DescribeTable("IsValid - Conditions",
 		func(timestamp *UnixTimestamp, result bool) {
