@@ -149,36 +149,8 @@ func (rhs *UnixTimestamp) AddDate(years int, months int, days int) *UnixTimestam
 	return NewUnixTimestamp(rhs.AsTime().AddDate(years, months, days))
 }
 
-// AddDuration adds a duration to the timestamp, modifying it. The modified timestamp is then returned
-func (rhs *UnixTimestamp) AddDuration(duration time.Duration) *UnixTimestamp {
-	ans := UnixTimestamp{Seconds: rhs.Seconds, Nanoseconds: rhs.Nanoseconds}
-
-	// First, extract the seconds from the duration
-	seconds := duration.Seconds()
-	ans.Seconds += int64(seconds)
-
-	// Next, if we have a fractional second then convert it to nanoseconds and add it to the total number
-	// of nanoseconds; we'll ignore any fractional nanoseconds
-	if seconds != math.Floor(seconds) {
-		_, frac := math.Modf(seconds)
-		ans.Nanoseconds += int32(0.5 + (frac * 1e9))
-	}
-
-	// Now, if the nanoseconds is greater than a second then roll them over
-	if ans.Nanoseconds >= 1e9 {
-		ans.Seconds += 1
-		ans.Nanoseconds -= 1e9
-	} else if ans.Nanoseconds < 0 {
-		ans.Seconds -= 1
-		ans.Nanoseconds += 1e9
-	}
-
-	// Finally, return the modified timestamp
-	return &ans
-}
-
-// AddUnixDuration adds a UnixDuration to the UnixTimestamp, modifying it. The modified timestamp is then returned
-func (rhs *UnixTimestamp) AddUnixDuration(lhs *UnixDuration) *UnixTimestamp {
+// AddDuration adds a UnixDuration to the UnixTimestamp, modifying it. The modified timestamp is then returned
+func (rhs *UnixTimestamp) AddDuration(lhs *UnixDuration) *UnixTimestamp {
 	ans := UnixTimestamp{Seconds: rhs.Seconds, Nanoseconds: rhs.Nanoseconds}
 
 	// First, check if the lhs is nil. If it is then return the rhs
@@ -201,6 +173,29 @@ func (rhs *UnixTimestamp) AddUnixDuration(lhs *UnixDuration) *UnixTimestamp {
 
 	// Finally, return the modified timestamp
 	return &ans
+}
+
+// Difference calculates the difference between two UnixTimestamp objects, returning a UnixDuration
+func (rhs *UnixTimestamp) Difference(lhs *UnixTimestamp) *UnixDuration {
+
+	// First, calculate the difference between the seconds and nanoseconds
+	seconds := rhs.Seconds - lhs.Seconds
+	nanos := rhs.Nanoseconds - lhs.Nanoseconds
+
+	// Next, if we have seconds and nanoseconds of differing signs then we'll need to modify the results
+	// so that they have the same sign. If the seconds is greater than 0 and the nanos is less than 0
+	// then we'll subtract a second from seconds and add it back to nanos. If the seconds is less than 0
+	// and the nanos is greater than zero then we'll do the reverse
+	if seconds > 0 && nanos < 0 {
+		seconds -= 1
+		nanos += 1e9
+	} else if seconds < 0 && nanos > 0 {
+		seconds += 1
+		nanos -= 1e9
+	}
+
+	// Finally, create a new UnixDuration from the seconds and nanoseconds and return it
+	return &UnixDuration{Seconds: seconds, Nanoseconds: nanos}
 }
 
 // IsWhole checks whether or not the duration fits into the UnixTimestamp provided. This function will
@@ -354,6 +349,50 @@ func (x *UnixDuration) AsDuration() (time.Duration, error) {
 
 	// Finally, return the duration
 	return duration, nil
+}
+
+// Equals returns true if rhs is equal to lhs, false otherwise
+func (rhs *UnixDuration) Equals(lhs *UnixDuration) bool {
+	if rhs != nil && lhs != nil {
+		return rhs.Seconds == lhs.Seconds && rhs.Nanoseconds == lhs.Nanoseconds
+	} else {
+		return rhs == lhs
+	}
+}
+
+// NotEquals returns true if rhs is not equal to lhs, false otherwise
+func (rhs *UnixDuration) NotEquals(lhs *UnixDuration) bool {
+	return !rhs.Equals(lhs)
+}
+
+// GreaterThan returns true if rhs represents a larger duration than lhs, or false otherwise
+func (rhs *UnixDuration) GreaterThan(lhs *UnixDuration) bool {
+	if rhs != nil && lhs != nil {
+		return rhs.Seconds > lhs.Seconds ||
+			(rhs.Seconds == lhs.Seconds && rhs.Nanoseconds > lhs.Nanoseconds)
+	} else {
+		return rhs != nil
+	}
+}
+
+// GreaterThanOrEqualTo returns true if rhs represents a duration at least as large as lhs, or false otherwise
+func (rhs *UnixDuration) GreaterThanOrEqualTo(lhs *UnixDuration) bool {
+	return !rhs.LessThan(lhs)
+}
+
+// LessThan returns true if rhs represents a smaller duration than lhs, or false otherwise
+func (rhs *UnixDuration) LessThan(lhs *UnixDuration) bool {
+	if rhs != nil && lhs != nil {
+		return rhs.Seconds < lhs.Seconds ||
+			(rhs.Seconds == lhs.Seconds && rhs.Nanoseconds < lhs.Nanoseconds)
+	} else {
+		return lhs != nil
+	}
+}
+
+// LessThanOrEqualTo returns true if rhs represents a duration at least as small as lhs, or false otherwise
+func (rhs *UnixDuration) LessThanOrEqualTo(lhs *UnixDuration) bool {
+	return !rhs.GreaterThan(lhs)
 }
 
 // IsValid reports whether the duration is valid. It is equivalent to CheckValid == nil.

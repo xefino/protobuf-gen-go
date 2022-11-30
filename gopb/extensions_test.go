@@ -85,10 +85,7 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 	It("AsTime - Works", func() {
 
 		// First, create a timestamp with a set number of seconds and nanoseconds
-		timestamp := UnixTimestamp{
-			Seconds:     1654127993,
-			Nanoseconds: 983651350,
-		}
+		timestamp := generateTimestamp(1654127993, 983651350)
 
 		// Next, convert the timestamp to a time object
 		t := timestamp.AsTime()
@@ -233,26 +230,10 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 		Entry("Time is negative - Works", -1, -1, -10, generateTimestamp(1620431600, 900838091)))
 
 	// Tests that the AddDuration function works under various conditions
-	DescribeTable("AddDuration - Works",
-		func(duration time.Duration, result *UnixTimestamp) {
-			timestamp := generateTimestamp(1655510000, 900838091)
-			Expect(timestamp.AddDuration(duration)).Should(Equal(result))
-		},
-		Entry("Add nanoseconds - Works", 15*time.Nanosecond, generateTimestamp(1655510000, 900838106)),
-		Entry("Add microseconds - Works", 15*time.Microsecond, generateTimestamp(1655510000, 900853091)),
-		Entry("Add milliseconds - Works", 15*time.Millisecond, generateTimestamp(1655510000, 915838091)),
-		Entry("Add seconds - Works", 15*time.Second, generateTimestamp(1655510015, 900838091)),
-		Entry("Add minutes - Works", 15*time.Minute, generateTimestamp(1655510900, 900838091)),
-		Entry("Add hours - Works", 15*time.Hour, generateTimestamp(1655564000, 900838091)),
-		Entry("Nanoseconds > 1 second - Works", 15*time.Hour+100*time.Millisecond,
-			generateTimestamp(1655564001, 838091)),
-		Entry("Nanoseconds < 0 - Works", -999*time.Millisecond, generateTimestamp(1655509999, 901838092)))
-
-	// Tests that the AddUnixDuration function works under various conditions
-	DescribeTable("AddUnixDuration - Works",
+	DescribeTable("AddDuration - Conditions",
 		func(duration *UnixDuration, result *UnixTimestamp) {
 			timestamp := generateTimestamp(1655510000, 900838091)
-			Expect(timestamp.AddUnixDuration(duration)).Should(Equal(result))
+			Expect(timestamp.AddDuration(duration)).Should(Equal(result))
 		},
 		Entry("LHS is nil - Works", nil, generateTimestamp(1655510000, 900838091)),
 		Entry("Nanoseconds < 1 second - Works", generateDuration(100, 1000),
@@ -262,25 +243,39 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 		Entry("Nanoseconds < 0 - Works", generateDuration(1655510000, -999999999),
 			generateTimestamp(3311019999, 900838092)))
 
+	// Tests that the Difference functions works under various conditions
+	DescribeTable("Difference - Conditions",
+		func(rhs *UnixTimestamp, lhs *UnixTimestamp, result *UnixDuration) {
+			Expect(rhs.Difference(lhs)).Should(Equal(result))
+		},
+		Entry("rhs.Seconds > lhs.Seconds, rhs.Nanoseconds > lhs.Nanoseconds - Works",
+			generateTimestamp(1669704178, 500000000), generateTimestamp(1669704177, 0), generateDuration(1, 500000000)),
+		Entry("rhs.Seconds > lhs.Seconds, rhs.Nanoseconds < lhs.Nanoseconds - Works",
+			generateTimestamp(1669704178, 0), generateTimestamp(1669704177, 500000000), generateDuration(0, 500000000)),
+		Entry("rhs.Seconds < lhs.Seconds, rhs.Nanoseconds > lhs.Nanoseconds - Works",
+			generateTimestamp(1669704177, 500000000), generateTimestamp(1669704178, 0), generateDuration(0, -500000000)),
+		Entry("rhs.Seconds < lhs.Seconds, rhs.Nanoseconds < lhs.Nanoseconds - Works",
+			generateTimestamp(1669704177, 0), generateTimestamp(1669704178, 500000000), generateDuration(-1, -500000000)))
+
 	// Tests the conditions describing how the IsWhole function works
 	DescribeTable("IsWhole - Conditions",
 		func(rhs *UnixTimestamp, lhs time.Duration, result bool) {
 			Expect(rhs.IsWhole(lhs)).Should(Equal(result))
 		},
 		Entry("rhs has no nanoseconds, lhs has no nanoseconds, fits - True",
-			&UnixTimestamp{Seconds: 1669704178}, 2*time.Second, true),
+			generateTimestamp(1669704178, 0), 2*time.Second, true),
 		Entry("rhs has no nanoseconds, lhs has no nanoseconds, not fits - False",
-			&UnixTimestamp{Seconds: 1669704178}, 3*time.Second, false),
+			generateTimestamp(1669704178, 0), 3*time.Second, false),
 		Entry("rhs has no nanoseconds, lhs has nanoseconds, fits - True",
-			&UnixTimestamp{Seconds: 1669704177}, time.Second+500*time.Millisecond, true),
+			generateTimestamp(1669704177, 0), time.Second+500*time.Millisecond, true),
 		Entry("rhs has no nanoseconds, lhs has nanoseconds, not fits - False",
-			&UnixTimestamp{Seconds: 1669704177}, 2*time.Second+500*time.Millisecond, false),
+			generateTimestamp(1669704177, 0), 2*time.Second+500*time.Millisecond, false),
 		Entry("rhs has nanoseconds, lhs has no nanoseconds - False",
-			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000}, 2*time.Second, false),
+			generateTimestamp(1669704178, 500000000), 2*time.Second, false),
 		Entry("rhs has nanoseconds, lhs has nanoseconds, fits - True",
-			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000}, time.Second+500*time.Millisecond, true),
+			generateTimestamp(1669704178, 500000000), time.Second+500*time.Millisecond, true),
 		Entry("rhs has nanoseconds, lhs has nanoseconds, not fits - False",
-			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000}, 2*time.Second+500*time.Millisecond, false))
+			generateTimestamp(1669704178, 500000000), 2*time.Second+500*time.Millisecond, false))
 
 	// Tests the conditions describing how the IsWholeUnix function works
 	DescribeTable("IsWholeUnix - Conditions",
@@ -288,21 +283,19 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 			Expect(rhs.IsWholeUnix(lhs)).Should(Equal(result))
 		},
 		Entry("rhs has no nanoseconds, lhs has no nanoseconds, fits - True",
-			&UnixTimestamp{Seconds: 1669704178}, &UnixDuration{Seconds: 2}, true),
+			generateTimestamp(1669704178, 0), generateDuration(2, 0), true),
 		Entry("rhs has no nanoseconds, lhs has no nanoseconds, not fits - False",
-			&UnixTimestamp{Seconds: 1669704178}, &UnixDuration{Seconds: 3}, false),
+			generateTimestamp(1669704178, 0), generateDuration(3, 0), false),
 		Entry("rhs has no nanoseconds, lhs has nanoseconds, fits - True",
-			&UnixTimestamp{Seconds: 1669704177}, &UnixDuration{Seconds: 1, Nanoseconds: 500000000}, true),
+			generateTimestamp(1669704177, 0), generateDuration(1, 500000000), true),
 		Entry("rhs has no nanoseconds, lhs has nanoseconds, not fits - False",
-			&UnixTimestamp{Seconds: 1669704177}, &UnixDuration{Seconds: 2, Nanoseconds: 500000000}, false),
+			generateTimestamp(1669704177, 0), generateDuration(2, 500000000), false),
 		Entry("rhs has nanoseconds, lhs has no nanoseconds - False",
-			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000}, &UnixDuration{Seconds: 2}, false),
+			generateTimestamp(1669704178, 500000000), generateDuration(2, 0), false),
 		Entry("rhs has nanoseconds, lhs has nanoseconds, fits - True",
-			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000},
-			&UnixDuration{Seconds: 1, Nanoseconds: 500000000}, true),
+			generateTimestamp(1669704178, 500000000), generateDuration(1, 500000000), true),
 		Entry("rhs has nanoseconds, lhs has nanoseconds, not fits - False",
-			&UnixTimestamp{Seconds: 1669704178, Nanoseconds: 500000000},
-			&UnixDuration{Seconds: 2, Nanoseconds: 500000000}, false))
+			generateTimestamp(1669704178, 500000000), generateDuration(2, 500000000), false))
 
 	// Tests the conditions determining whether IsValid will return true or false
 	DescribeTable("IsValid - Conditions",
@@ -310,15 +303,11 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 			Expect(timestamp.IsValid()).Should(Equal(result))
 		},
 		Entry("Timestamp is nil - False", nil, false),
-		Entry("Seconds < Minimum Timestamp - False",
-			&UnixTimestamp{Seconds: -62135596801, Nanoseconds: 983651350}, false),
-		Entry("Seconds > Maximum Timestamp - False",
-			&UnixTimestamp{Seconds: 253402300800, Nanoseconds: 983651350}, false),
-		Entry("Nanoseconds > 1 second - False",
-			&UnixTimestamp{Seconds: 1654127993, Nanoseconds: 1000000000}, false),
-		Entry("Nanoseconds negative - False",
-			&UnixTimestamp{Seconds: 1654127993, Nanoseconds: -1}, false),
-		Entry("Valid - True", &UnixTimestamp{Seconds: 1654127993, Nanoseconds: 983651350}, true))
+		Entry("Seconds < Minimum Timestamp - False", generateTimestamp(-62135596801, 983651350), false),
+		Entry("Seconds > Maximum Timestamp - False", generateTimestamp(253402300800, 983651350), false),
+		Entry("Nanoseconds > 1 second - False", generateTimestamp(1654127993, 1000000000), false),
+		Entry("Nanoseconds negative - False", generateTimestamp(1654127993, -1), false),
+		Entry("Valid - True", generateTimestamp(1654127993, 983651350), true))
 
 	// Tests the conditions describing what is returned when CheckValid is called
 	// with timestamps of various types
@@ -333,24 +322,20 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 			}
 		},
 		Entry("Timestamp is nil - False", nil, true, "invalid nil Timestamp"),
-		Entry("Seconds < Minimum Timestamp - False",
-			&UnixTimestamp{Seconds: -62135596801, Nanoseconds: 983651350}, true,
+		Entry("Seconds < Minimum Timestamp - False", generateTimestamp(-62135596801, 983651350), true,
 			"timestamp (-62135596801, 983651350) before 0001-01-01"),
-		Entry("Seconds > Maximum Timestamp - False",
-			&UnixTimestamp{Seconds: 253402300800, Nanoseconds: 983651350}, true,
+		Entry("Seconds > Maximum Timestamp - False", generateTimestamp(253402300800, 983651350), true,
 			"timestamp (253402300800, 983651350) after 9999-12-31"),
-		Entry("Nanoseconds > 1 second - False",
-			&UnixTimestamp{Seconds: 1654127993, Nanoseconds: 1000000000}, true,
+		Entry("Nanoseconds > 1 second - False", generateTimestamp(1654127993, 1000000000), true,
 			"timestamp (1654127993, 1000000000) has out-of-range nanos"),
-		Entry("Nanoseconds negative - False",
-			&UnixTimestamp{Seconds: 1654127993, Nanoseconds: -1}, true,
+		Entry("Nanoseconds negative - False", generateTimestamp(1654127993, -1), true,
 			"timestamp (1654127993, -1) has out-of-range nanos"),
-		Entry("Valid - True", &UnixTimestamp{Seconds: 1654127993, Nanoseconds: 983651350}, false, ""))
+		Entry("Valid - True", generateTimestamp(1654127993, 983651350), false, ""))
 
 	// Test that the ToDate function converts the UnixTimestamp to a string describing the date associated
 	// with the timestamp value, in a YYYY-MM-DD format
 	It("ToDate - Works", func() {
-		stamp := &UnixTimestamp{Seconds: 1654127993, Nanoseconds: 983651350}
+		stamp := generateTimestamp(1654127993, 983651350)
 		Expect(stamp.ToDate()).Should(Equal("2022-06-01"))
 	})
 })
@@ -383,11 +368,117 @@ var _ = Describe("UnixDuration Extensions Tests", func() {
 	// Tests that, if no error occurs, then calling the AsDuration function will return the UnixDuration
 	// as a time.Duration object
 	It("AsDuration - Works", func() {
-		uDur := UnixDuration{Seconds: 2678400, Nanoseconds: 15000000}
+		uDur := generateDuration(2678400, 15000000)
 		dur, err := uDur.AsDuration()
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(dur).Should(Equal(31*24*time.Hour + 15*time.Millisecond))
 	})
+
+	// Tests that the Equals function works under various data conditions
+	DescribeTable("Equals - Conditions",
+		func(rhs *UnixDuration, lhs *UnixDuration, equal bool) {
+			Expect(rhs.Equals(lhs)).Should(Equal(equal))
+		},
+		Entry("RHS is nil - False", nil, generateDuration(1655510000, 900838091), false),
+		Entry("LHS is nil - False", generateDuration(1655510399, 900838091), nil, false),
+		Entry("Both nil - True", nil, nil, true),
+		Entry("RHS.Seconds != LHS.Seconds - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510000, 900838091), false),
+		Entry("RHS.Nanoseconds != LHS.Nanoseconds - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 0), false),
+		Entry("RHS == LHS - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 900838091), true))
+
+	// Tests that the NotEquals function works under various data conditions
+	DescribeTable("NotEquals - Conditions",
+		func(rhs *UnixDuration, lhs *UnixDuration, notEqual bool) {
+			Expect(rhs.NotEquals(lhs)).Should(Equal(notEqual))
+		},
+		Entry("RHS is nil - True", nil, generateDuration(1655510000, 900838091), true),
+		Entry("LHS is nil - True", generateDuration(1655510399, 900838091), nil, true),
+		Entry("Both nil - False", nil, nil, false),
+		Entry("RHS == LHS - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 900838091), false),
+		Entry("RHS.Nanoseconds != LHS.Nanoseconds - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 0), true),
+		Entry("RHS.Seconds != LHS.Seconds - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510000, 900838091), true))
+
+	// Tests that the GreaterThan function works under various data conditions
+	DescribeTable("GreaterThan - Conditions",
+		func(rhs *UnixDuration, lhs *UnixDuration, greaterThan bool) {
+			Expect(rhs.GreaterThan(lhs)).Should(Equal(greaterThan))
+		},
+		Entry("RHS is nil - False", nil, generateDuration(1655510000, 900838091), false),
+		Entry("LHS is nil - True", generateDuration(1655510399, 900838091), nil, true),
+		Entry("Both nil - False", nil, nil, false),
+		Entry("RHS == LHS - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 900838091), false),
+		Entry("RHS.Nanoseconds < LHS.Nanoseconds - False",
+			generateDuration(1655510399, 0), generateDuration(1655510399, 900838091), false),
+		Entry("RHS.Nanoseconds > LHS.Nanoseconds - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 0), true),
+		Entry("RHS.Seconds < LHS.Seconds - False",
+			generateDuration(1655510000, 900838091), generateDuration(1655510399, 900838091), false),
+		Entry("RHS.Seconds > LHS.Seconds - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510000, 900838091), true))
+
+	// Tests that the GreaterThanOrEqualTo function works under various data conditions
+	DescribeTable("GreaterThanOrEqualTo - Conditions",
+		func(rhs *UnixDuration, lhs *UnixDuration, gte bool) {
+			Expect(rhs.GreaterThanOrEqualTo(lhs)).Should(Equal(gte))
+		},
+		Entry("RHS is nil - False", nil, generateDuration(1655510000, 900838091), false),
+		Entry("LHS is nil - True", generateDuration(1655510399, 900838091), nil, true),
+		Entry("Both nil - True", nil, nil, true),
+		Entry("RHS == LHS - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 900838091), true),
+		Entry("RHS.Nanoseconds < LHS.Nanoseconds - False",
+			generateDuration(1655510399, 0), generateDuration(1655510399, 900838091), false),
+		Entry("RHS.Nanoseconds > LHS.Nanoseconds - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 0), true),
+		Entry("RHS.Seconds < LHS.Seconds - False",
+			generateDuration(1655510000, 900838091), generateDuration(1655510399, 900838091), false),
+		Entry("RHS.Seconds > LHS.Seconds - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510000, 900838091), true))
+
+	// Tests that the LessThan function works under various data conditions
+	DescribeTable("LessThan - Conditions",
+		func(rhs *UnixDuration, lhs *UnixDuration, lt bool) {
+			Expect(rhs.LessThan(lhs)).Should(Equal(lt))
+		},
+		Entry("RHS is nil - True", nil, generateDuration(1655510000, 900838091), true),
+		Entry("LHS is nil - False", generateDuration(1655510399, 900838091), nil, false),
+		Entry("Both nil - False", nil, nil, false),
+		Entry("RHS == LHS - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 900838091), false),
+		Entry("RHS.Nanoseconds < LHS.Nanoseconds - True",
+			generateDuration(1655510399, 0), generateDuration(1655510399, 900838091), true),
+		Entry("RHS.Nanoseconds > LHS.Nanoseconds - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 0), false),
+		Entry("RHS.Seconds < LHS.Seconds - True",
+			generateDuration(1655510000, 900838091), generateDuration(1655510399, 900838091), true),
+		Entry("RHS.Seconds > LHS.Seconds - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510000, 900838091), false))
+
+	// Tests that the LessThanOrEqualTo function works under various data conditions
+	DescribeTable("LessThanOrEqualTo - Condition",
+		func(rhs *UnixDuration, lhs *UnixDuration, lte bool) {
+			Expect(rhs.LessThanOrEqualTo(lhs)).Should(Equal(lte))
+		},
+		Entry("RHS is nil - True", nil, generateDuration(1655510000, 900838091), true),
+		Entry("LHS is nil - False", generateDuration(1655510399, 900838091), nil, false),
+		Entry("Both nil - True", nil, nil, true),
+		Entry("RHS == LHS - True",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 900838091), true),
+		Entry("RHS.Nanoseconds < LHS.Nanoseconds - True",
+			generateDuration(1655510399, 0), generateDuration(1655510399, 900838091), true),
+		Entry("RHS.Nanoseconds > LHS.Nanoseconds - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510399, 0), false),
+		Entry("RHS.Seconds < LHS.Seconds - True",
+			generateDuration(1655510000, 900838091), generateDuration(1655510399, 900838091), true),
+		Entry("RHS.Seconds > LHS.Seconds - False",
+			generateDuration(1655510399, 900838091), generateDuration(1655510000, 900838091), false))
 
 	// Tests the conditions determining whether IsValid will return true or false
 	DescribeTable("IsValid - Conditions",
