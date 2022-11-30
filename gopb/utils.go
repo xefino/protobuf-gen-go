@@ -41,11 +41,6 @@ func (enum Provider) MarshalDynamoDBAttributeValue() (types.AttributeValue, erro
 	return &types.AttributeValueMemberS{Value: utils.MarshalString(enum, Provider_name, ProviderMapping, false)}, nil
 }
 
-// Value converts a Provider value to an SQL driver value
-func (enum Provider) Value() (driver.Value, error) {
-	return utils.MarshalString(enum, Provider_name, ProviderMapping, false), nil
-}
-
 // UnmarshalJSON attempts to convert a JSON value to a new Provider value
 func (enum *Provider) UnmarshalJSON(raw []byte) error {
 	return utils.UnmarshalValue(raw, Provider_value, ProviderAlternates, enum)
@@ -81,11 +76,6 @@ func (enum *Provider) UnmarshalDynamoDBAttributeValue(value types.AttributeValue
 	default:
 		return fmt.Errorf("Attribute value of %T could not be converted to a Provider", value)
 	}
-}
-
-// Scan attempts to convert an SQL driver value to a new Provider value
-func (enum *Provider) Scan(value interface{}) error {
-	return utils.ScanValue(value, Provider_value, ProviderAlternates, enum)
 }
 
 // MarhsalJSON converts a Timestamp to JSON

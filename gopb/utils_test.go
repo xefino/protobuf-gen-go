@@ -53,16 +53,6 @@ var _ = Describe("Provider Marshal/Unmarshal Tests", func() {
 		Entry("None - Works", Provider_None, ""),
 		Entry("Polygon - Works", Provider_Polygon, "polygon"))
 
-	// Test that converting the Provider enum to an SQL value for all values
-	DescribeTable("Value Tests",
-		func(enum Provider, value string) {
-			data, err := enum.Value()
-			Expect(err).ShouldNot(HaveOccurred())
-			Expect(data).Should(Equal(value))
-		},
-		Entry("None - Works", Provider_None, ""),
-		Entry("Polygon - Works", Provider_Polygon, "polygon"))
-
 	// Test that attempting to deserialize a Provider will fail and return an error if the value
 	// cannot be deserialized from a JSON value to a string
 	It("UnmarshalJSON fails - Error", func() {
@@ -227,39 +217,6 @@ var _ = Describe("Provider Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberS{Value: "0"}, Provider_None),
 		Entry("Value is string, 1 - Works",
 			&types.AttributeValueMemberS{Value: "1"}, Provider_Polygon))
-
-	// Test that attempting to deserialize a Provider will fial and return an error if the value
-	// cannot be converted to either the name value or integer value of the enum option
-	It("Scan - Value is nil - Error", func() {
-
-		// Attempt to convert a fake string value into a Provider; this should return an error
-		var enum *Provider
-		err := enum.Scan(nil)
-
-		// Verify the error
-		Expect(err).Should(HaveOccurred())
-		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
-		Expect(enum).Should(BeNil())
-	})
-
-	// Test the conditions under which values should be convertible to a Provider
-	DescribeTable("Scan Tests",
-		func(value interface{}, shouldBe Provider) {
-
-			// Attempt to convert the value into a Provider; this should not fail
-			var enum Provider
-			err := enum.Scan(value)
-
-			// Verify that the deserialization was successful
-			Expect(err).ShouldNot(HaveOccurred())
-			Expect(enum).Should(Equal(shouldBe))
-		},
-		Entry("Empty String - Works", "", Provider_None),
-		Entry("Polygon - Works", "polygon", Provider_Polygon),
-		Entry("None - Works", "None", Provider_None),
-		Entry("Polygon - Works", "Polygon", Provider_Polygon),
-		Entry("0 - Works", 0, Provider_None),
-		Entry("1 - Works", 1, Provider_Polygon))
 })
 
 var _ = Describe("UnixTimestamp Marshal/Unmarshal Tests", func() {
