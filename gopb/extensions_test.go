@@ -243,6 +243,12 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 		Entry("Nanoseconds < 0 - Works", generateDuration(1655510000, -999999999),
 			generateTimestamp(3311019999, 900838092)))
 
+	// Tests that the NextDay function works as expected
+	It("NextDay - Works", func() {
+		next := generateTimestamp(1655510000, 900838091).NextDay()
+		Expect(next).Should(Equal(generateTimestamp(1655510400, 0)))
+	})
+
 	// Tests that the Difference functions works under various conditions
 	DescribeTable("Difference - Conditions",
 		func(rhs *UnixTimestamp, lhs *UnixTimestamp, result *UnixDuration) {

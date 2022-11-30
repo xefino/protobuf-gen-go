@@ -13,6 +13,9 @@ import (
 // Size of the integer values we want to save (designed to fit inside an int64)
 var offset = big.NewInt(1e18)
 
+// The number of seconds in a day
+const secondsInDay = 86400
+
 // NewFromDecimal creates a new representation of our Decimal from a decimal.Decimal
 func NewFromDecimal(in decimal.Decimal) *Decimal {
 	coefficient := in.Coefficient()
@@ -196,6 +199,11 @@ func (rhs *UnixTimestamp) Difference(lhs *UnixTimestamp) *UnixDuration {
 
 	// Finally, create a new UnixDuration from the seconds and nanoseconds and return it
 	return &UnixDuration{Seconds: seconds, Nanoseconds: nanos}
+}
+
+// NextDay returns a new UnixTimestamp, set to the start of the day of the UnixTimestamp
+func (rhs *UnixTimestamp) NextDay() *UnixTimestamp {
+	return &UnixTimestamp{Seconds: secondsInDay * ((rhs.Seconds / secondsInDay) + 1)}
 }
 
 // IsWhole checks whether or not the duration fits into the UnixTimestamp provided. This function will
