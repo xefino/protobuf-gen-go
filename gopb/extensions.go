@@ -64,17 +64,31 @@ func (d *Decimal) ToDecimal() *decimal.Decimal {
 
 // Now constructs a new Timestamp from the current time.
 func Now() *UnixTimestamp {
-	return NewUnixTimestamp(time.Now())
+	return NewFromTime(time.Now())
 }
 
-// NewUnixTimestamp constructs a new Timestamp from the provided time.Time.
-func NewUnixTimestamp(t time.Time) *UnixTimestamp {
-	return &UnixTimestamp{Seconds: int64(t.Unix()), Nanoseconds: int32(t.Nanosecond())}
+// NewUnixTimestamp creates a new UnixTimestamp from the seconds and nanoseconds with which the
+// timestamp should be associated
+func NewUnixTimestamp(seconds int64, nanos int32) *UnixTimestamp {
+	return &UnixTimestamp{
+		Seconds:     seconds,
+		Nanoseconds: nanos,
+	}
+}
+
+// NewFromTime constructs a new Timestamp from the provided time.Time.
+func NewFromTime(t time.Time) *UnixTimestamp {
+	return NewUnixTimestamp(int64(t.Unix()), int32(t.Nanosecond()))
 }
 
 // AsTime converts x to a time.Time.
 func (x *UnixTimestamp) AsTime() time.Time {
 	return time.Unix(int64(x.GetSeconds()), int64(x.GetNanoseconds())).UTC()
+}
+
+// Copy creates a new UnixTimestamp from an existing UnixTimestamp
+func (x *UnixTimestamp) Copy() *UnixTimestamp {
+	return NewUnixTimestamp(x.Seconds, x.Nanoseconds)
 }
 
 // Equals returns true if rhs is equal to lhs, false otherwise
@@ -123,11 +137,11 @@ func (rhs *UnixTimestamp) LessThanOrEqualTo(lhs *UnixTimestamp) bool {
 
 // Add adds a timestamp to another timestamp, modifying it. The modified timestamp is then returned
 func (rhs *UnixTimestamp) Add(lhs *UnixTimestamp) *UnixTimestamp {
-	ans := UnixTimestamp{Seconds: rhs.Seconds, Nanoseconds: rhs.Nanoseconds}
+	ans := rhs.Copy()
 
 	// First, check if the lhs is nil. If it is then return the rhs
 	if lhs == nil {
-		return &ans
+		return ans
 	}
 
 	// Next, add the seconds and nanoseconds to the timestamp
@@ -144,21 +158,21 @@ func (rhs *UnixTimestamp) Add(lhs *UnixTimestamp) *UnixTimestamp {
 	}
 
 	// Finally, return the modified timestamp
-	return &ans
+	return ans
 }
 
 // AddDate adds a number of years, months and days to the time associated with the timestamp
 func (rhs *UnixTimestamp) AddDate(years int, months int, days int) *UnixTimestamp {
-	return NewUnixTimestamp(rhs.AsTime().AddDate(years, months, days))
+	return NewFromTime(rhs.AsTime().AddDate(years, months, days))
 }
 
 // AddDuration adds a UnixDuration to the UnixTimestamp, modifying it. The modified timestamp is then returned
 func (rhs *UnixTimestamp) AddDuration(lhs *UnixDuration) *UnixTimestamp {
-	ans := UnixTimestamp{Seconds: rhs.Seconds, Nanoseconds: rhs.Nanoseconds}
+	ans := rhs.Copy()
 
 	// First, check if the lhs is nil. If it is then return the rhs
 	if lhs == nil {
-		return &ans
+		return ans
 	}
 
 	// Next, add the seconds and nanoseconds to the timestamp
@@ -175,7 +189,7 @@ func (rhs *UnixTimestamp) AddDuration(lhs *UnixDuration) *UnixTimestamp {
 	}
 
 	// Finally, return the modified timestamp
-	return &ans
+	return ans
 }
 
 // Difference calculates the difference between two UnixTimestamp objects, returning a UnixDuration
@@ -198,12 +212,12 @@ func (rhs *UnixTimestamp) Difference(lhs *UnixTimestamp) *UnixDuration {
 	}
 
 	// Finally, create a new UnixDuration from the seconds and nanoseconds and return it
-	return &UnixDuration{Seconds: seconds, Nanoseconds: nanos}
+	return NewUnixDuration(seconds, nanos)
 }
 
 // NextDay returns a new UnixTimestamp, set to the start of the day of the UnixTimestamp
 func (rhs *UnixTimestamp) NextDay() *UnixTimestamp {
-	return &UnixTimestamp{Seconds: secondsInDay * ((rhs.Seconds / secondsInDay) + 1)}
+	return NewUnixTimestamp(secondsInDay*((rhs.Seconds/secondsInDay)+1), 0)
 }
 
 // IsWhole checks whether or not the duration fits into the UnixTimestamp provided. This function will
@@ -321,15 +335,21 @@ func (x *UnixTimestamp) check() uint {
 	}
 }
 
-// NewUnixDuration constructs a new UnixDuration from the provided time.Duration.
-func NewUnixDuration(d time.Duration) *UnixDuration {
+// NewUnixDuration creates a new UnixDuration from the seconds and nanoseconds with which the
+// duration should be associated
+func NewUnixDuration(seconds int64, nanos int32) *UnixDuration {
+	return &UnixDuration{
+		Seconds:     seconds,
+		Nanoseconds: nanos,
+	}
+}
+
+// NewFromDuration constructs a new UnixDuration from the provided time.Duration.
+func NewFromDuration(d time.Duration) *UnixDuration {
 	nanos := d.Nanoseconds()
 	secs := nanos / 1e9
 	nanos -= secs * 1e9
-	return &UnixDuration{
-		Seconds:     int64(secs),
-		Nanoseconds: int32(nanos),
-	}
+	return NewUnixDuration(secs, int32(nanos))
 }
 
 // AsDuration converts x to a time.Duration, returning an error in the event of an overflow
