@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/shopspring/decimal"
 	"github.com/xefino/protobuf-gen-go/utils"
 	"gopkg.in/yaml.v3"
 )
@@ -19,6 +20,87 @@ var ProviderAlternates = map[string]Provider{
 var ProviderMapping = map[Provider]string{
 	Provider_None:    "",
 	Provider_Polygon: "polygon",
+}
+
+// MarhsalJSON converts a Decimal to JSON
+func (d *Decimal) MarshalJSON() ([]byte, error) {
+	return []byte(d.ToString()), nil
+}
+
+// MarshalCSV converts a Decimal to a CSV format
+func (d *Decimal) MarshalCSV() (string, error) {
+	return d.ToString(), nil
+}
+
+// Marshaler converts a Decimal to a DynamoDB attribute value
+func (d *Decimal) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
+	return &types.AttributeValueMemberN{
+		Value: d.ToString(),
+	}, nil
+}
+
+// Value converts a Decimal to an SQL value
+func (d *Decimal) Value() (driver.Value, error) {
+	return driver.Value(d.ToString()), nil
+}
+
+// UnmarshalJSON converts JSON data into a Decimal
+func (d *Decimal) UnmarshalJSON(data []byte) error {
+
+	// Check if the value is nil; if this is the case then return nil
+	if data == nil {
+		return nil
+	}
+
+	// Otherwise, convert the data from a string into a timestamp
+	return d.FromString(string(data))
+}
+
+// UnmarshalCSV converts a CSV column into a Decimal
+func (d *Decimal) UnmarshalCSV(raw string) error {
+	return d.FromString(raw)
+}
+
+// UnmarshalDynamoDBAttributeValue converts a DynamoDB attribute value to a Decimal
+func (d *Decimal) UnmarshalDynamoDBAttributeValue(value types.AttributeValue) error {
+	switch casted := value.(type) {
+	case *types.AttributeValueMemberB:
+		return d.FromString(string(casted.Value))
+	case *types.AttributeValueMemberN:
+		return d.FromString(casted.Value)
+	case *types.AttributeValueMemberNULL:
+		return nil
+	case *types.AttributeValueMemberS:
+		return d.FromString(casted.Value)
+	default:
+		return fmt.Errorf("Attribute value of %T could not be converted to a Decimal", value)
+	}
+}
+
+// Scan converts an SQL value into a Decimal
+func (d *Decimal) Scan(value interface{}) error {
+
+	// Check if the value is nil; if this is the case then return nil
+	if value == nil {
+		return nil
+	}
+
+	// Based on the type of the value we're working with, we'll convert the decimal from its implied
+	// type to a Decimal; if this fails or the type isn't one we recognized then we'll return an error
+	switch casted := value.(type) {
+	case []byte:
+		return d.FromString(string(casted))
+	case float64:
+		*d = *NewFromDecimal(decimal.NewFromFloat(casted))
+	case int64:
+		*d = *NewFromDecimal(decimal.NewFromInt(casted))
+	case string:
+		return d.FromString(casted)
+	default:
+		return fmt.Errorf("failed to convert driver value of type %T to Decimal", casted)
+	}
+
+	return nil
 }
 
 // MarshalJSON converts a Provider value to a JSON value

@@ -11,54 +11,36 @@ import (
 
 var _ = Describe("Decimal Extensions Tests", func() {
 
-	// Tests that, if the value is greater than 0, then it will be encoded properly
-	It("NewFromDecimal - Value greater than 0 - Encoded", func() {
+	// Tests that the NewFromDecimal function works under various data conditions
+	DescribeTable("NewFromDecimal - Works",
+		func(raw string, verifer func(*Decimal)) {
 
-		// First, create our decimal value
-		dIn, err := decimal.NewFromString("1234512351234088800000.999")
-		Expect(err).ShouldNot(HaveOccurred())
+			// First, create our decimal value
+			dIn, err := decimal.NewFromString(raw)
+			Expect(err).ShouldNot(HaveOccurred())
 
-		// Next, attempt to convert it to a new Decimal object
-		dOut := NewFromDecimal(dIn)
+			// Next, attempt to convert it to a new Decimal object
+			dOut := NewFromDecimal(dIn)
 
-		// Finally, verify the data
-		Expect(dOut).ShouldNot(BeNil())
-		Expect(dOut.Exp).Should(Equal(int32(-3)))
-		Expect(dOut.Value).Should(HaveLen(2))
-		Expect(dOut.Value[0]).Should(Equal(int64(351234088800000999)))
-		Expect(dOut.Value[1]).Should(Equal(int64(1234512)))
-	})
+			// Finally, verify the data
+			verifer(dOut)
+		},
+		Entry("Value greater than 0 - Encoded", "1234512351234088800000.999",
+			decimalVerifier(-3, 351234088800000999, 1234512)),
+		Entry("Value equal to 0 - Encoded", "0", decimalVerifier(0)),
+		Entry("Value less than 0 - Encoded", "-288341660781234512351234088800000.999",
+			decimalVerifier(-3, -351234088800000999, -288341660781234512)))
 
-	// Test that, if the value is less than 0, then it will be encoded properly
-	It("NewFromDecimal - Value less than 0 - Encoded", func() {
-
-		// First, create our decimal value
-		dIn, err := decimal.NewFromString("-288341660781234512351234088800000.999")
-		Expect(err).ShouldNot(HaveOccurred())
-
-		// Next, attempt to convert it to a new Decimal object
-		dOut := NewFromDecimal(dIn)
-
-		// Finally, verify the data
-		Expect(dOut).ShouldNot(BeNil())
-		Expect(dOut.Exp).Should(Equal(int32(-3)))
-		Expect(dOut.Value).Should(HaveLen(2))
-		Expect(dOut.Value[0]).Should(Equal(int64(-351234088800000999)))
-		Expect(dOut.Value[1]).Should(Equal(int64(-288341660781234512)))
-	})
-
-	// Tests that the Decimal value will be converted to a decimal.Decimal properly
-	It("ToDecimal - Decoded", func() {
-
-		// First, create a valid Decimal value
-		dIn := Decimal{Value: []int64{351234088800000999, 1234512}, Exp: -3}
-
-		// Next, attempt to convert the Decimal to a decimal
-		dOut := dIn.ToDecimal()
-
-		// Finally, verify the data
-		Expect(dOut.String()).Should(Equal("1234512351234088800000.999"))
-	})
+	// Tests that the ToDecimal function works under various data conditions
+	DescribeTable("ToDecimal - Works",
+		func(dIn *Decimal, expected string) {
+			Expect(dIn.ToDecimal().String()).Should(Equal(expected))
+		},
+		Entry("Value greater than 0 - Encoded",
+			&Decimal{Parts: []int64{351234088800000999, 1234512}, Exp: -3}, "1234512351234088800000.999"),
+		Entry("Value equals 0 - Encoded", &Decimal{Parts: make([]int64, 0)}, "0"),
+		Entry("Value less than 0 - Encoded",
+			&Decimal{Parts: []int64{-351234088800000999, -342645987}, Exp: -5}, "-3426459873512340888000.00999"))
 })
 
 var _ = Describe("UnixTimestamp Extensions Tests", func() {

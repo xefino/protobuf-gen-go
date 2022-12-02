@@ -11,6 +11,228 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var _ = Describe("Decimal Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Decimal to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(decimal *Decimal, expected string) {
+			actual, err := json.Marshal(decimal)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(actual)).Should(Equal(expected))
+		},
+		Entry("Value is positive - Works",
+			&Decimal{Exp: -3, Parts: []int64{234109887750000111, 6554423}}, "6554423234109887750000.111"),
+		Entry("Value is zero - Works", &Decimal{Parts: []int64{0}}, "0"),
+		Entry("Value less than 0 - Works",
+			&Decimal{Parts: []int64{-351234088800000999, -342645987}, Exp: -5}, "-3426459873512340888000.00999"))
+
+	// Test that converting the Decimal to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(decimal *Decimal, expected string) {
+			actual, err := decimal.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(actual).Should(Equal(expected))
+		},
+		Entry("Value is positive - Works",
+			&Decimal{Exp: -3, Parts: []int64{234109887750000111, 6554423}}, "6554423234109887750000.111"),
+		Entry("Value is zero - Works", &Decimal{Parts: []int64{0}}, "0"),
+		Entry("Value less than 0 - Works",
+			&Decimal{Parts: []int64{-351234088800000999, -342645987}, Exp: -5}, "-3426459873512340888000.00999"))
+
+	// Test that converting the Decimal to a DynamoDB AttributeVAlue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue - Works",
+		func(decimal *Decimal, expected string) {
+			data, err := attributevalue.Marshal(decimal)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberN).Value).Should(Equal(expected))
+		},
+		Entry("Value is positive - Works",
+			&Decimal{Exp: -3, Parts: []int64{234109887750000111, 6554423}}, "6554423234109887750000.111"),
+		Entry("Value is zero - Works", &Decimal{Parts: []int64{0}}, "0"),
+		Entry("Value less than 0 - Works",
+			&Decimal{Parts: []int64{-351234088800000999, -342645987}, Exp: -5}, "-3426459873512340888000.00999"))
+
+	// Test that converting the Decimal to an sql.Value works for all values
+	DescribeTable("Value - Works",
+		func(decimal *Decimal, expected string) {
+			actual, err := decimal.Value()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(actual).Should(Equal(expected))
+		},
+		Entry("Value is positive - Works",
+			&Decimal{Exp: -3, Parts: []int64{234109887750000111, 6554423}}, "6554423234109887750000.111"),
+		Entry("Value is zero - Works", &Decimal{Parts: []int64{0}}, "0"),
+		Entry("Value less than 0 - Works",
+			&Decimal{Parts: []int64{-351234088800000999, -342645987}, Exp: -5}, "-3426459873512340888000.00999"))
+
+	// Test that attempting to deserialize a Decimal will fail and return an error if the value
+	// cannot be deserialized from a JSON value
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Decimal; this should return an error
+		value := new(Decimal)
+		err := value.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("can't convert derp to decimal: exponent is not numeric"))
+	})
+
+	// Test the conditions under which values should be convertible to a Decimal
+	DescribeTable("UnmarshalJSON Tests",
+		func(raw string, verifier func(*Decimal)) {
+
+			// Attempt to convert the string value into a Decimal; this should not fail
+			value := new(Decimal)
+			err := value.UnmarshalJSON([]byte(raw))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			verifier(value)
+		},
+		Entry("Value greater than 0 - Works", "1234512351234088800000.999",
+			decimalVerifier(-3, 351234088800000999, 1234512)),
+		Entry("Value equal to 0 - Works", "0", decimalVerifier(0)),
+		Entry("Value less than 0 - Works", "-288341660781234512351234088800000.999",
+			decimalVerifier(-3, -351234088800000999, -288341660781234512)))
+
+	// Test that attempting to deserialize a Decimal will fail and return an error if the value
+	// cannot be converted to either the name value or integer value of the enum option
+	It("UnmarshalCSV - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Decimal; this should return an error
+		value := new(Decimal)
+		err := value.UnmarshalCSV("derp")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("can't convert derp to decimal: exponent is not numeric"))
+	})
+
+	// Test the conditions under which values should be convertible to a Decimal
+	DescribeTable("UnmarshalCSV Tests",
+		func(raw string, verifier func(*Decimal)) {
+
+			// Attempt to convert the value into a Decimal; this should not fail
+			value := new(Decimal)
+			err := value.UnmarshalCSV(raw)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			verifier(value)
+		},
+		Entry("Value greater than 0 - Works", "1234512351234088800000.999",
+			decimalVerifier(-3, 351234088800000999, 1234512)),
+		Entry("Value equal to 0 - Works", "0", decimalVerifier(0)),
+		Entry("Value less than 0 - Works", "-288341660781234512351234088800000.999",
+			decimalVerifier(-3, -351234088800000999, -288341660781234512)))
+
+	// Tests that, if the attribute type submitted to UnmarshalDynamoDBAttributeValue is not one we
+	// recognize, then the function will return an error
+	It("UnmarshalDynamoDBAttributeValue - AttributeValue type invalid - Error", func() {
+		value := new(Decimal)
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberBOOL{Value: true}, &value)
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("Attribute value of *types.AttributeValueMemberBOOL could not be converted to a Decimal"))
+	})
+
+	// Tests that, if time parsing fails, then calling UnmarshalDynamoDBAttributeValue will return an error
+	It("UnmarshalDynamoDBAttributeValue - Parse fails - Error", func() {
+		value := new(Decimal)
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberS{Value: "derp"}, &value)
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("can't convert derp to decimal: exponent is not numeric"))
+	})
+
+	// Tests the conditions under which UnmarshalDynamoDBAttributeValue is called and no error is generated
+	DescribeTable("UnmarshalDynamoDBAttributeValue - AttributeValue Conditions",
+		func(raw types.AttributeValue, verifier func(*Decimal)) {
+			var value *Decimal
+			err := attributevalue.Unmarshal(raw, &value)
+			Expect(err).ShouldNot(HaveOccurred())
+			verifier(value)
+		},
+		Entry("Value is []bytes, Value greater than 0 - Works",
+			&types.AttributeValueMemberB{Value: []byte("1234512351234088800000.999")},
+			decimalVerifier(-3, 351234088800000999, 1234512)),
+		Entry("Value is []bytes, Value equal to 0 - Works",
+			&types.AttributeValueMemberB{Value: []byte("0")}, decimalVerifier(0)),
+		Entry("Value is []bytes, Value less than 0 - Works",
+			&types.AttributeValueMemberB{Value: []byte("-288341660781234512351234088800000.999")},
+			decimalVerifier(-3, -351234088800000999, -288341660781234512)),
+		Entry("Value is numeric, Value greater than 0 - Works",
+			&types.AttributeValueMemberN{Value: "1234512351234088800000.999"},
+			decimalVerifier(-3, 351234088800000999, 1234512)),
+		Entry("Value is numeric, Value equal to 0 - Works",
+			&types.AttributeValueMemberN{Value: "0"}, decimalVerifier(0)),
+		Entry("Value is numeric, Value less than 0 - Works",
+			&types.AttributeValueMemberN{Value: "-288341660781234512351234088800000.999"},
+			decimalVerifier(-3, -351234088800000999, -288341660781234512)),
+		Entry("Value is NULL - Works", new(types.AttributeValueMemberNULL),
+			func(d *Decimal) { Expect(d).Should(BeNil()) }),
+		Entry("Value is string, Value greater than 0 - Works",
+			&types.AttributeValueMemberS{Value: "1234512351234088800000.999"},
+			decimalVerifier(-3, 351234088800000999, 1234512)),
+		Entry("Value is string, Value equal to 0 - Works",
+			&types.AttributeValueMemberS{Value: "0"}, decimalVerifier(0)),
+		Entry("Value is string, Value less than 0 - Works",
+			&types.AttributeValueMemberS{Value: "-288341660781234512351234088800000.999"},
+			decimalVerifier(-3, -351234088800000999, -288341660781234512)))
+
+	// Tests that, if the type of the driver value is not one we can work with, then Scan will return an error
+	It("Scan - Type is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Decimal; this should return an error
+		value := new(Decimal)
+		err := value.Scan(true)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("failed to convert driver value of type bool to Decimal"))
+	})
+
+	// Tests that, if the value is invalid, then Scan will return an error
+	It("Scan - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Decimal; this should return an error
+		value := new(Decimal)
+		err := value.Scan("derp")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("can't convert derp to decimal: exponent is not numeric"))
+	})
+
+	// Tests the conditions under which Scan is called and no error is generated
+	DescribeTable("Scan Tests",
+		func(raw interface{}, verifier func(*Decimal)) {
+			value := new(Decimal)
+			err := value.Scan(raw)
+			Expect(err).ShouldNot(HaveOccurred())
+			verifier(value)
+		},
+		Entry("Value is []byte, Value greater than 0 - Works",
+			[]byte("1234512351234088800000.999"), decimalVerifier(-3, 351234088800000999, 1234512)),
+		Entry("Value is []byte, Value equal to 0 - Works",
+			[]byte("0"), decimalVerifier(0)),
+		Entry("Value is []byte, Value less than 0 - Works", []byte("-288341660781234512351234088800000.999"),
+			decimalVerifier(-3, -351234088800000999, -288341660781234512)),
+		Entry("Value is float, Value greater than 0 - Works",
+			1234512351234.999, decimalVerifier(-3, 1234512351234999)),
+		Entry("Value is float, Value equal to 0 - Works", 0.0, decimalVerifier(0)),
+		Entry("Value is float, Value less than 0 - Works", -28834166.999, decimalVerifier(-3, -28834166999)),
+		Entry("Value is int, Value greater than 0 - Works",
+			int64(1234512351234088800), decimalVerifier(0, 234512351234088800, 1)),
+		Entry("Value is int, Value equal to 0 - Works", int64(0), decimalVerifier(0)),
+		Entry("Value is int, Value less than 0 - Works", int64(-2883416607812345123),
+			decimalVerifier(0, -883416607812345123, -2)),
+		Entry("Value is string, Value greater than 0 - Works", "1234512351234088800000.999",
+			decimalVerifier(-3, 351234088800000999, 1234512)),
+		Entry("Value is string, Value equal to 0 - Works", "0", decimalVerifier(0)),
+		Entry("Value is string, Value less than 0 - Works", "-288341660781234512351234088800000.999",
+			decimalVerifier(-3, -351234088800000999, -288341660781234512)))
+})
+
 var _ = Describe("Provider Marshal/Unmarshal Tests", func() {
 
 	// Test that converting the Provider enum to JSON works for all values

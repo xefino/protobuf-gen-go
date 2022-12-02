@@ -13,6 +13,8 @@ import (
 // Size of the integer values we want to save (designed to fit inside an int64)
 var offset = big.NewInt(1e18)
 
+const width = 18
+
 // The number of seconds in a day
 const secondsInDay = 86400
 
@@ -39,7 +41,7 @@ func NewFromDecimal(in decimal.Decimal) *Decimal {
 	}
 
 	// Inject the parts and the exponent into a Decimal value and return it
-	return &Decimal{Value: ints, Exp: in.Exponent()}
+	return &Decimal{Parts: ints, Exp: in.Exponent()}
 }
 
 // ToDecimal converts our internal representation of a Decimal to a decimal.Decimal
@@ -49,10 +51,10 @@ func (d *Decimal) ToDecimal() *decimal.Decimal {
 	resp := decimal.New(0, 0)
 
 	// Next, iterate over all our sub-values and add them into the total
-	for i, value := range d.Value {
+	for i, value := range d.Parts {
 
 		// Attempt to convert the value to its decimal equivalent based on where it is in the list
-		temp := decimal.New(value, int32(i*18)+d.Exp)
+		temp := decimal.New(value, int32(i*width)+d.Exp)
 
 		// Add the temporary value to the total
 		resp = resp.Add(temp)
@@ -60,6 +62,22 @@ func (d *Decimal) ToDecimal() *decimal.Decimal {
 
 	// Finally, return our total
 	return &resp
+}
+
+// ToString converts a Decimal object to its string representation
+func (d *Decimal) ToString() string {
+	return d.ToDecimal().String()
+}
+
+// FromString converts a string representation to a Decimal object
+func (d *Decimal) FromString(raw string) error {
+	dec, err := decimal.NewFromString(raw)
+	if err != nil {
+		return err
+	}
+
+	*d = *NewFromDecimal(dec)
+	return nil
 }
 
 // Now constructs a new Timestamp from the current time.
