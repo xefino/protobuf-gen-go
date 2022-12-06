@@ -16,7 +16,10 @@ var offset = big.NewInt(1e18)
 const width = 18
 
 // The number of seconds in a day
-const secondsInDay = 86400
+const (
+	secondsInDay   = 86400
+	nanosPerSecond = 1000000000
+)
 
 // NewFromDecimal creates a new representation of our Decimal from a decimal.Decimal
 func NewFromDecimal(in decimal.Decimal) *Decimal {

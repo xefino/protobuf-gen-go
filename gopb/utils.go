@@ -224,7 +224,16 @@ func (timestamp *UnixTimestamp) Scan(value interface{}) error {
 	}
 
 	// Otherwise, convert the data from a string into a timestamp
-	return timestamp.FromString(value.(string))
+	switch casted := value.(type) {
+	case string:
+		return timestamp.FromString(casted)
+	case int64:
+		timestamp.Seconds = casted / nanosPerSecond
+		timestamp.Nanoseconds = int32(casted % nanosPerSecond)
+		return nil
+	default:
+		return fmt.Errorf("Value of %v with a type of %T could not be converted to a UnixTimestamp", casted, casted)
+	}
 }
 
 // MarhsalJSON converts a Duration to JSON

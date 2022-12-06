@@ -655,7 +655,7 @@ var _ = Describe("UnixTimestamp Marshal/Unmarshal Tests", func() {
 	// Test that attempting to deserialize a Timestamp will fail and return an error if the
 	// value canno be deserialized from a driver value to a string
 	DescribeTable("Scan - Failures",
-		func(rawValue string, message string) {
+		func(rawValue interface{}, message string) {
 
 			// Attempt to convert a fake string value into a Timestamp
 			// This should return an error
@@ -666,6 +666,8 @@ var _ = Describe("UnixTimestamp Marshal/Unmarshal Tests", func() {
 			Expect(err).Should(HaveOccurred())
 			Expect(err.Error()).Should(Equal(message))
 		},
+		Entry("Type is invalid - Error", true,
+			"Value of true with a type of bool could not be converted to a UnixTimestamp"),
 		Entry("String is too short - Error", "derp",
 			"value (derp) was not long enough to be converted to a timestamp"),
 		Entry("Seconds cannot be converted to an integer - Error", "derp983651350",
@@ -714,6 +716,22 @@ var _ = Describe("UnixTimestamp Marshal/Unmarshal Tests", func() {
 		// This should not return an error
 		timestamp := new(UnixTimestamp)
 		err := timestamp.Scan("1654127993983651350")
+		Expect(err).ShouldNot(HaveOccurred())
+
+		// Verify the timestamp
+		Expect(timestamp).ShouldNot(BeNil())
+		Expect(timestamp.Seconds).Should(Equal(int64(1654127993)))
+		Expect(timestamp.Nanoseconds).Should(Equal(int32(983651350)))
+	})
+
+	// Test that, if the value submitted to the Scan function represents a valid UNIX timestamp,
+	// then it will be parsed into a Timestamp object
+	It("Scan - Value is int64 - Works", func() {
+
+		// Attempt to convert a UNIX timestamp string value into a timestamp
+		// This should not return an error
+		timestamp := new(UnixTimestamp)
+		err := timestamp.Scan(int64(1654127993983651350))
 		Expect(err).ShouldNot(HaveOccurred())
 
 		// Verify the timestamp
