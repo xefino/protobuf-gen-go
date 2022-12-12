@@ -17,8 +17,10 @@ const width = 18
 
 // The number of seconds in a day
 const (
-	secondsInDay   = 86400
-	nanosPerSecond = 1000000000
+	secondsInMinute = 60
+	secondsInHour   = 60 * secondsInMinute
+	secondsInDay    = 24 * secondsInHour
+	nanosPerSecond  = 1000000000
 )
 
 // NewFromDecimal creates a new representation of our Decimal from a decimal.Decimal
@@ -239,6 +241,174 @@ func (rhs *UnixTimestamp) Difference(lhs *UnixTimestamp) *UnixDuration {
 // NextDay returns a new UnixTimestamp, set to the start of the day of the UnixTimestamp
 func (rhs *UnixTimestamp) NextDay() *UnixTimestamp {
 	return NewUnixTimestamp(secondsInDay*((rhs.Seconds/secondsInDay)+1), 0)
+}
+
+// SecondDown creates a new UnixTimestamp, snapped to the start of the current second
+func (x *UnixTimestamp) SecondDown() *UnixTimestamp {
+	return NewUnixTimestamp(x.Seconds, 0)
+}
+
+// SecondUp creates a new UnixTimestamp, snapped to the start of the next second unless the timestamp
+// is a whole second, in which case it makes a copy of the UnixTimestamp and returns that
+func (x *UnixTimestamp) SecondUp() *UnixTimestamp {
+	if x.Nanoseconds > 0 {
+		return NewUnixTimestamp(x.Seconds+1, 0)
+	} else {
+		return x.Copy()
+	}
+}
+
+// MinuteDown creates a new UnixTimestamp, snapped to the start of the current minute
+func (x *UnixTimestamp) MinuteDown() *UnixTimestamp {
+	return NewUnixTimestamp(secondsInMinute*(x.Seconds/secondsInMinute), 0)
+}
+
+// MinuteUp creates a new UnixTimestamp, snapped to the start of the next minute unless the timestamp
+// is a whole minute, in which case it makes a copy of the UnixTimestamp and returns that
+func (x *UnixTimestamp) MinuteUp() *UnixTimestamp {
+	if x.Nanoseconds > 0 || x.Seconds%secondsInMinute > 0 {
+		return NewUnixTimestamp(secondsInMinute*((x.Seconds/secondsInMinute)+1), 0)
+	} else {
+		return x.Copy()
+	}
+}
+
+// HourDown creates a new UnixTimestamp, snapped to the start of the current hour
+func (x *UnixTimestamp) HourDown() *UnixTimestamp {
+	return NewUnixTimestamp(secondsInHour*(x.Seconds/secondsInHour), 0)
+}
+
+// HourUp creates a new UnixTimestamp, snapped to the start of the next hour unless the timestamp
+// is a whole hour, in which case it makes a copy of the UnixTimestamp and returns that
+func (x *UnixTimestamp) HourUp() *UnixTimestamp {
+	if x.Nanoseconds > 0 || x.Seconds%secondsInHour > 0 {
+		return NewUnixTimestamp(secondsInHour*((x.Seconds/secondsInHour)+1), 0)
+	} else {
+		return x.Copy()
+	}
+}
+
+// DayDown creates a new UnixTimestamp, snapped to the start of the current day
+func (x *UnixTimestamp) DayDown() *UnixTimestamp {
+	return NewUnixTimestamp(secondsInDay*(x.Seconds/secondsInDay), 0)
+}
+
+// DayUp creates a new UnixTimestamp, snapped to the start of the next day unless the timestamp
+// is a whole day, in which case it makes a copy of the UnixTimestamp and returns that
+func (x *UnixTimestamp) DayUp() *UnixTimestamp {
+	if x.Nanoseconds > 0 || x.Seconds%secondsInDay > 0 {
+		return x.NextDay()
+	} else {
+		return x.Copy()
+	}
+}
+
+// WeekDown creates a new UnixTimestamp, snapped to the start of the current week
+func (x *UnixTimestamp) WeekDown() *UnixTimestamp {
+	t := x.AsTime()
+	switch t.Weekday() {
+	case time.Monday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()-1, 0, 0, 0, 0, time.UTC))
+	case time.Tuesday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()-2, 0, 0, 0, 0, time.UTC))
+	case time.Wednesday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()-3, 0, 0, 0, 0, time.UTC))
+	case time.Thursday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()-4, 0, 0, 0, 0, time.UTC))
+	case time.Friday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()-5, 0, 0, 0, 0, time.UTC))
+	case time.Saturday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()-6, 0, 0, 0, 0, time.UTC))
+	default:
+		return x.DayDown()
+	}
+}
+
+// WeekUp creates a new UnixTimestamp, snapped to the start of the next week unless the timestamp
+// is a whole week, in which case it makes a copy of the UnixTimestamp and returns that
+func (x *UnixTimestamp) WeekUp() *UnixTimestamp {
+	t := x.AsTime()
+	switch t.Weekday() {
+	case time.Monday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()+6, 0, 0, 0, 0, time.UTC))
+	case time.Tuesday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()+5, 0, 0, 0, 0, time.UTC))
+	case time.Wednesday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()+4, 0, 0, 0, 0, time.UTC))
+	case time.Thursday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()+3, 0, 0, 0, 0, time.UTC))
+	case time.Friday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()+2, 0, 0, 0, 0, time.UTC))
+	case time.Saturday:
+		return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()+1, 0, 0, 0, 0, time.UTC))
+	default:
+		if x.Nanoseconds > 0 || x.Seconds%secondsInDay > 0 {
+			return NewFromTime(time.Date(t.Year(), t.Month(), t.Day()+7, 0, 0, 0, 0, time.UTC))
+		} else {
+			return x.Copy()
+		}
+	}
+}
+
+// MonthDown creates a new UnixTimestamp, snapped to the start of the current month
+func (x *UnixTimestamp) MonthDown() *UnixTimestamp {
+	t := x.AsTime()
+	return NewFromTime(time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC))
+}
+
+// MonthUp creates a new UnixTimestamp, snapped to the start of the next month unless the timestamp
+// is a whole month, in which case it makes a copy of the UnixTimestamp and returns that
+func (x *UnixTimestamp) MonthUp() *UnixTimestamp {
+	t := x.AsTime()
+	if t.Nanosecond() > 0 || t.Second() > 0 || t.Minute() > 0 || t.Hour() > 0 || t.Day() != 1 {
+		return x.MonthDown().AddDate(0, 1, 0)
+	} else {
+		return x.Copy()
+	}
+}
+
+// QuarterDown creates a new UnixTimestamp, snapped to the start of the current quarter
+func (x *UnixTimestamp) QuarterDown() *UnixTimestamp {
+	t := x.AsTime()
+	switch t.Month() {
+	case time.January, time.February, time.March:
+		return NewFromTime(time.Date(t.Year(), time.January, 1, 0, 0, 0, 0, time.UTC))
+	case time.April, time.May, time.June:
+		return NewFromTime(time.Date(t.Year(), time.April, 1, 0, 0, 0, 0, time.UTC))
+	case time.July, time.August, time.September:
+		return NewFromTime(time.Date(t.Year(), time.July, 1, 0, 0, 0, 0, time.UTC))
+	default:
+		return NewFromTime(time.Date(t.Year(), time.October, 1, 0, 0, 0, 0, time.UTC))
+	}
+}
+
+// QuarterUp creates a new UnixTimestamp, snapped to the start of the next quarter unless the timestamp
+// is a whole quarter, in which case it makes a copy of the UnixTimestamp and returns that
+func (x *UnixTimestamp) QuarterUp() *UnixTimestamp {
+	t := x.AsTime()
+	month := t.Month()
+	if t.Nanosecond() > 0 || t.Second() > 0 || t.Minute() > 0 || t.Hour() > 0 || t.Day() != 1 ||
+		(month != time.January && month != time.April && month != time.July && month != time.October) {
+		return x.QuarterDown().AddDate(0, 3, 0)
+	} else {
+		return x.Copy()
+	}
+}
+
+// YearDown creates a new UnixTimestamp, snapped to the start of the current year
+func (x *UnixTimestamp) YearDown() *UnixTimestamp {
+	return NewFromTime(time.Date(x.AsTime().Year(), 1, 1, 0, 0, 0, 0, time.UTC))
+}
+
+// MonthUp creates a new UnixTimestamp, snapped to the start of the next year unless the timestamp
+// is a whole year, in which case it makes a copy of the UnixTimestamp and returns that
+func (x *UnixTimestamp) YearUp() *UnixTimestamp {
+	t := x.AsTime()
+	if t.Nanosecond() > 0 || t.Second() > 0 || t.Minute() > 0 || t.Hour() > 0 || t.Day() != 1 || t.Month() != time.January {
+		return x.YearDown().AddDate(1, 0, 0)
+	} else {
+		return x.Copy()
+	}
 }
 
 // IsWhole checks whether or not the duration fits into the UnixTimestamp provided. This function will

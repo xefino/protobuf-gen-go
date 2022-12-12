@@ -225,12 +225,6 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 		Entry("Nanoseconds < 0 - Works", NewUnixDuration(1655510000, -999999999),
 			NewUnixTimestamp(3311019999, 900838092)))
 
-	// Tests that the NextDay function works as expected
-	It("NextDay - Works", func() {
-		next := NewUnixTimestamp(1655510000, 900838091).NextDay()
-		Expect(next).Should(Equal(NewUnixTimestamp(1655510400, 0)))
-	})
-
 	// Tests that the Difference functions works under various conditions
 	DescribeTable("Difference - Conditions",
 		func(rhs *UnixTimestamp, lhs *UnixTimestamp, result *UnixDuration) {
@@ -244,6 +238,468 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 			NewUnixTimestamp(1669704177, 500000000), NewUnixTimestamp(1669704178, 0), NewUnixDuration(0, -500000000)),
 		Entry("rhs.Seconds < lhs.Seconds, rhs.Nanoseconds < lhs.Nanoseconds - Works",
 			NewUnixTimestamp(1669704177, 0), NewUnixTimestamp(1669704178, 500000000), NewUnixDuration(-1, -500000000)))
+
+	// Tests that the NextDay function works as expected
+	It("NextDay - Works", func() {
+		next := NewUnixTimestamp(1655510000, 900838091).NextDay()
+		Expect(next).Should(Equal(NewUnixTimestamp(1655510400, 0)))
+	})
+
+	// Tests that the SecondDown function works as expected
+	DescribeTable("SecondDown - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.SecondDown()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1655510000, 0)),
+		Entry("Nanoseconds = 0 - Copied",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655510000, 0)))
+
+	// Tests that the SecondUp function works as expected
+	DescribeTable("SecondUp - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.SecondUp()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1655510001, 0)),
+		Entry("Nanoseconds = 0 - Copied",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655510000, 0)))
+
+	// Tests that the MinuteDown function works as expected
+	DescribeTable("MinuteDown - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.MinuteDown()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1655509980, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0, Erased",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655509980, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0 - Copied",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1655509980, 0)))
+
+	// Tests that the MinuteUp function works as expected
+	DescribeTable("MinuteUp - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.MinuteUp()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1655510040, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655510040, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0 - Copied",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1655509980, 0)))
+
+	// Tests that the HourDown function works as expected
+	DescribeTable("HourDown - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.HourDown()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1655506800, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655506800, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1655506800, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0 - Copied",
+			NewUnixTimestamp(1655506800, 0), NewUnixTimestamp(1655506800, 0)))
+
+	// Tests that the HourUp function works as expected
+	DescribeTable("HourUp - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.HourUp()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1655510400, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655510400, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1655510400, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0 - Copied",
+			NewUnixTimestamp(1655424000, 0), NewUnixTimestamp(1655424000, 0)))
+
+	// Tests that the DayDown function works as expected
+	DescribeTable("DayDown - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.DayDown()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1655424000, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655424000, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1655424000, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1655506800, 0), NewUnixTimestamp(1655424000, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Copied",
+			NewUnixTimestamp(1655424000, 0), NewUnixTimestamp(1655424000, 0)))
+
+	// Tests that the DayUp function works as expected
+	DescribeTable("DayUp - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.DayUp()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1655510400, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655510400, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1655510400, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1655506800, 0), NewUnixTimestamp(1655510400, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Copied",
+			NewUnixTimestamp(1655510400, 0), NewUnixTimestamp(1655510400, 0)))
+
+	// Tests that the WeekDown function works as expected
+	DescribeTable("WeekDown - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.WeekDown()).Should(Equal(result))
+		},
+		Entry("Monday, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655742769, 900838091), NewUnixTimestamp(1655596800, 0)),
+		Entry("Monday, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1655742769, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Monday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1655742720, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Monday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1655740800, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Monday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Erased",
+			NewUnixTimestamp(1655683200, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Tuesday, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655829169, 900838091), NewUnixTimestamp(1655596800, 0)),
+		Entry("Tuesday, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1655829169, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Tuesday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1655829120, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Tuesday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1655827200, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Tuesday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Erased",
+			NewUnixTimestamp(1655769600, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Wednesday, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655915569, 900838091), NewUnixTimestamp(1655596800, 0)),
+		Entry("Wednesday, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1655915569, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Wednesday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1655915520, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Wednesday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1655913600, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Wednesday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Erased",
+			NewUnixTimestamp(1655856000, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Thursday, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1656001969, 900838091), NewUnixTimestamp(1655596800, 0)),
+		Entry("Thursday, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1656001969, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Thursday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1656001920, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Thursday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1656000000, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Thursday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Erased",
+			NewUnixTimestamp(1655942400, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Friday, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1656088369, 900838091), NewUnixTimestamp(1655596800, 0)),
+		Entry("Friday, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1656088369, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Friday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1656088320, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Friday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1656086400, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Friday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Erased",
+			NewUnixTimestamp(1656028800, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Saturday, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1656174769, 900838091), NewUnixTimestamp(1655596800, 0)),
+		Entry("Saturday, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1656174769, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Saturday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1656174720, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Saturday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1656172800, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Saturday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Erased",
+			NewUnixTimestamp(1656115200, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Sunday, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655656369, 900838091), NewUnixTimestamp(1655596800, 0)),
+		Entry("Sunday, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1655656369, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Sunday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1655656320, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Sunday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1655654400, 0), NewUnixTimestamp(1655596800, 0)),
+		Entry("Sunday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Copied",
+			NewUnixTimestamp(1655596800, 0), NewUnixTimestamp(1655596800, 0)))
+
+	// Tests that the WeekUp function works as expected
+	DescribeTable("WeekUp - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.WeekUp()).Should(Equal(result))
+		},
+		Entry("Monday, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655742769, 900838091), NewUnixTimestamp(1656201600, 0)),
+		Entry("Monday, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655742769, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Monday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1655742720, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Monday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1655740800, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Monday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Snapped",
+			NewUnixTimestamp(1655683200, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Tuesday, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655829169, 900838091), NewUnixTimestamp(1656201600, 0)),
+		Entry("Tuesday, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655829169, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Tuesday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1655829120, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Tuesday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1655827200, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Tuesday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Snapped",
+			NewUnixTimestamp(1655769600, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Wednesday, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655915569, 900838091), NewUnixTimestamp(1656201600, 0)),
+		Entry("Wednesday, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655915569, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Wednesday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1655915520, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Wednesday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1655913600, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Wednesday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Snapped",
+			NewUnixTimestamp(1655856000, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Thursday, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1656001969, 900838091), NewUnixTimestamp(1656201600, 0)),
+		Entry("Thursday, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1656001969, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Thursday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1656001920, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Thursday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1656000000, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Thursday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Snapped",
+			NewUnixTimestamp(1655942400, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Friday, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1656088369, 900838091), NewUnixTimestamp(1656201600, 0)),
+		Entry("Friday, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1656088369, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Friday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1656088320, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Friday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1656086400, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Friday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Snapped",
+			NewUnixTimestamp(1656028800, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Saturday, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1656174769, 900838091), NewUnixTimestamp(1656201600, 0)),
+		Entry("Saturday, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1656174769, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Saturday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1656174720, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Saturday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1656172800, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Saturday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Snapped",
+			NewUnixTimestamp(1656115200, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Sunday, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655656369, 900838091), NewUnixTimestamp(1656201600, 0)),
+		Entry("Sunday, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655656369, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Sunday, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1655656320, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Sunday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1655654400, 0), NewUnixTimestamp(1656201600, 0)),
+		Entry("Sunday, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0 - Copied",
+			NewUnixTimestamp(1655596800, 0), NewUnixTimestamp(1655596800, 0)))
+
+	// Tests that the MonthDown function works as expected
+	DescribeTable("MonthDown - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.MonthDown()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1654041600, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1654041600, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1654041600, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1655506800, 0), NewUnixTimestamp(1654041600, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Erased",
+			NewUnixTimestamp(1655424000, 0), NewUnixTimestamp(1654041600, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1 - Copied",
+			NewUnixTimestamp(1654041600, 0), NewUnixTimestamp(1654041600, 0)))
+
+	// Tests that the MonthUp function works as expected
+	DescribeTable("MonthUp - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.MonthUp()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1656633600, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1655506800, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Snapped",
+			NewUnixTimestamp(1655424000, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1 - Copied",
+			NewUnixTimestamp(1654041600, 0), NewUnixTimestamp(1654041600, 0)))
+
+	// Tests that the QuarterDown function works as expected
+	DescribeTable("QuarterDown - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.QuarterDown()).Should(Equal(result))
+		},
+		Entry("Q1, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1647793969, 900838091), NewUnixTimestamp(1640995200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1647793969, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1647793920, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1647792000, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Erased",
+			NewUnixTimestamp(1647734400, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 1 - Erased",
+			NewUnixTimestamp(1646092800, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 1 - Copied",
+			NewUnixTimestamp(1640995200, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Q2, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1653064369, 900838091), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1653064369, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1653064320, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1653062400, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Erased",
+			NewUnixTimestamp(1653004800, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 4 - Erased",
+			NewUnixTimestamp(1651363200, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 4 - Copied",
+			NewUnixTimestamp(1648771200, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q3, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1663691569, 900838091), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1663691569, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1663691520, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1663689600, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Erased",
+			NewUnixTimestamp(1663632000, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 7 - Erased",
+			NewUnixTimestamp(1661990400, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 7 - Copied",
+			NewUnixTimestamp(1656633600, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q4, Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1668961969, 900838091), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1668961969, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1668961920, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1668960000, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Erased",
+			NewUnixTimestamp(1668902400, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 10 - Erased",
+			NewUnixTimestamp(1667260800, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 10 - Copied",
+			NewUnixTimestamp(1664582400, 0), NewUnixTimestamp(1664582400, 0)))
+
+	// Tests that the QuarterUp function works as expected
+	DescribeTable("QuarterUp - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.QuarterUp()).Should(Equal(result))
+		},
+		Entry("Q1, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1647793969, 900838091), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1647793969, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1647793920, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1647792000, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Snapped",
+			NewUnixTimestamp(1647734400, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 1 - Snapped",
+			NewUnixTimestamp(1646092800, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q1, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 1 - Copied",
+			NewUnixTimestamp(1640995200, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Q2, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1653064369, 900838091), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1653064369, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1653064320, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1653062400, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Snapped",
+			NewUnixTimestamp(1653004800, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 4 - Snapped",
+			NewUnixTimestamp(1651363200, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q2, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 4 - Copied",
+			NewUnixTimestamp(1648771200, 0), NewUnixTimestamp(1648771200, 0)),
+		Entry("Q3, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1663691569, 900838091), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1663691569, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1663691520, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1663689600, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Snapped",
+			NewUnixTimestamp(1663632000, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 7 - Snapped",
+			NewUnixTimestamp(1661990400, 0), NewUnixTimestamp(1664582400, 0)),
+		Entry("Q3, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 7 - Copied",
+			NewUnixTimestamp(1656633600, 0), NewUnixTimestamp(1656633600, 0)),
+		Entry("Q4, Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1668961969, 900838091), NewUnixTimestamp(1672531200, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1668961969, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1668961920, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1668960000, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Snapped",
+			NewUnixTimestamp(1668902400, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 10 - Snapped",
+			NewUnixTimestamp(1667260800, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Q4, Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 10 - Copied",
+			NewUnixTimestamp(1664582400, 0), NewUnixTimestamp(1664582400, 0)))
+
+	// Tests that the YearDown function works as expected
+	DescribeTable("YearDown - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.YearDown()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1640995200, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Erased",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes > 0 - Erased",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Erased",
+			NewUnixTimestamp(1655506800, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Erased",
+			NewUnixTimestamp(1655424000, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 1 - Erased",
+			NewUnixTimestamp(1654041600, 0), NewUnixTimestamp(1640995200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 1 - Copied",
+			NewUnixTimestamp(1640995200, 0), NewUnixTimestamp(1640995200, 0)))
+
+	// Tests that the YearUp function works as expected
+	DescribeTable("YearUp - Conditions",
+		func(start *UnixTimestamp, result *UnixTimestamp) {
+			Expect(start.YearUp()).Should(Equal(result))
+		},
+		Entry("Nanoseconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 900838091), NewUnixTimestamp(1672531200, 0)),
+		Entry("Nanoseconds = 0, Seconds > 0 - Snapped",
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes > 0 - Snapped",
+			NewUnixTimestamp(1655509980, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours > 0 - Snapped",
+			NewUnixTimestamp(1655506800, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days > 1 - Snapped",
+			NewUnixTimestamp(1655424000, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months > 1 - Snapped",
+			NewUnixTimestamp(1654041600, 0), NewUnixTimestamp(1672531200, 0)),
+		Entry("Nanoseconds = 0, Seconds = 0, Minutes = 0, Hours = 0, Days = 1, Months = 1 - Copied",
+			NewUnixTimestamp(1640995200, 0), NewUnixTimestamp(1640995200, 0)))
 
 	// Tests the conditions describing how the IsWhole function works
 	DescribeTable("IsWhole - Conditions",
