@@ -543,6 +543,46 @@ func NewFromDuration(d time.Duration) *UnixDuration {
 	return NewUnixDuration(secs, int32(nanos))
 }
 
+// Helper function that returns the greater of two UnixDuration objects
+func maxDurationInner(a *UnixDuration, b *UnixDuration) *UnixDuration {
+	if a.Seconds > b.Seconds || (a.Seconds == b.Seconds && a.Nanoseconds > b.Nanoseconds) {
+		return a
+	}
+
+	return b
+}
+
+// MaxDuration returns the greatest of a series of at least two UnixDuration objects. None of the
+// UnixDuration objects provided to this function may be nil
+func MaxDuration(a *UnixDuration, b *UnixDuration, others ...*UnixDuration) *UnixDuration {
+	result := maxDurationInner(a, b)
+	for _, other := range others {
+		result = maxDurationInner(result, other)
+	}
+
+	return result
+}
+
+// Helper function that returns the lesser of two UnixDuration objects
+func minDurationInner(a *UnixDuration, b *UnixDuration) *UnixDuration {
+	if a.Seconds < b.Seconds || (a.Seconds == b.Seconds && a.Nanoseconds < b.Nanoseconds) {
+		return a
+	}
+
+	return b
+}
+
+// Min returns the least of a series of at least two UnixDuration objects. None of the
+// UnixDuration objects provided to this function may be nil
+func MinDuration(a *UnixDuration, b *UnixDuration, others ...*UnixDuration) *UnixDuration {
+	result := minDurationInner(a, b)
+	for _, other := range others {
+		result = minDurationInner(result, other)
+	}
+
+	return result
+}
+
 // AsDuration converts x to a time.Duration, returning an error in the event of an overflow
 func (x *UnixDuration) AsDuration() (time.Duration, error) {
 

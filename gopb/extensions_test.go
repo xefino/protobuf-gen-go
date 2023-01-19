@@ -809,6 +809,32 @@ var _ = Describe("UnixDuration Extensions Tests", func() {
 		Entry("Underflow error - Error", NewUnixDuration(-9223372036, -1000000000), int64(math.MinInt64), "Duration underflow"),
 		Entry("Overflow error - Error", NewUnixDuration(9223372036, 1000000000), int64(math.MaxInt64), "Duration overflow"))
 
+	// Tests the data conditions determining what MaxDuration will return
+	DescribeTable("MaxDuration - Conditions",
+		func(expected *UnixDuration, values ...*UnixDuration) {
+			max := MaxDuration(values[0], values[1], values[2:]...)
+			Expect(max).Should(Equal(expected))
+		},
+		Entry("Seconds different - Largest returned", NewUnixDuration(1655510399, 0),
+			NewUnixDuration(1655510000, 0), NewUnixDuration(1655510399, 0), NewUnixDuration(1555510399, 0)),
+		Entry("Seconds same, Nanoseconds different - Largest returned", NewUnixDuration(1655510399, 900838091),
+			NewUnixDuration(1655510399, 0), NewUnixDuration(1655510399, 36000000), NewUnixDuration(1655510399, 900838091)),
+		Entry("Seconds same, Nanoseconds same - First returned", NewUnixDuration(1655510399, 900838091),
+			NewUnixDuration(1655510399, 900838091), NewUnixDuration(1655510399, 900838091), NewUnixDuration(1655510399, 900838091)))
+
+	// Tests the data conditions determining what MinDuration will return
+	DescribeTable("MinDuration - Conditions",
+		func(expected *UnixDuration, values ...*UnixDuration) {
+			min := MinDuration(values[0], values[1], values[2:]...)
+			Expect(min).Should(Equal(expected))
+		},
+		Entry("Seconds different - Smallest returned", NewUnixDuration(1555510399, 0),
+			NewUnixDuration(1655510000, 0), NewUnixDuration(1655510399, 0), NewUnixDuration(1555510399, 0)),
+		Entry("Seconds same, Nanoseconds different - Smallest returned", NewUnixDuration(1655510399, 0),
+			NewUnixDuration(1655510399, 36000000), NewUnixDuration(1655510399, 0), NewUnixDuration(1655510399, 900838091)),
+		Entry("Seconds same, Nanoseconds same - First returned", NewUnixDuration(1655510399, 900838091),
+			NewUnixDuration(1655510399, 900838091), NewUnixDuration(1655510399, 900838091), NewUnixDuration(1655510399, 900838091)))
+
 	// Tests that, if no error occurs, then calling the AsDuration function will return the UnixDuration
 	// as a time.Duration object
 	It("AsDuration - Works", func() {
