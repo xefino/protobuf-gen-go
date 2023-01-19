@@ -63,6 +63,46 @@ var _ = Describe("UnixTimestamp Extensions Tests", func() {
 		Expect(timestamp.Nanoseconds).Should(Equal(int32(983651350)))
 	})
 
+	// Tests that, if any of the values sent to MaxTimestamp function is nil then the function will panic
+	It("MaxTimestamp - Item is nil - Panic", func() {
+		Expect(func() {
+			_ = MaxTimestamp(NewUnixTimestamp(1655510399, 36000000), NewUnixTimestamp(1655510399, 0), nil)
+		}).Should(Panic())
+	})
+
+	// Tests the data conditions determining what MaxTimestamp will return
+	DescribeTable("MaxTimestamp - Conditions",
+		func(expected *UnixTimestamp, values ...*UnixTimestamp) {
+			max := MaxTimestamp(values[0], values[1], values[2:]...)
+			Expect(max).Should(Equal(expected))
+		},
+		Entry("Seconds different - Largest returned", NewUnixTimestamp(1655510399, 0),
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655510399, 0), NewUnixTimestamp(1555510399, 0)),
+		Entry("Seconds same, Nanoseconds different - Largest returned", NewUnixTimestamp(1655510399, 900838091),
+			NewUnixTimestamp(1655510399, 0), NewUnixTimestamp(1655510399, 36000000), NewUnixTimestamp(1655510399, 900838091)),
+		Entry("Seconds same, Nanoseconds same - First returned", NewUnixTimestamp(1655510399, 900838091),
+			NewUnixTimestamp(1655510399, 900838091), NewUnixTimestamp(1655510399, 900838091), NewUnixTimestamp(1655510399, 900838091)))
+
+	// Tests that, if any of the values sent to the MinTimestamp function is nil then the function will panic
+	It("MinTimestamp - Item is nil - Panic", func() {
+		Expect(func() {
+			_ = MinTimestamp(NewUnixTimestamp(1655510399, 36000000), NewUnixTimestamp(1655510399, 0), nil)
+		}).Should(Panic())
+	})
+
+	// Tests the data conditions determining what MinTimestamp will return
+	DescribeTable("MinTimestamp - Conditions",
+		func(expected *UnixTimestamp, values ...*UnixTimestamp) {
+			min := MinTimestamp(values[0], values[1], values[2:]...)
+			Expect(min).Should(Equal(expected))
+		},
+		Entry("Seconds different - Smallest returned", NewUnixTimestamp(1555510399, 0),
+			NewUnixTimestamp(1655510000, 0), NewUnixTimestamp(1655510399, 0), NewUnixTimestamp(1555510399, 0)),
+		Entry("Seconds same, Nanoseconds different - Smallest returned", NewUnixTimestamp(1655510399, 0),
+			NewUnixTimestamp(1655510399, 36000000), NewUnixTimestamp(1655510399, 0), NewUnixTimestamp(1655510399, 900838091)),
+		Entry("Seconds same, Nanoseconds same - First returned", NewUnixTimestamp(1655510399, 900838091),
+			NewUnixTimestamp(1655510399, 900838091), NewUnixTimestamp(1655510399, 900838091), NewUnixTimestamp(1655510399, 900838091)))
+
 	// Test that the AsTime function creates a time from a valid timestamp
 	It("AsTime - Works", func() {
 

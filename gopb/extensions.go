@@ -104,6 +104,46 @@ func NewFromTime(t time.Time) *UnixTimestamp {
 	return NewUnixTimestamp(int64(t.Unix()), int32(t.Nanosecond()))
 }
 
+// Helper function that returns the greater of two UnixTimestamp objects
+func maxTimestampInner(a *UnixTimestamp, b *UnixTimestamp) *UnixTimestamp {
+	if a.Seconds > b.Seconds || (a.Seconds == b.Seconds && a.Nanoseconds > b.Nanoseconds) {
+		return a
+	}
+
+	return b
+}
+
+// MaxTimestamp returns the greatest of a series of at least two UnixTimestamp objects. None of the
+// UnixTimestamp objects provided to this function may be nil
+func MaxTimestamp(a *UnixTimestamp, b *UnixTimestamp, others ...*UnixTimestamp) *UnixTimestamp {
+	result := maxTimestampInner(a, b)
+	for _, other := range others {
+		result = maxTimestampInner(result, other)
+	}
+
+	return result
+}
+
+// Helper function that returns the lesser of two UnixTimestamp objects
+func minTimestampInner(a *UnixTimestamp, b *UnixTimestamp) *UnixTimestamp {
+	if a.Seconds < b.Seconds || (a.Seconds == b.Seconds && a.Nanoseconds < b.Nanoseconds) {
+		return a
+	}
+
+	return b
+}
+
+// MinTimestamp returns the least of a series of at least two UnixTimestamp objects. None of the
+// UnixTimestamp objects provided to this function may be nil
+func MinTimestamp(a *UnixTimestamp, b *UnixTimestamp, others ...*UnixTimestamp) *UnixTimestamp {
+	result := minTimestampInner(a, b)
+	for _, other := range others {
+		result = minTimestampInner(result, other)
+	}
+
+	return result
+}
+
 // AsTime converts x to a time.Time.
 func (x *UnixTimestamp) AsTime() time.Time {
 	return time.Unix(int64(x.GetSeconds()), int64(x.GetNanoseconds())).UTC()
@@ -572,7 +612,7 @@ func minDurationInner(a *UnixDuration, b *UnixDuration) *UnixDuration {
 	return b
 }
 
-// Min returns the least of a series of at least two UnixDuration objects. None of the
+// MinDuration returns the least of a series of at least two UnixDuration objects. None of the
 // UnixDuration objects provided to this function may be nil
 func MinDuration(a *UnixDuration, b *UnixDuration, others ...*UnixDuration) *UnixDuration {
 	result := minDurationInner(a, b)
