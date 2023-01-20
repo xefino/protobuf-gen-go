@@ -106,15 +106,25 @@ func NewFromTime(t time.Time) *UnixTimestamp {
 
 // Helper function that returns the greater of two UnixTimestamp objects
 func maxTimestampInner(a *UnixTimestamp, b *UnixTimestamp) *UnixTimestamp {
+
+	// First, check if either of the inputs is nil; in this case we'll return the other
+	if a == nil {
+		return b
+	} else if b == nil {
+		return a
+	}
+
+	// Next, neither of the inputs is nil so we'll compare the seconds and nanoseconds on each and
+	// return a if it is larger than b
 	if a.Seconds > b.Seconds || (a.Seconds == b.Seconds && a.Nanoseconds > b.Nanoseconds) {
 		return a
 	}
 
+	// Finally, if we reached this point then b is larger than a so return b
 	return b
 }
 
-// MaxTimestamp returns the greatest of a series of at least two UnixTimestamp objects. None of the
-// UnixTimestamp objects provided to this function may be nil
+// MaxTimestamp returns the greatest of a series of at least two UnixTimestamp objects
 func MaxTimestamp(a *UnixTimestamp, b *UnixTimestamp, others ...*UnixTimestamp) *UnixTimestamp {
 	result := maxTimestampInner(a, b)
 	for _, other := range others {
@@ -126,15 +136,25 @@ func MaxTimestamp(a *UnixTimestamp, b *UnixTimestamp, others ...*UnixTimestamp) 
 
 // Helper function that returns the lesser of two UnixTimestamp objects
 func minTimestampInner(a *UnixTimestamp, b *UnixTimestamp) *UnixTimestamp {
+
+	// First, check if either of the inputs is nil; in this case we'll return it
+	if a == nil {
+		return a
+	} else if b == nil {
+		return b
+	}
+
+	// Next, neither of the inputs is nil so we'll compare the seconds and nanoseconds on each and
+	// return a if it is smaller than b
 	if a.Seconds < b.Seconds || (a.Seconds == b.Seconds && a.Nanoseconds < b.Nanoseconds) {
 		return a
 	}
 
+	// Finally, if we reached this point then b is smaller than a so return b
 	return b
 }
 
-// MinTimestamp returns the least of a series of at least two UnixTimestamp objects. None of the
-// UnixTimestamp objects provided to this function may be nil
+// MinTimestamp returns the least of a series of at least two UnixTimestamp objects
 func MinTimestamp(a *UnixTimestamp, b *UnixTimestamp, others ...*UnixTimestamp) *UnixTimestamp {
 	result := minTimestampInner(a, b)
 	for _, other := range others {
