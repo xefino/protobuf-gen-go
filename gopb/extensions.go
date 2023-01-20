@@ -605,15 +605,25 @@ func NewFromDuration(d time.Duration) *UnixDuration {
 
 // Helper function that returns the greater of two UnixDuration objects
 func maxDurationInner(a *UnixDuration, b *UnixDuration) *UnixDuration {
+
+	// First, check if either of the inputs is nil; in this case we'll return the other
+	if a == nil {
+		return b
+	} else if b == nil {
+		return a
+	}
+
+	// Next, neither of the inputs is nil so we'll compare the seconds and nanoseconds on each and
+	// return a if it is larger than b
 	if a.Seconds > b.Seconds || (a.Seconds == b.Seconds && a.Nanoseconds > b.Nanoseconds) {
 		return a
 	}
 
+	// Finally, if we reached this point then b is larger than a so return b
 	return b
 }
 
-// MaxDuration returns the greatest of a series of at least two UnixDuration objects. None of the
-// UnixDuration objects provided to this function may be nil
+// MaxDuration returns the greatest of a series of at least two UnixDuration objects
 func MaxDuration(a *UnixDuration, b *UnixDuration, others ...*UnixDuration) *UnixDuration {
 	result := maxDurationInner(a, b)
 	for _, other := range others {
@@ -625,15 +635,25 @@ func MaxDuration(a *UnixDuration, b *UnixDuration, others ...*UnixDuration) *Uni
 
 // Helper function that returns the lesser of two UnixDuration objects
 func minDurationInner(a *UnixDuration, b *UnixDuration) *UnixDuration {
+
+	// First, check if either of the inputs is nil; in this case we'll return it
+	if a == nil {
+		return a
+	} else if b == nil {
+		return b
+	}
+
+	// Next, neither of the inputs is nil so we'll compare the seconds and nanoseconds on each and
+	// return a if it is smaller than b
 	if a.Seconds < b.Seconds || (a.Seconds == b.Seconds && a.Nanoseconds < b.Nanoseconds) {
 		return a
 	}
 
+	// Finally, if we reached this point then b is smaller than a so return b
 	return b
 }
 
-// MinDuration returns the least of a series of at least two UnixDuration objects. None of the
-// UnixDuration objects provided to this function may be nil
+// MinDuration returns the least of a series of at least two UnixDuration objects
 func MinDuration(a *UnixDuration, b *UnixDuration, others ...*UnixDuration) *UnixDuration {
 	result := minDurationInner(a, b)
 	for _, other := range others {

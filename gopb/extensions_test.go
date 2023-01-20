@@ -843,19 +843,16 @@ var _ = Describe("UnixDuration Extensions Tests", func() {
 		Entry("Underflow error - Error", NewUnixDuration(-9223372036, -1000000000), int64(math.MinInt64), "Duration underflow"),
 		Entry("Overflow error - Error", NewUnixDuration(9223372036, 1000000000), int64(math.MaxInt64), "Duration overflow"))
 
-	// Tests that, if any of the values sent to MaxDuration function is nil then the function will panic
-	It("MaxDuration - Item is nil - Panic", func() {
-		Expect(func() {
-			_ = MaxDuration(NewUnixDuration(1655510399, 36000000), NewUnixDuration(1655510399, 0), nil)
-		}).Should(Panic())
-	})
-
 	// Tests the data conditions determining what MaxDuration will return
 	DescribeTable("MaxDuration - Conditions",
 		func(expected *UnixDuration, values ...*UnixDuration) {
 			max := MaxDuration(values[0], values[1], values[2:]...)
 			Expect(max).Should(Equal(expected))
 		},
+		Entry("First value is nil - Largest non-nil returned", NewUnixDuration(1655510399, 0),
+			nil, NewUnixDuration(1655510399, 0), NewUnixDuration(1555510399, 0)),
+		Entry("Second value is nil - Largest non-nil returned", NewUnixDuration(1655510000, 0),
+			NewUnixDuration(1655510000, 0), nil, NewUnixDuration(1555510399, 0)),
 		Entry("Seconds different - Largest returned", NewUnixDuration(1655510399, 0),
 			NewUnixDuration(1655510000, 0), NewUnixDuration(1655510399, 0), NewUnixDuration(1555510399, 0)),
 		Entry("Seconds same, Nanoseconds different - Largest returned", NewUnixDuration(1655510399, 900838091),
@@ -863,19 +860,16 @@ var _ = Describe("UnixDuration Extensions Tests", func() {
 		Entry("Seconds same, Nanoseconds same - First returned", NewUnixDuration(1655510399, 900838091),
 			NewUnixDuration(1655510399, 900838091), NewUnixDuration(1655510399, 900838091), NewUnixDuration(1655510399, 900838091)))
 
-	// Tests that, if any of the values sent to the MinDuration function is nil then the function will panic
-	It("MinDuration - Item is nil - Panic", func() {
-		Expect(func() {
-			_ = MinDuration(NewUnixDuration(1655510399, 36000000), NewUnixDuration(1655510399, 0), nil)
-		}).Should(Panic())
-	})
-
 	// Tests the data conditions determining what MinDuration will return
 	DescribeTable("MinDuration - Conditions",
 		func(expected *UnixDuration, values ...*UnixDuration) {
 			min := MinDuration(values[0], values[1], values[2:]...)
 			Expect(min).Should(Equal(expected))
 		},
+		Entry("First value is nil - Returned", nil,
+			nil, NewUnixDuration(1655510399, 0), NewUnixDuration(1555510399, 0)),
+		Entry("Second value is nil - Returned", nil,
+			NewUnixDuration(1655510000, 0), nil, NewUnixDuration(1555510399, 0)),
 		Entry("Seconds different - Smallest returned", NewUnixDuration(1555510399, 0),
 			NewUnixDuration(1655510000, 0), NewUnixDuration(1655510399, 0), NewUnixDuration(1555510399, 0)),
 		Entry("Seconds same, Nanoseconds different - Smallest returned", NewUnixDuration(1655510399, 0),
