@@ -2,6 +2,7 @@ package gopb
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -1066,4 +1067,6276 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 		Expect(duration.Seconds).Should(Equal(int64(-1654127993)))
 		Expect(duration.Nanoseconds).Should(Equal(int32(-983651350)))
 	})
+})
+
+var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Common.AssetClass enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Common_AssetClass, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Stock - Works", Financial_Common_Stock, "\"Stock\""),
+		Entry("Option - Works", Financial_Common_Option, "\"Option\""),
+		Entry("Crypto - Works", Financial_Common_Crypto, "\"Crypto\""),
+		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "\"ForeignExchange\""),
+		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "\"OverTheCounter\""))
+
+	// Test that converting the Financial.Common.AssetClass enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Common_AssetClass, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Stocks - Works", Financial_Common_Stock, "0"),
+		Entry("Options - Works", Financial_Common_Option, "1"),
+		Entry("Crypto - Works", Financial_Common_Crypto, "2"),
+		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "3"),
+		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "4"))
+
+	// Test that converting the Financial.Common.AssetClass enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Common_AssetClass, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("Stock - Works", Financial_Common_Stock, "Stock"),
+		Entry("Option - Works", Financial_Common_Option, "Option"),
+		Entry("Crypto - Works", Financial_Common_Crypto, "Crypto"),
+		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "ForeignExchange"),
+		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "OverTheCounter"))
+
+	// Test that attempting to deserialize a Financial.Common.AssetClass will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Common.AssetClass
+		// This should return an error
+		enum := new(Financial_Common_AssetClass)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_AssetClass"))
+	})
+
+	// Test that attempting to deserialize a Financial.Common.AssetClass will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.AssetClass
+		// This should return an error
+		enum := new(Financial_Common_AssetClass)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_AssetClass"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.AssetClass
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Financial_Common_AssetClass) {
+
+			// Attempt to convert the string value into a Financial.Common.AssetClass
+			// This should not fail
+			var enum Financial_Common_AssetClass
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Stock - Works", "\"Stock\"", Financial_Common_Stock),
+		Entry("Option - Works", "\"Option\"", Financial_Common_Option),
+		Entry("Crypto - Works", "\"Crypto\"", Financial_Common_Crypto),
+		Entry("ForeignExchange - Works", "\"ForeignExchange\"", Financial_Common_ForeignExchange),
+		Entry("OverTheCounter - Works", "\"OverTheCounter\"", Financial_Common_OverTheCounter),
+		Entry("stocks - Works", "\"stocks\"", Financial_Common_Stock),
+		Entry("options - Works", "\"options\"", Financial_Common_Option),
+		Entry("crypto - Works", "\"crypto\"", Financial_Common_Crypto),
+		Entry("otc - Works", "\"otc\"", Financial_Common_OverTheCounter),
+		Entry("fx - Works", "\"fx\"", Financial_Common_ForeignExchange),
+		Entry("0 - Works", "\"0\"", Financial_Common_Stock),
+		Entry("1 - Works", "\"1\"", Financial_Common_Option),
+		Entry("2 - Works", "\"2\"", Financial_Common_Crypto),
+		Entry("3 - Works", "\"3\"", Financial_Common_ForeignExchange),
+		Entry("4 - Works", "\"4\"", Financial_Common_OverTheCounter))
+
+	// Test that attempting to deserialize a Financial.Common.AssetClass will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.AssetClass
+		// This should return an error
+		enum := new(Financial_Common_AssetClass)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Common_AssetClass"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.AssetClass
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Common_AssetClass) {
+
+			// Attempt to convert the value into a Financial.Common.AssetClass
+			// This should not fail
+			var enum Financial_Common_AssetClass
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Stock - Works", "Stock", Financial_Common_Stock),
+		Entry("Option - Works", "Option", Financial_Common_Option),
+		Entry("Crypto - Works", "Crypto", Financial_Common_Crypto),
+		Entry("ForeignExchange - Works", "ForeignExchange", Financial_Common_ForeignExchange),
+		Entry("OverTheCounter - Works", "OverTheCounter", Financial_Common_OverTheCounter),
+		Entry("stocks - Works", "stocks", Financial_Common_Stock),
+		Entry("options - Works", "options", Financial_Common_Option),
+		Entry("crypto - Works", "crypto", Financial_Common_Crypto),
+		Entry("fx - Works", "fx", Financial_Common_ForeignExchange),
+		Entry("otc - Works", "otc", Financial_Common_OverTheCounter),
+		Entry("0 - Works", "0", Financial_Common_Stock),
+		Entry("1 - Works", "1", Financial_Common_Option),
+		Entry("2 - Works", "2", Financial_Common_Crypto),
+		Entry("3 - Works", "3", Financial_Common_ForeignExchange),
+		Entry("4 - Works", "4", Financial_Common_OverTheCounter))
+
+	// Tests that, if the attribute type submitted to UnmarshalDynamoDBAttributeValue is not one we
+	// recognize, then the function will return an error
+	It("UnmarshalDynamoDBAttributeValue - AttributeValue type invalid - Error", func() {
+		value := new(Financial_Common_AssetClass)
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberBOOL{Value: true}, &value)
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("Attribute value of *types.AttributeValueMemberBOOL could not be converted to a Financial.Common.AssetClass"))
+	})
+
+	// Tests the conditions under which UnmarshalDynamoDBAttributeValue is called and no error is generated
+	DescribeTable("UnmarshalDynamoDBAttributeValue - AttributeValue Conditions",
+		func(raw types.AttributeValue, expected Financial_Common_AssetClass) {
+			var value Financial_Common_AssetClass
+			err := attributevalue.Unmarshal(raw, &value)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(value).Should(Equal(expected))
+		},
+		Entry("Value is []bytes, stocks - Works",
+			&types.AttributeValueMemberB{Value: []byte("stocks")}, Financial_Common_Stock),
+		Entry("Value is []bytes, options - Works",
+			&types.AttributeValueMemberB{Value: []byte("options")}, Financial_Common_Option),
+		Entry("Value is []bytes, crypto - Works",
+			&types.AttributeValueMemberB{Value: []byte("crypto")}, Financial_Common_Crypto),
+		Entry("Value is []bytes, fx - Works",
+			&types.AttributeValueMemberB{Value: []byte("fx")}, Financial_Common_ForeignExchange),
+		Entry("Value is []bytes, otc - Works",
+			&types.AttributeValueMemberB{Value: []byte("otc")}, Financial_Common_OverTheCounter),
+		Entry("Value is []bytes, Stock - Works",
+			&types.AttributeValueMemberB{Value: []byte("Stock")}, Financial_Common_Stock),
+		Entry("Value is []bytes, Option - Works",
+			&types.AttributeValueMemberB{Value: []byte("Option")}, Financial_Common_Option),
+		Entry("Value is []bytes, Crypto - Works",
+			&types.AttributeValueMemberB{Value: []byte("Crypto")}, Financial_Common_Crypto),
+		Entry("Value is []bytes, ForeignExchange - Works",
+			&types.AttributeValueMemberB{Value: []byte("ForeignExchange")}, Financial_Common_ForeignExchange),
+		Entry("Value is []bytes, OverTheCounter - Works",
+			&types.AttributeValueMemberB{Value: []byte("OverTheCounter")}, Financial_Common_OverTheCounter),
+		Entry("Value is numeric, 0 - Works",
+			&types.AttributeValueMemberN{Value: "0"}, Financial_Common_Stock),
+		Entry("Value is numeric, 1 - Works",
+			&types.AttributeValueMemberN{Value: "1"}, Financial_Common_Option),
+		Entry("Value is numeric, 2 - Works",
+			&types.AttributeValueMemberN{Value: "2"}, Financial_Common_Crypto),
+		Entry("Value is numeric, 3 - Works",
+			&types.AttributeValueMemberN{Value: "3"}, Financial_Common_ForeignExchange),
+		Entry("Value is numeric, 4 - Works",
+			&types.AttributeValueMemberN{Value: "4"}, Financial_Common_OverTheCounter),
+		Entry("Value is NULL - Works", new(types.AttributeValueMemberNULL), Financial_Common_AssetClass(0)),
+		Entry("Value is string, stocks - Works",
+			&types.AttributeValueMemberS{Value: "stocks"}, Financial_Common_Stock),
+		Entry("Value is string, options - Works",
+			&types.AttributeValueMemberS{Value: "options"}, Financial_Common_Option),
+		Entry("Value is string, crypto - Works",
+			&types.AttributeValueMemberS{Value: "crypto"}, Financial_Common_Crypto),
+		Entry("Value is string, fx - Works",
+			&types.AttributeValueMemberS{Value: "fx"}, Financial_Common_ForeignExchange),
+		Entry("Value is string, otc - Works",
+			&types.AttributeValueMemberS{Value: "otc"}, Financial_Common_OverTheCounter),
+		Entry("Value is string, Stock - Works",
+			&types.AttributeValueMemberS{Value: "Stock"}, Financial_Common_Stock),
+		Entry("Value is string, Option - Works",
+			&types.AttributeValueMemberS{Value: "Option"}, Financial_Common_Option),
+		Entry("Value is string, Crypto - Works",
+			&types.AttributeValueMemberS{Value: "Crypto"}, Financial_Common_Crypto),
+		Entry("Value is string, ForeignExchange - Works",
+			&types.AttributeValueMemberS{Value: "ForeignExchange"}, Financial_Common_ForeignExchange),
+		Entry("Value is string, OverTheCounter - Works",
+			&types.AttributeValueMemberS{Value: "OverTheCounter"}, Financial_Common_OverTheCounter))
+
+	// Test that attempting to deserialize a Financial.Common.AssetClass will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.AssetClass
+		// This should return an error
+		var enum *Financial_Common_AssetClass
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.AssetClass
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Common_AssetClass) {
+
+			// Attempt to convert the value into a Financial.Common.AssetClass
+			// This should not fail
+			var enum Financial_Common_AssetClass
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Stock - Works", "Stock", Financial_Common_Stock),
+		Entry("Option - Works", "Option", Financial_Common_Option),
+		Entry("Crypto - Works", "Crypto", Financial_Common_Crypto),
+		Entry("ForeignExchange - Works", "ForeignExchange", Financial_Common_ForeignExchange),
+		Entry("OverTheCounter - Works", "OverTheCounter", Financial_Common_OverTheCounter),
+		Entry("stocks - Works", "stocks", Financial_Common_Stock),
+		Entry("options - Works", "options", Financial_Common_Option),
+		Entry("crypto - Works", "crypto", Financial_Common_Crypto),
+		Entry("fx - Works", "fx", Financial_Common_ForeignExchange),
+		Entry("otc - Works", "otc", Financial_Common_OverTheCounter),
+		Entry("0 - Works", 0, Financial_Common_Stock),
+		Entry("1 - Works", 1, Financial_Common_Option),
+		Entry("2 - Works", 2, Financial_Common_Crypto),
+		Entry("3 - Works", 3, Financial_Common_ForeignExchange),
+		Entry("4 - Works", 4, Financial_Common_OverTheCounter))
+})
+
+var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Common.AssetType enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Common_AssetType, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("CommonShare - Works", Financial_Common_CommonShare, "\"CommonShare\""),
+		Entry("OrdinaryShare - Works", Financial_Common_OrdinaryShare, "\"OrdinaryShare\""),
+		Entry("NewYorkRegistryShares - Works", Financial_Common_NewYorkRegistryShares, "\"NewYorkRegistryShares\""),
+		Entry("AmericanDepositoryReceiptCommon - Works",
+			Financial_Common_AmericanDepositoryReceiptCommon, "\"AmericanDepositoryReceiptCommon\""),
+		Entry("AmericanDepositoryReceiptPreferred - Works",
+			Financial_Common_AmericanDepositoryReceiptPreferred, "\"AmericanDepositoryReceiptPreferred\""),
+		Entry("AmericanDepositoryReceiptRights - Works",
+			Financial_Common_AmericanDepositoryReceiptRights, "\"AmericanDepositoryReceiptRights\""),
+		Entry("AmericanDepositoryReceiptWarrants - Works",
+			Financial_Common_AmericanDepositoryReceiptWarrants, "\"AmericanDepositoryReceiptWarrants\""),
+		Entry("GlobalDepositoryReceipts - Works", Financial_Common_GlobalDepositoryReceipts, "\"GlobalDepositoryReceipts\""),
+		Entry("Unit - Works", Financial_Common_Unit, "\"Unit\""),
+		Entry("Rights - Works", Financial_Common_Rights, "\"Rights\""),
+		Entry("PreferredStock - Works", Financial_Common_PreferredStock, "\"PreferredStock\""),
+		Entry("Fund - Works", Financial_Common_Fund, "\"Fund\""),
+		Entry("StructuredProduct - Works", Financial_Common_StructuredProduct, "\"StructuredProduct\""),
+		Entry("Warrant - Works", Financial_Common_Warrant, "\"Warrant\""),
+		Entry("Index - Works", Financial_Common_Index, "\"Index\""),
+		Entry("ExchangeTradedFund - Works", Financial_Common_ExchangeTradedFund, "\"ExchangeTradedFund\""),
+		Entry("ExchangeTradedNote - Works", Financial_Common_ExchangeTradedNote, "\"ExchangeTradedNote\""),
+		Entry("CorporateBond - Works", Financial_Common_CorporateBond, "\"CorporateBond\""),
+		Entry("AgencyBond - Works", Financial_Common_AgencyBond, "\"AgencyBond\""),
+		Entry("EquityLinkedBond - Works", Financial_Common_EquityLinkedBond, "\"EquityLinkedBond\""),
+		Entry("Basket - Works", Financial_Common_Basket, "\"Basket\""),
+		Entry("LiquidatingTrust - Works", Financial_Common_LiquidatingTrust, "\"LiquidatingTrust\""),
+		Entry("Others - Works", Financial_Common_Others, "\"Others\""),
+		Entry("None - Works", Financial_Common_None, "\"None\""))
+
+	// Test that converting the Financial.Common.AssetType enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Common_AssetType, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("CommonShare - Works", Financial_Common_CommonShare, "0"),
+		Entry("OrdinaryShare - Works", Financial_Common_OrdinaryShare, "1"),
+		Entry("NewYorkRegistryShares - Works", Financial_Common_NewYorkRegistryShares, "2"),
+		Entry("AmericanDepositoryReceiptCommon - Works", Financial_Common_AmericanDepositoryReceiptCommon, "3"),
+		Entry("AmericanDepositoryReceiptPreferred - Works", Financial_Common_AmericanDepositoryReceiptPreferred, "4"),
+		Entry("AmericanDepositoryReceiptRights - Works", Financial_Common_AmericanDepositoryReceiptRights, "5"),
+		Entry("AmericanDepositoryReceiptWarrants - Works", Financial_Common_AmericanDepositoryReceiptWarrants, "6"),
+		Entry("GlobalDepositoryReceipts - Works", Financial_Common_GlobalDepositoryReceipts, "7"),
+		Entry("Unit - Works", Financial_Common_Unit, "8"),
+		Entry("Rights - Works", Financial_Common_Rights, "9"),
+		Entry("PreferredStock - Works", Financial_Common_PreferredStock, "10"),
+		Entry("Fund - Works", Financial_Common_Fund, "11"),
+		Entry("StructuredProduct - Works", Financial_Common_StructuredProduct, "12"),
+		Entry("Warrant - Works", Financial_Common_Warrant, "13"),
+		Entry("Index - Works", Financial_Common_Index, "14"),
+		Entry("ExchangeTradedFund - Works", Financial_Common_ExchangeTradedFund, "15"),
+		Entry("ExchangeTradedNote - Works", Financial_Common_ExchangeTradedNote, "16"),
+		Entry("CorporateBond - Works", Financial_Common_CorporateBond, "17"),
+		Entry("AgencyBond - Works", Financial_Common_AgencyBond, "18"),
+		Entry("EquityLinkedBond - Works", Financial_Common_EquityLinkedBond, "19"),
+		Entry("Basket - Works", Financial_Common_Basket, "20"),
+		Entry("LiquidatingTrust - Works", Financial_Common_LiquidatingTrust, "21"),
+		Entry("Others - Works", Financial_Common_Others, "22"),
+		Entry("None - Works", Financial_Common_None, "23"))
+
+	// Test that converting the Financial.Common.AssetType enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Common_AssetType, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("CommonShare - Works", Financial_Common_CommonShare, "CommonShare"),
+		Entry("OrdinaryShare - Works", Financial_Common_OrdinaryShare, "OrdinaryShare"),
+		Entry("NewYorkRegistryShares - Works", Financial_Common_NewYorkRegistryShares, "NewYorkRegistryShares"),
+		Entry("AmericanDepositoryReceiptCommon - Works",
+			Financial_Common_AmericanDepositoryReceiptCommon, "AmericanDepositoryReceiptCommon"),
+		Entry("AmericanDepositoryReceiptPreferred - Works",
+			Financial_Common_AmericanDepositoryReceiptPreferred, "AmericanDepositoryReceiptPreferred"),
+		Entry("AmericanDepositoryReceiptRights - Works",
+			Financial_Common_AmericanDepositoryReceiptRights, "AmericanDepositoryReceiptRights"),
+		Entry("AmericanDepositoryReceiptWarrants - Works",
+			Financial_Common_AmericanDepositoryReceiptWarrants, "AmericanDepositoryReceiptWarrants"),
+		Entry("GlobalDepositoryReceipts - Works", Financial_Common_GlobalDepositoryReceipts, "GlobalDepositoryReceipts"),
+		Entry("Unit - Works", Financial_Common_Unit, "Unit"),
+		Entry("Rights - Works", Financial_Common_Rights, "Rights"),
+		Entry("PreferredStock - Works", Financial_Common_PreferredStock, "PreferredStock"),
+		Entry("Fund - Works", Financial_Common_Fund, "Fund"),
+		Entry("StructuredProduct - Works", Financial_Common_StructuredProduct, "StructuredProduct"),
+		Entry("Warrant - Works", Financial_Common_Warrant, "Warrant"),
+		Entry("Index - Works", Financial_Common_Index, "Index"),
+		Entry("ExchangeTradedFund - Works", Financial_Common_ExchangeTradedFund, "ExchangeTradedFund"),
+		Entry("ExchangeTradedNote - Works", Financial_Common_ExchangeTradedNote, "ExchangeTradedNote"),
+		Entry("CorporateBond - Works", Financial_Common_CorporateBond, "CorporateBond"),
+		Entry("AgencyBond - Works", Financial_Common_AgencyBond, "AgencyBond"),
+		Entry("EquityLinkedBond - Works", Financial_Common_EquityLinkedBond, "EquityLinkedBond"),
+		Entry("Basket - Works", Financial_Common_Basket, "Basket"),
+		Entry("LiquidatingTrust - Works", Financial_Common_LiquidatingTrust, "LiquidatingTrust"),
+		Entry("Others - Works", Financial_Common_Others, "Others"),
+		Entry("None - Works", Financial_Common_None, "None"))
+
+	// Test that attempting to deserialize a Financial.Common.AssetType will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Common.AssetType
+		// This should return an error
+		enum := new(Financial_Common_AssetType)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_AssetType"))
+	})
+
+	// Test that attempting to deserialize a Financial.Common.AssetType will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.AssetType
+		// This should return an error
+		enum := new(Financial_Common_AssetType)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_AssetType"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.AssetType
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Financial_Common_AssetType) {
+
+			// Attempt to convert the string value into a Financial.Common.AssetType
+			// This should not fail
+			var enum Financial_Common_AssetType
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("CS - Works", "\"CS\"", Financial_Common_CommonShare),
+		Entry("OS - Works", "\"OS\"", Financial_Common_OrdinaryShare),
+		Entry("NYRS - Works", "\"NYRS\"", Financial_Common_NewYorkRegistryShares),
+		Entry("ADRC - Works", "\"ADRC\"", Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("ADRP - Works", "\"ADRP\"", Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("ADRR - Works", "\"ADRR\"", Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("ADRW - Works", "\"ADRW\"", Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("GDR - Works", "\"GDR\"", Financial_Common_GlobalDepositoryReceipts),
+		Entry("UNIT - Works", "\"UNIT\"", Financial_Common_Unit),
+		Entry("RIGHT - Works", "\"RIGHT\"", Financial_Common_Rights),
+		Entry("PFD - Works", "\"PFD\"", Financial_Common_PreferredStock),
+		Entry("FUND - Works", "\"FUND\"", Financial_Common_Fund),
+		Entry("SP - Works", "\"SP\"", Financial_Common_StructuredProduct),
+		Entry("WARRANT - Works", "\"WARRANT\"", Financial_Common_Warrant),
+		Entry("INDEX - Works", "\"INDEX\"", Financial_Common_Index),
+		Entry("ETF - Works", "\"ETF\"", Financial_Common_ExchangeTradedFund),
+		Entry("ETN - Works", "\"ETN\"", Financial_Common_ExchangeTradedNote),
+		Entry("BOND - Works", "\"BOND\"", Financial_Common_CorporateBond),
+		Entry("AGEN - Works", "\"AGEN\"", Financial_Common_AgencyBond),
+		Entry("EQLK - Works", "\"EQLK\"", Financial_Common_EquityLinkedBond),
+		Entry("BASKET - Works", "\"BASKET\"", Financial_Common_Basket),
+		Entry("LT - Works", "\"LT\"", Financial_Common_LiquidatingTrust),
+		Entry("OTHER - Works", "\"OTHER\"", Financial_Common_Others),
+		Entry("Empty string - Works", "\"\"", Financial_Common_None),
+		Entry("CommonShare - Works", "\"CommonShare\"", Financial_Common_CommonShare),
+		Entry("OrdinaryShare - Works", "\"OrdinaryShare\"", Financial_Common_OrdinaryShare),
+		Entry("NewYorkRegistryShares - Works", "\"NewYorkRegistryShares\"", Financial_Common_NewYorkRegistryShares),
+		Entry("AmericanDepositoryReceiptCommon - Works",
+			"\"AmericanDepositoryReceiptCommon\"", Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("AmericanDepositoryReceiptPreferred - Works",
+			"\"AmericanDepositoryReceiptPreferred\"", Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("AmericanDepositoryReceiptRights - Works",
+			"\"AmericanDepositoryReceiptRights\"", Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("AmericanDepositoryReceiptWarrants - Works",
+			"\"AmericanDepositoryReceiptWarrants\"", Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("GlobalDepositoryReceipts - Works", "\"GlobalDepositoryReceipts\"", Financial_Common_GlobalDepositoryReceipts),
+		Entry("Unit - Works", "\"Unit\"", Financial_Common_Unit),
+		Entry("Rights - Works", "\"Rights\"", Financial_Common_Rights),
+		Entry("PreferredStock - Works", "\"PreferredStock\"", Financial_Common_PreferredStock),
+		Entry("Fund - Works", "\"Fund\"", Financial_Common_Fund),
+		Entry("StructuredProduct - Works", "\"StructuredProduct\"", Financial_Common_StructuredProduct),
+		Entry("Warrant - Works", "\"Warrant\"", Financial_Common_Warrant),
+		Entry("Index - Works", "\"Index\"", Financial_Common_Index),
+		Entry("ExchangeTradedFund - Works", "\"ExchangeTradedFund\"", Financial_Common_ExchangeTradedFund),
+		Entry("ExchangeTradedNote - Works", "\"ExchangeTradedNote\"", Financial_Common_ExchangeTradedNote),
+		Entry("CorporateBond - Works", "\"CorporateBond\"", Financial_Common_CorporateBond),
+		Entry("AgencyBond - Works", "\"AgencyBond\"", Financial_Common_AgencyBond),
+		Entry("EquityLinkedBond - Works", "\"EquityLinkedBond\"", Financial_Common_EquityLinkedBond),
+		Entry("Basket - Works", "\"Basket\"", Financial_Common_Basket),
+		Entry("LiquidatingTrust - Works", "\"LiquidatingTrust\"", Financial_Common_LiquidatingTrust),
+		Entry("Others - Works", "\"Others\"", Financial_Common_Others),
+		Entry("None - Works", "\"None\"", Financial_Common_None),
+		Entry("0 - Works", "\"0\"", Financial_Common_CommonShare),
+		Entry("1 - Works", "\"1\"", Financial_Common_OrdinaryShare),
+		Entry("2 - Works", "\"2\"", Financial_Common_NewYorkRegistryShares),
+		Entry("3 - Works", "\"3\"", Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("4 - Works", "\"4\"", Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("5 - Works", "\"5\"", Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("6 - Works", "\"6\"", Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("7 - Works", "\"7\"", Financial_Common_GlobalDepositoryReceipts),
+		Entry("8 - Works", "\"8\"", Financial_Common_Unit),
+		Entry("9 - Works", "\"9\"", Financial_Common_Rights),
+		Entry("10 - Works", "\"10\"", Financial_Common_PreferredStock),
+		Entry("11 - Works", "\"11\"", Financial_Common_Fund),
+		Entry("12 - Works", "\"12\"", Financial_Common_StructuredProduct),
+		Entry("13 - Works", "\"13\"", Financial_Common_Warrant),
+		Entry("14 - Works", "\"14\"", Financial_Common_Index),
+		Entry("15 - Works", "\"15\"", Financial_Common_ExchangeTradedFund),
+		Entry("16 - Works", "\"16\"", Financial_Common_ExchangeTradedNote),
+		Entry("17 - Works", "\"17\"", Financial_Common_CorporateBond),
+		Entry("18 - Works", "\"18\"", Financial_Common_AgencyBond),
+		Entry("19 - Works", "\"19\"", Financial_Common_EquityLinkedBond),
+		Entry("20 - Works", "\"20\"", Financial_Common_Basket),
+		Entry("21 - Works", "\"21\"", Financial_Common_LiquidatingTrust),
+		Entry("22 - Works", "\"22\"", Financial_Common_Others),
+		Entry("23 - Works", "\"23\"", Financial_Common_None))
+
+	// Test that attempting to deserialize a Financial.Common.AssetType will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.AssetType
+		// This should return an error
+		enum := new(Financial_Common_AssetType)
+		err := enum.UnmarshalCSV("derp")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_AssetType"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.AssetType
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Common_AssetType) {
+
+			// Attempt to convert the value into a Financial.Common.AssetType
+			// This should not fail
+			var enum Financial_Common_AssetType
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("CS - Works", "CS", Financial_Common_CommonShare),
+		Entry("OS - Works", "OS", Financial_Common_OrdinaryShare),
+		Entry("NYRS - Works", "NYRS", Financial_Common_NewYorkRegistryShares),
+		Entry("ADRC - Works", "ADRC", Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("ADRP - Works", "ADRP", Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("ADRR - Works", "ADRR", Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("ADRW - Works", "ADRW", Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("GDR - Works", "GDR", Financial_Common_GlobalDepositoryReceipts),
+		Entry("UNIT - Works", "UNIT", Financial_Common_Unit),
+		Entry("RIGHT - Works", "RIGHT", Financial_Common_Rights),
+		Entry("PFD - Works", "PFD", Financial_Common_PreferredStock),
+		Entry("FUND - Works", "FUND", Financial_Common_Fund),
+		Entry("SP - Works", "SP", Financial_Common_StructuredProduct),
+		Entry("WARRANT - Works", "WARRANT", Financial_Common_Warrant),
+		Entry("INDEX - Works", "INDEX", Financial_Common_Index),
+		Entry("ETF - Works", "ETF", Financial_Common_ExchangeTradedFund),
+		Entry("ETN - Works", "ETN", Financial_Common_ExchangeTradedNote),
+		Entry("BOND - Works", "BOND", Financial_Common_CorporateBond),
+		Entry("AGEN - Works", "AGEN", Financial_Common_AgencyBond),
+		Entry("EQLK - Works", "EQLK", Financial_Common_EquityLinkedBond),
+		Entry("BASKET - Works", "BASKET", Financial_Common_Basket),
+		Entry("LT - Works", "LT", Financial_Common_LiquidatingTrust),
+		Entry("OTHER - Works", "OTHER", Financial_Common_Others),
+		Entry("Empty string - Works", "", Financial_Common_None),
+		Entry("CommonShare - Works", "CommonShare", Financial_Common_CommonShare),
+		Entry("OrdinaryShare - Works", "OrdinaryShare", Financial_Common_OrdinaryShare),
+		Entry("NewYorkRegistryShares - Works", "NewYorkRegistryShares", Financial_Common_NewYorkRegistryShares),
+		Entry("AmericanDepositoryReceiptCommon - Works",
+			"AmericanDepositoryReceiptCommon", Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("AmericanDepositoryReceiptPreferred - Works",
+			"AmericanDepositoryReceiptPreferred", Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("AmericanDepositoryReceiptRights - Works",
+			"AmericanDepositoryReceiptRights", Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("AmericanDepositoryReceiptWarrants - Works",
+			"AmericanDepositoryReceiptWarrants", Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("GlobalDepositoryReceipts - Works", "GlobalDepositoryReceipts", Financial_Common_GlobalDepositoryReceipts),
+		Entry("Unit - Works", "Unit", Financial_Common_Unit),
+		Entry("Rights - Works", "Rights", Financial_Common_Rights),
+		Entry("PreferredStock - Works", "PreferredStock", Financial_Common_PreferredStock),
+		Entry("Fund - Works", "Fund", Financial_Common_Fund),
+		Entry("StructuredProduct - Works", "StructuredProduct", Financial_Common_StructuredProduct),
+		Entry("Warrant - Works", "Warrant", Financial_Common_Warrant),
+		Entry("Index - Works", "Index", Financial_Common_Index),
+		Entry("ExchangeTradedFund - Works", "ExchangeTradedFund", Financial_Common_ExchangeTradedFund),
+		Entry("ExchangeTradedNote - Works", "ExchangeTradedNote", Financial_Common_ExchangeTradedNote),
+		Entry("CorporateBond - Works", "CorporateBond", Financial_Common_CorporateBond),
+		Entry("AgencyBond - Works", "AgencyBond", Financial_Common_AgencyBond),
+		Entry("EquityLinkedBond - Works", "EquityLinkedBond", Financial_Common_EquityLinkedBond),
+		Entry("Basket - Works", "Basket", Financial_Common_Basket),
+		Entry("LiquidatingTrust - Works", "LiquidatingTrust", Financial_Common_LiquidatingTrust),
+		Entry("Others - Works", "Others", Financial_Common_Others),
+		Entry("None - Works", "None", Financial_Common_None),
+		Entry("0 - Works", "0", Financial_Common_CommonShare),
+		Entry("1 - Works", "1", Financial_Common_OrdinaryShare),
+		Entry("2 - Works", "2", Financial_Common_NewYorkRegistryShares),
+		Entry("3 - Works", "3", Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("4 - Works", "4", Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("5 - Works", "5", Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("6 - Works", "6", Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("7 - Works", "7", Financial_Common_GlobalDepositoryReceipts),
+		Entry("8 - Works", "8", Financial_Common_Unit),
+		Entry("9 - Works", "9", Financial_Common_Rights),
+		Entry("10 - Works", "10", Financial_Common_PreferredStock),
+		Entry("11 - Works", "11", Financial_Common_Fund),
+		Entry("12 - Works", "12", Financial_Common_StructuredProduct),
+		Entry("13 - Works", "13", Financial_Common_Warrant),
+		Entry("14 - Works", "14", Financial_Common_Index),
+		Entry("15 - Works", "15", Financial_Common_ExchangeTradedFund),
+		Entry("16 - Works", "16", Financial_Common_ExchangeTradedNote),
+		Entry("17 - Works", "17", Financial_Common_CorporateBond),
+		Entry("18 - Works", "18", Financial_Common_AgencyBond),
+		Entry("19 - Works", "19", Financial_Common_EquityLinkedBond),
+		Entry("20 - Works", "20", Financial_Common_Basket),
+		Entry("21 - Works", "21", Financial_Common_LiquidatingTrust),
+		Entry("22 - Works", "22", Financial_Common_Others),
+		Entry("23 - Works", "23", Financial_Common_None))
+
+	// Tests that, if the attribute type submitted to UnmarshalDynamoDBAttributeValue is not one we
+	// recognize, then the function will return an error
+	It("UnmarshalDynamoDBAttributeValue - AttributeValue type invalid - Error", func() {
+		value := new(Financial_Common_AssetType)
+		err := attributevalue.Unmarshal(&types.AttributeValueMemberBOOL{Value: true}, &value)
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("Attribute value of *types.AttributeValueMemberBOOL could not be converted to a Financial.Common.AssetType"))
+	})
+
+	// Tests the conditions under which UnmarshalDynamoDBAttributeValue is called and no error is generated
+	DescribeTable("UnmarshalDynamoDBAttributeValue - AttributeValue Conditions",
+		func(raw types.AttributeValue, expected Financial_Common_AssetType) {
+			var value Financial_Common_AssetType
+			err := attributevalue.Unmarshal(raw, &value)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(value).Should(Equal(expected))
+		},
+		Entry("Value is []bytes, CS - Works",
+			&types.AttributeValueMemberB{Value: []byte("CS")}, Financial_Common_CommonShare),
+		Entry("Value is []bytes, OS - Works",
+			&types.AttributeValueMemberB{Value: []byte("OS")}, Financial_Common_OrdinaryShare),
+		Entry("Value is []bytes, NYRS - Works",
+			&types.AttributeValueMemberB{Value: []byte("NYRS")}, Financial_Common_NewYorkRegistryShares),
+		Entry("Value is []bytes, ADRC - Works",
+			&types.AttributeValueMemberB{Value: []byte("ADRC")}, Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("Value is []bytes, ADRP - Works",
+			&types.AttributeValueMemberB{Value: []byte("ADRP")}, Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("Value is []bytes, ADRR - Works",
+			&types.AttributeValueMemberB{Value: []byte("ADRR")}, Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("Value is []bytes, ADRW - Works",
+			&types.AttributeValueMemberB{Value: []byte("ADRW")}, Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("Value is []bytes, GDR - Works",
+			&types.AttributeValueMemberB{Value: []byte("GDR")}, Financial_Common_GlobalDepositoryReceipts),
+		Entry("Value is []bytes, UNIT - Works",
+			&types.AttributeValueMemberB{Value: []byte("UNIT")}, Financial_Common_Unit),
+		Entry("Value is []bytes, RIGHT - Works",
+			&types.AttributeValueMemberB{Value: []byte("RIGHT")}, Financial_Common_Rights),
+		Entry("Value is []bytes, PFD - Works",
+			&types.AttributeValueMemberB{Value: []byte("PFD")}, Financial_Common_PreferredStock),
+		Entry("Value is []bytes, FUND - Works",
+			&types.AttributeValueMemberB{Value: []byte("FUND")}, Financial_Common_Fund),
+		Entry("Value is []bytes, SP - Works",
+			&types.AttributeValueMemberB{Value: []byte("SP")}, Financial_Common_StructuredProduct),
+		Entry("Value is []bytes, WARRANT - Works",
+			&types.AttributeValueMemberB{Value: []byte("WARRANT")}, Financial_Common_Warrant),
+		Entry("Value is []bytes, INDEX - Works",
+			&types.AttributeValueMemberB{Value: []byte("INDEX")}, Financial_Common_Index),
+		Entry("Value is []bytes, ETF - Works",
+			&types.AttributeValueMemberB{Value: []byte("ETF")}, Financial_Common_ExchangeTradedFund),
+		Entry("Value is []bytes, ETN - Works",
+			&types.AttributeValueMemberB{Value: []byte("ETN")}, Financial_Common_ExchangeTradedNote),
+		Entry("Value is []bytes, BOND - Works",
+			&types.AttributeValueMemberB{Value: []byte("BOND")}, Financial_Common_CorporateBond),
+		Entry("Value is []bytes, AGEN - Works",
+			&types.AttributeValueMemberB{Value: []byte("AGEN")}, Financial_Common_AgencyBond),
+		Entry("Value is []bytes, EQLK - Works",
+			&types.AttributeValueMemberB{Value: []byte("EQLK")}, Financial_Common_EquityLinkedBond),
+		Entry("Value is []bytes, BASKET - Works",
+			&types.AttributeValueMemberB{Value: []byte("BASKET")}, Financial_Common_Basket),
+		Entry("Value is []bytes, LT - Works",
+			&types.AttributeValueMemberB{Value: []byte("LT")}, Financial_Common_LiquidatingTrust),
+		Entry("Value is []bytes, OTHER - Works",
+			&types.AttributeValueMemberB{Value: []byte("OTHER")}, Financial_Common_Others),
+		Entry("Value is []bytes, Empty string - Works",
+			&types.AttributeValueMemberB{Value: []byte("")}, Financial_Common_None),
+		Entry("Value is []bytes, CommonShare - Works",
+			&types.AttributeValueMemberB{Value: []byte("CommonShare")}, Financial_Common_CommonShare),
+		Entry("Value is []bytes, OrdinaryShare - Works",
+			&types.AttributeValueMemberB{Value: []byte("OrdinaryShare")}, Financial_Common_OrdinaryShare),
+		Entry("Value is []bytes, NewYorkRegistryShares - Works",
+			&types.AttributeValueMemberB{Value: []byte("NewYorkRegistryShares")}, Financial_Common_NewYorkRegistryShares),
+		Entry("Value is []bytes, AmericanDepositoryReceiptCommon - Works",
+			&types.AttributeValueMemberB{Value: []byte("AmericanDepositoryReceiptCommon")}, Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("Value is []bytes, AmericanDepositoryReceiptPreferred - Works",
+			&types.AttributeValueMemberB{Value: []byte("AmericanDepositoryReceiptPreferred")}, Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("Value is []bytes, AmericanDepositoryReceiptRights - Works",
+			&types.AttributeValueMemberB{Value: []byte("AmericanDepositoryReceiptRights")}, Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("Value is []bytes, AmericanDepositoryReceiptWarrants - Works",
+			&types.AttributeValueMemberB{Value: []byte("AmericanDepositoryReceiptWarrants")}, Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("Value is []bytes, GlobalDepositoryReceipts - Works",
+			&types.AttributeValueMemberB{Value: []byte("GlobalDepositoryReceipts")}, Financial_Common_GlobalDepositoryReceipts),
+		Entry("Value is []bytes, Unit - Works",
+			&types.AttributeValueMemberB{Value: []byte("Unit")}, Financial_Common_Unit),
+		Entry("Value is []bytes, Rights - Works",
+			&types.AttributeValueMemberB{Value: []byte("Rights")}, Financial_Common_Rights),
+		Entry("Value is []bytes, PreferredStock - Works",
+			&types.AttributeValueMemberB{Value: []byte("PreferredStock")}, Financial_Common_PreferredStock),
+		Entry("Value is []bytes, Fund - Works",
+			&types.AttributeValueMemberB{Value: []byte("Fund")}, Financial_Common_Fund),
+		Entry("Value is []bytes, StructuredProduct - Works",
+			&types.AttributeValueMemberB{Value: []byte("StructuredProduct")}, Financial_Common_StructuredProduct),
+		Entry("Value is []bytes, Warrant - Works",
+			&types.AttributeValueMemberB{Value: []byte("Warrant")}, Financial_Common_Warrant),
+		Entry("Value is []bytes, Index - Works",
+			&types.AttributeValueMemberB{Value: []byte("Index")}, Financial_Common_Index),
+		Entry("Value is []bytes, ExchangeTradedFund - Works",
+			&types.AttributeValueMemberB{Value: []byte("ExchangeTradedFund")}, Financial_Common_ExchangeTradedFund),
+		Entry("Value is []bytes, ExchangeTradedNote - Works",
+			&types.AttributeValueMemberB{Value: []byte("ExchangeTradedNote")}, Financial_Common_ExchangeTradedNote),
+		Entry("Value is []bytes, CorporateBond - Works",
+			&types.AttributeValueMemberB{Value: []byte("CorporateBond")}, Financial_Common_CorporateBond),
+		Entry("Value is []bytes, AgencyBond - Works",
+			&types.AttributeValueMemberB{Value: []byte("AgencyBond")}, Financial_Common_AgencyBond),
+		Entry("Value is []bytes, EquityLinkedBond - Works",
+			&types.AttributeValueMemberB{Value: []byte("EquityLinkedBond")}, Financial_Common_EquityLinkedBond),
+		Entry("Value is []bytes, Basket - Works",
+			&types.AttributeValueMemberB{Value: []byte("Basket")}, Financial_Common_Basket),
+		Entry("Value is []bytes, LiquidatingTrust - Works",
+			&types.AttributeValueMemberB{Value: []byte("LiquidatingTrust")}, Financial_Common_LiquidatingTrust),
+		Entry("Value is []bytes, Others - Works",
+			&types.AttributeValueMemberB{Value: []byte("Others")}, Financial_Common_Others),
+		Entry("Value is []bytes, None - Works",
+			&types.AttributeValueMemberB{Value: []byte("None")}, Financial_Common_None),
+		Entry("Value is numeric, 0 - Works",
+			&types.AttributeValueMemberN{Value: "0"}, Financial_Common_CommonShare),
+		Entry("Value is numeric, 1 - Works",
+			&types.AttributeValueMemberN{Value: "1"}, Financial_Common_OrdinaryShare),
+		Entry("Value is numeric, 2 - Works",
+			&types.AttributeValueMemberN{Value: "2"}, Financial_Common_NewYorkRegistryShares),
+		Entry("Value is numeric, 3 - Works",
+			&types.AttributeValueMemberN{Value: "3"}, Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("Value is numeric, 4 - Works",
+			&types.AttributeValueMemberN{Value: "4"}, Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("Value is numeric, 5 - Works",
+			&types.AttributeValueMemberN{Value: "5"}, Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("Value is numeric, 6 - Works",
+			&types.AttributeValueMemberN{Value: "6"}, Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("Value is numeric, 7 - Works",
+			&types.AttributeValueMemberN{Value: "7"}, Financial_Common_GlobalDepositoryReceipts),
+		Entry("Value is numeric, 8 - Works",
+			&types.AttributeValueMemberN{Value: "8"}, Financial_Common_Unit),
+		Entry("Value is numeric, 9 - Works",
+			&types.AttributeValueMemberN{Value: "9"}, Financial_Common_Rights),
+		Entry("Value is numeric, 10 - Works",
+			&types.AttributeValueMemberN{Value: "10"}, Financial_Common_PreferredStock),
+		Entry("Value is numeric, 11 - Works",
+			&types.AttributeValueMemberN{Value: "11"}, Financial_Common_Fund),
+		Entry("Value is numeric, 12 - Works",
+			&types.AttributeValueMemberN{Value: "12"}, Financial_Common_StructuredProduct),
+		Entry("Value is numeric, 13 - Works",
+			&types.AttributeValueMemberN{Value: "13"}, Financial_Common_Warrant),
+		Entry("Value is numeric, 14 - Works",
+			&types.AttributeValueMemberN{Value: "14"}, Financial_Common_Index),
+		Entry("Value is numeric, 15 - Works",
+			&types.AttributeValueMemberN{Value: "15"}, Financial_Common_ExchangeTradedFund),
+		Entry("Value is numeric, 16 - Works",
+			&types.AttributeValueMemberN{Value: "16"}, Financial_Common_ExchangeTradedNote),
+		Entry("Value is numeric, 17 - Works",
+			&types.AttributeValueMemberN{Value: "17"}, Financial_Common_CorporateBond),
+		Entry("Value is numeric, 18 - Works",
+			&types.AttributeValueMemberN{Value: "18"}, Financial_Common_AgencyBond),
+		Entry("Value is numeric, 19 - Works",
+			&types.AttributeValueMemberN{Value: "19"}, Financial_Common_EquityLinkedBond),
+		Entry("Value is numeric, 20 - Works",
+			&types.AttributeValueMemberN{Value: "20"}, Financial_Common_Basket),
+		Entry("Value is numeric, 21 - Works",
+			&types.AttributeValueMemberN{Value: "21"}, Financial_Common_LiquidatingTrust),
+		Entry("Value is numeric, 22 - Works",
+			&types.AttributeValueMemberN{Value: "22"}, Financial_Common_Others),
+		Entry("Value is numeric, 23 - Works",
+			&types.AttributeValueMemberN{Value: "23"}, Financial_Common_None),
+		Entry("Value is NULL - Works", new(types.AttributeValueMemberNULL), Financial_Common_AssetType(0)),
+		Entry("Value is string, CS - Works",
+			&types.AttributeValueMemberS{Value: "CS"}, Financial_Common_CommonShare),
+		Entry("Value is string, OS - Works",
+			&types.AttributeValueMemberS{Value: "OS"}, Financial_Common_OrdinaryShare),
+		Entry("Value is string, NYRS - Works",
+			&types.AttributeValueMemberS{Value: "NYRS"}, Financial_Common_NewYorkRegistryShares),
+		Entry("Value is string, ADRC - Works",
+			&types.AttributeValueMemberS{Value: "ADRC"}, Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("Value is string, ADRP - Works",
+			&types.AttributeValueMemberS{Value: "ADRP"}, Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("Value is string, ADRR - Works",
+			&types.AttributeValueMemberS{Value: "ADRR"}, Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("Value is string, ADRW - Works",
+			&types.AttributeValueMemberS{Value: "ADRW"}, Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("Value is string, GDR - Works",
+			&types.AttributeValueMemberS{Value: "GDR"}, Financial_Common_GlobalDepositoryReceipts),
+		Entry("Value is string, UNIT - Works",
+			&types.AttributeValueMemberS{Value: "UNIT"}, Financial_Common_Unit),
+		Entry("Value is string, RIGHT - Works",
+			&types.AttributeValueMemberS{Value: "RIGHT"}, Financial_Common_Rights),
+		Entry("Value is string, PFD - Works",
+			&types.AttributeValueMemberS{Value: "PFD"}, Financial_Common_PreferredStock),
+		Entry("Value is string, FUND - Works",
+			&types.AttributeValueMemberS{Value: "FUND"}, Financial_Common_Fund),
+		Entry("Value is string, SP - Works",
+			&types.AttributeValueMemberS{Value: "SP"}, Financial_Common_StructuredProduct),
+		Entry("Value is string, WARRANT - Works",
+			&types.AttributeValueMemberS{Value: "WARRANT"}, Financial_Common_Warrant),
+		Entry("Value is string, INDEX - Works",
+			&types.AttributeValueMemberS{Value: "INDEX"}, Financial_Common_Index),
+		Entry("Value is string, ETF - Works",
+			&types.AttributeValueMemberS{Value: "ETF"}, Financial_Common_ExchangeTradedFund),
+		Entry("Value is string, ETN - Works",
+			&types.AttributeValueMemberS{Value: "ETN"}, Financial_Common_ExchangeTradedNote),
+		Entry("Value is string, BOND - Works",
+			&types.AttributeValueMemberS{Value: "BOND"}, Financial_Common_CorporateBond),
+		Entry("Value is string, AGEN - Works",
+			&types.AttributeValueMemberS{Value: "AGEN"}, Financial_Common_AgencyBond),
+		Entry("Value is string, EQLK - Works",
+			&types.AttributeValueMemberS{Value: "EQLK"}, Financial_Common_EquityLinkedBond),
+		Entry("Value is string, BASKET - Works",
+			&types.AttributeValueMemberS{Value: "BASKET"}, Financial_Common_Basket),
+		Entry("Value is string, LT - Works",
+			&types.AttributeValueMemberS{Value: "LT"}, Financial_Common_LiquidatingTrust),
+		Entry("Value is string, OTHER - Works",
+			&types.AttributeValueMemberS{Value: "OTHER"}, Financial_Common_Others),
+		Entry("Value is string, Empty string - Works",
+			&types.AttributeValueMemberS{Value: ""}, Financial_Common_None),
+		Entry("Value is string, CommonShare - Works",
+			&types.AttributeValueMemberS{Value: "CommonShare"}, Financial_Common_CommonShare),
+		Entry("Value is string, OrdinaryShare - Works",
+			&types.AttributeValueMemberS{Value: "OrdinaryShare"}, Financial_Common_OrdinaryShare),
+		Entry("Value is string, NewYorkRegistryShares - Works",
+			&types.AttributeValueMemberS{Value: "NewYorkRegistryShares"}, Financial_Common_NewYorkRegistryShares),
+		Entry("Value is string, AmericanDepositoryReceiptCommon - Works",
+			&types.AttributeValueMemberS{Value: "AmericanDepositoryReceiptCommon"}, Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("Value is string, AmericanDepositoryReceiptPreferred - Works",
+			&types.AttributeValueMemberS{Value: "AmericanDepositoryReceiptPreferred"}, Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("Value is string, AmericanDepositoryReceiptRights - Works",
+			&types.AttributeValueMemberS{Value: "AmericanDepositoryReceiptRights"}, Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("Value is string, AmericanDepositoryReceiptWarrants - Works",
+			&types.AttributeValueMemberS{Value: "AmericanDepositoryReceiptWarrants"}, Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("Value is string, GlobalDepositoryReceipts - Works",
+			&types.AttributeValueMemberS{Value: "GlobalDepositoryReceipts"}, Financial_Common_GlobalDepositoryReceipts),
+		Entry("Value is string, Unit - Works",
+			&types.AttributeValueMemberS{Value: "Unit"}, Financial_Common_Unit),
+		Entry("Value is string, Rights - Works",
+			&types.AttributeValueMemberS{Value: "Rights"}, Financial_Common_Rights),
+		Entry("Value is string, PreferredStock - Works",
+			&types.AttributeValueMemberS{Value: "PreferredStock"}, Financial_Common_PreferredStock),
+		Entry("Value is string, Fund - Works",
+			&types.AttributeValueMemberS{Value: "Fund"}, Financial_Common_Fund),
+		Entry("Value is string, StructuredProduct - Works",
+			&types.AttributeValueMemberS{Value: "StructuredProduct"}, Financial_Common_StructuredProduct),
+		Entry("Value is string, Warrant - Works",
+			&types.AttributeValueMemberS{Value: "Warrant"}, Financial_Common_Warrant),
+		Entry("Value is string, Index - Works",
+			&types.AttributeValueMemberS{Value: "Index"}, Financial_Common_Index),
+		Entry("Value is string, ExchangeTradedFund - Works",
+			&types.AttributeValueMemberS{Value: "ExchangeTradedFund"}, Financial_Common_ExchangeTradedFund),
+		Entry("Value is string, ExchangeTradedNote - Works",
+			&types.AttributeValueMemberS{Value: "ExchangeTradedNote"}, Financial_Common_ExchangeTradedNote),
+		Entry("Value is string, CorporateBond - Works",
+			&types.AttributeValueMemberS{Value: "CorporateBond"}, Financial_Common_CorporateBond),
+		Entry("Value is string, AgencyBond - Works",
+			&types.AttributeValueMemberS{Value: "AgencyBond"}, Financial_Common_AgencyBond),
+		Entry("Value is string, EquityLinkedBond - Works",
+			&types.AttributeValueMemberS{Value: "EquityLinkedBond"}, Financial_Common_EquityLinkedBond),
+		Entry("Value is string, Basket - Works",
+			&types.AttributeValueMemberS{Value: "Basket"}, Financial_Common_Basket),
+		Entry("Value is string, LiquidatingTrust - Works",
+			&types.AttributeValueMemberS{Value: "LiquidatingTrust"}, Financial_Common_LiquidatingTrust),
+		Entry("Value is string, Others - Works",
+			&types.AttributeValueMemberS{Value: "Others"}, Financial_Common_Others),
+		Entry("Value is string, None - Works",
+			&types.AttributeValueMemberS{Value: "None"}, Financial_Common_None))
+
+	// Test that attempting to deserialize a Financial.Common.AssetType will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.AssetType
+		// This should return an error
+		var enum *Financial_Common_AssetType
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.AssetType
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Common_AssetType) {
+
+			// Attempt to convert the value into a Financial.Common.AssetType
+			// This should not fail
+			var enum Financial_Common_AssetType
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("CS - Works", "CS", Financial_Common_CommonShare),
+		Entry("OS - Works", "OS", Financial_Common_OrdinaryShare),
+		Entry("NYRS - Works", "NYRS", Financial_Common_NewYorkRegistryShares),
+		Entry("ADRC - Works", "ADRC", Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("ADRP - Works", "ADRP", Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("ADRR - Works", "ADRR", Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("ADRW - Works", "ADRW", Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("GDR - Works", "GDR", Financial_Common_GlobalDepositoryReceipts),
+		Entry("UNIT - Works", "UNIT", Financial_Common_Unit),
+		Entry("RIGHT - Works", "RIGHT", Financial_Common_Rights),
+		Entry("PFD - Works", "PFD", Financial_Common_PreferredStock),
+		Entry("FUND - Works", "FUND", Financial_Common_Fund),
+		Entry("SP - Works", "SP", Financial_Common_StructuredProduct),
+		Entry("WARRANT - Works", "WARRANT", Financial_Common_Warrant),
+		Entry("INDEX - Works", "INDEX", Financial_Common_Index),
+		Entry("ETF - Works", "ETF", Financial_Common_ExchangeTradedFund),
+		Entry("ETN - Works", "ETN", Financial_Common_ExchangeTradedNote),
+		Entry("BOND - Works", "BOND", Financial_Common_CorporateBond),
+		Entry("AGEN - Works", "AGEN", Financial_Common_AgencyBond),
+		Entry("EQLK - Works", "EQLK", Financial_Common_EquityLinkedBond),
+		Entry("LT - Works", "LT", Financial_Common_LiquidatingTrust),
+		Entry("BASKET - Works", "BASKET", Financial_Common_Basket),
+		Entry("OTHER - Works", "OTHER", Financial_Common_Others),
+		Entry("Empty string - Works", "", Financial_Common_None),
+		Entry("CommonShare - Works", "CommonShare", Financial_Common_CommonShare),
+		Entry("OrdinaryShare - Works", "OrdinaryShare", Financial_Common_OrdinaryShare),
+		Entry("NewYorkRegistryShares - Works", "NewYorkRegistryShares", Financial_Common_NewYorkRegistryShares),
+		Entry("AmericanDepositoryReceiptCommon - Works",
+			"AmericanDepositoryReceiptCommon", Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("AmericanDepositoryReceiptPreferred - Works",
+			"AmericanDepositoryReceiptPreferred", Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("AmericanDepositoryReceiptRights - Works",
+			"AmericanDepositoryReceiptRights", Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("AmericanDepositoryReceiptWarrants - Works",
+			"AmericanDepositoryReceiptWarrants", Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("GlobalDepositoryReceipts - Works", "GlobalDepositoryReceipts", Financial_Common_GlobalDepositoryReceipts),
+		Entry("Unit - Works", "Unit", Financial_Common_Unit),
+		Entry("Rights - Works", "Rights", Financial_Common_Rights),
+		Entry("PreferredStock - Works", "PreferredStock", Financial_Common_PreferredStock),
+		Entry("Fund - Works", "Fund", Financial_Common_Fund),
+		Entry("StructuredProduct - Works", "StructuredProduct", Financial_Common_StructuredProduct),
+		Entry("Warrant - Works", "Warrant", Financial_Common_Warrant),
+		Entry("Index - Works", "Index", Financial_Common_Index),
+		Entry("ExchangeTradedFund - Works", "ExchangeTradedFund", Financial_Common_ExchangeTradedFund),
+		Entry("ExchangeTradedNote - Works", "ExchangeTradedNote", Financial_Common_ExchangeTradedNote),
+		Entry("CorporateBond - Works", "CorporateBond", Financial_Common_CorporateBond),
+		Entry("AgencyBond - Works", "AgencyBond", Financial_Common_AgencyBond),
+		Entry("EquityLinkedBond - Works", "EquityLinkedBond", Financial_Common_EquityLinkedBond),
+		Entry("Basket - Works", "Basket", Financial_Common_Basket),
+		Entry("LiquidatingTrust - Works", "LiquidatingTrust", Financial_Common_LiquidatingTrust),
+		Entry("Others - Works", "Others", Financial_Common_Others),
+		Entry("None - Works", "None", Financial_Common_None),
+		Entry("0 - Works", 0, Financial_Common_CommonShare),
+		Entry("1 - Works", 1, Financial_Common_OrdinaryShare),
+		Entry("2 - Works", 2, Financial_Common_NewYorkRegistryShares),
+		Entry("3 - Works", 3, Financial_Common_AmericanDepositoryReceiptCommon),
+		Entry("4 - Works", 4, Financial_Common_AmericanDepositoryReceiptPreferred),
+		Entry("5 - Works", 5, Financial_Common_AmericanDepositoryReceiptRights),
+		Entry("6 - Works", 6, Financial_Common_AmericanDepositoryReceiptWarrants),
+		Entry("7 - Works", 7, Financial_Common_GlobalDepositoryReceipts),
+		Entry("8 - Works", 8, Financial_Common_Unit),
+		Entry("9 - Works", 9, Financial_Common_Rights),
+		Entry("10 - Works", 10, Financial_Common_PreferredStock),
+		Entry("11 - Works", 11, Financial_Common_Fund),
+		Entry("12 - Works", 12, Financial_Common_StructuredProduct),
+		Entry("13 - Works", 13, Financial_Common_Warrant),
+		Entry("14 - Works", 14, Financial_Common_Index),
+		Entry("15 - Works", 15, Financial_Common_ExchangeTradedFund),
+		Entry("16 - Works", 16, Financial_Common_ExchangeTradedNote),
+		Entry("17 - Works", 17, Financial_Common_CorporateBond),
+		Entry("18 - Works", 18, Financial_Common_AgencyBond),
+		Entry("19 - Works", 19, Financial_Common_EquityLinkedBond),
+		Entry("20 - Works", 20, Financial_Common_Basket),
+		Entry("21 - Works", 21, Financial_Common_LiquidatingTrust),
+		Entry("22 - Works", 22, Financial_Common_Others),
+		Entry("23 - Works", 23, Financial_Common_None))
+})
+
+var _ = Describe("Financial.Common.Locale Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Common.Locale enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Common_Locale, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("US - Works", Financial_Common_US, "\"US\""),
+		Entry("Global - Works", Financial_Common_Global, "\"Global\""))
+
+	// Test that converting the Financial.Common.Locale enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Common_Locale, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("US - Works", Financial_Common_US, "0"),
+		Entry("Global - Works", Financial_Common_Global, "1"))
+
+	// Test that converting the Financial.Common.Locale enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Common_Locale, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("US - Works", Financial_Common_US, "US"),
+		Entry("Global - Works", Financial_Common_Global, "Global"))
+
+	// Test that attempting to deserialize a Financial.Common.Locale will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Common.Locale
+		// This should return an error
+		enum := new(Financial_Common_Locale)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_Locale"))
+	})
+
+	// Test that attempting to deserialize a Financial.Common.Locale will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.Locale
+		// This should return an error
+		enum := new(Financial_Common_Locale)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_Locale"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.Locale
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Financial_Common_Locale) {
+
+			// Attempt to convert the string value into a Financial.Common.Locale
+			// This should not fail
+			var enum Financial_Common_Locale
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("US - Works", "\"US\"", Financial_Common_US),
+		Entry("Global - Works", "\"Global\"", Financial_Common_Global),
+		Entry("us - Works", "\"us\"", Financial_Common_US),
+		Entry("global - Works", "\"global\"", Financial_Common_Global),
+		Entry("0 - Works", "\"0\"", Financial_Common_US),
+		Entry("1 - Works", "\"1\"", Financial_Common_Global))
+
+	// Test that attempting to deserialize a Financial.Common.Locale will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.Locale
+		// This should return an error
+		enum := new(Financial_Common_Locale)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Common_Locale"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.Locale
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Common_Locale) {
+
+			// Attempt to convert the value into a Financial.Common.Locale
+			// This should not fail
+			var enum Financial_Common_Locale
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("US - Works", "US", Financial_Common_US),
+		Entry("Global - Works", "Global", Financial_Common_Global),
+		Entry("us - Works", "us", Financial_Common_US),
+		Entry("global - Works", "global", Financial_Common_Global),
+		Entry("0 - Works", "0", Financial_Common_US),
+		Entry("1 - Works", "1", Financial_Common_Global))
+
+	// Test that attempting to deserialize a Financial.Common.Locale will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.Locale
+		// This should return an error
+		var enum *Financial_Common_Locale
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.Locale
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Common_Locale) {
+
+			// Attempt to convert the value into a Financial.Common.Locale
+			// This should not fail
+			var enum Financial_Common_Locale
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("US - Works", "US", Financial_Common_US),
+		Entry("Global - Works", "Global", Financial_Common_Global),
+		Entry("us - Works", "us", Financial_Common_US),
+		Entry("global - Works", "global", Financial_Common_Global),
+		Entry("0 - Works", 0, Financial_Common_US),
+		Entry("1 - Works", 1, Financial_Common_Global))
+})
+
+var _ = Describe("Financial.Common.Tape Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Common.Tape enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Common_Tape, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("A - Works", Financial_Common_A, "\"A\""),
+		Entry("B - Works", Financial_Common_B, "\"B\""),
+		Entry("C - Works", Financial_Common_C, "\"C\""))
+
+	// Test that converting the Financial.Common.Tape enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Common_Tape, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("A - Works", Financial_Common_A, "A"),
+		Entry("B - Works", Financial_Common_B, "B"),
+		Entry("C - Works", Financial_Common_C, "C"))
+
+	// Test that converting the Financial.Common.Tape enum to an SQL value for all values
+	DescribeTable("Value Tests",
+		func(enum Financial_Common_Tape, value string) {
+			data, err := enum.Value()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data).Should(Equal(value))
+		},
+		Entry("A - Works", Financial_Common_A, "A"),
+		Entry("B - Works", Financial_Common_B, "B"),
+		Entry("C - Works", Financial_Common_C, "C"))
+
+	// Test that converting the Financial.Common.Tape enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Common_Tape, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("A - Works", Financial_Common_A, "A"),
+		Entry("B - Works", Financial_Common_B, "B"),
+		Entry("C - Works", Financial_Common_C, "C"))
+
+	// Test that attempting to deserialize a Financial.Common.Tape will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Common.Tape
+		// This should return an error
+		enum := new(Financial_Common_Tape)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_Tape"))
+	})
+
+	// Test that attempting to deserialize a Financial.Common.Tape will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.Tape
+		// This should return an error
+		enum := new(Financial_Common_Tape)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_Tape"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.Tape
+	DescribeTable("UnmarshalJSON Tests",
+		func(value interface{}, shouldBe Financial_Common_Tape) {
+
+			// Attempt to convert the string value into a Financial.Common.Tape
+			// This should not fail
+			var enum Financial_Common_Tape
+			err := enum.UnmarshalJSON([]byte(fmt.Sprintf("%v", value)))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("A - Works", "\"A\"", Financial_Common_A),
+		Entry("B - Works", "\"B\"", Financial_Common_B),
+		Entry("C - Works", "\"C\"", Financial_Common_C),
+		Entry("'0' - Works", "\"0\"", Financial_Common_A),
+		Entry("'1' - Works", "\"1\"", Financial_Common_B),
+		Entry("'2' - Works", "\"2\"", Financial_Common_C),
+		Entry("0 - Works", 0, Financial_Common_A),
+		Entry("1 - Works", 1, Financial_Common_B),
+		Entry("2 - Works", 2, Financial_Common_C))
+
+	// Test that attempting to deserialize a Financial.Common.Tape will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.Tape
+		// This should return an error
+		enum := new(Financial_Common_Tape)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Common_Tape"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.Tape
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Common_Tape) {
+
+			// Attempt to convert the value into a Financial.Common.Tape
+			// This should not fail
+			var enum Financial_Common_Tape
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("A - Works", "A", Financial_Common_A),
+		Entry("B - Works", "B", Financial_Common_B),
+		Entry("C - Works", "C", Financial_Common_C),
+		Entry("0 - Works", "0", Financial_Common_A),
+		Entry("1 - Works", "1", Financial_Common_B),
+		Entry("2 - Works", "2", Financial_Common_C))
+
+	// Test that attempting to deserialize a Financial.Common.Tape will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Common.Tape
+		// This should return an error
+		var enum *Financial_Common_Tape
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Common.Tape
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Common_Tape) {
+
+			// Attempt to convert the value into a Financial.Common.Tape
+			// This should not fail
+			var enum Financial_Common_Tape
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("A - Works", "A", Financial_Common_A),
+		Entry("B - Works", "B", Financial_Common_B),
+		Entry("C - Works", "C", Financial_Common_C),
+		Entry("0 - Works", 0, Financial_Common_A),
+		Entry("1 - Works", 1, Financial_Common_B),
+		Entry("2 - Works", 2, Financial_Common_C))
+})
+
+var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Dividends.Frequency enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Dividends_Frequency, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("NoFrequency - Works", Financial_Dividends_NoFrequency, "\"NoFrequency\""),
+		Entry("Annually - Works", Financial_Dividends_Annually, "\"Annually\""),
+		Entry("SemiAnnually - Works", Financial_Dividends_SemiAnnually, "\"SemiAnnually\""),
+		Entry("Quarterly - Works", Financial_Dividends_Quarterly, "\"Quarterly\""),
+		Entry("Monthly - Works", Financial_Dividends_Monthly, "\"Monthly\""),
+		Entry("Invalid - Works", Financial_Dividends_Invalid, "\"Invalid\""))
+
+	// Test that converting the Financial.Dividends.Frequency enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Dividends_Frequency, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("NoFrequency - Works", Financial_Dividends_NoFrequency, "0"),
+		Entry("Annually - Works", Financial_Dividends_Annually, "1"),
+		Entry("SemiAnnually - Works", Financial_Dividends_SemiAnnually, "2"),
+		Entry("Quarterly - Works", Financial_Dividends_Quarterly, "4"),
+		Entry("Monthly - Works", Financial_Dividends_Monthly, "12"),
+		Entry("Invalid - Works", Financial_Dividends_Invalid, "13"))
+
+	// Test that converting the Financial.Dividends.Frequency enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Dividends_Frequency, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("NoFrequency - Works", Financial_Dividends_NoFrequency, "NoFrequency"),
+		Entry("Annually - Works", Financial_Dividends_Annually, "Annually"),
+		Entry("SemiAnnually - Works", Financial_Dividends_SemiAnnually, "SemiAnnually"),
+		Entry("Quarterly - Works", Financial_Dividends_Quarterly, "Quarterly"),
+		Entry("Monthly - Works", Financial_Dividends_Monthly, "Monthly"),
+		Entry("Invalid - Works", Financial_Dividends_Invalid, "Invalid"))
+
+	// Test that attempting to deserialize a Financial.Dividends.Frequency will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Dividends.Frequency
+		// This should return an error
+		enum := new(Financial_Dividends_Frequency)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Dividends_Frequency"))
+	})
+
+	// Test that attempting to deserialize a Financial.Dividends.Frequency will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Dividends.Frequency
+		// This should return an error
+		enum := new(Financial_Dividends_Frequency)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Dividends_Frequency"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Dividends.Frequency
+	DescribeTable("UnmarshalJSON Tests",
+		func(value interface{}, shouldBe Financial_Dividends_Frequency) {
+
+			// Attempt to convert the string value into a Financial.Dividends.Frequency
+			// This should not fail
+			var enum Financial_Dividends_Frequency
+			err := enum.UnmarshalJSON([]byte(fmt.Sprintf("%v", value)))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NoFrequency - Works", "\"NoFrequency\"", Financial_Dividends_NoFrequency),
+		Entry("Annually - Works", "\"Annually\"", Financial_Dividends_Annually),
+		Entry("SemiAnnually - Works", "\"SemiAnnually\"", Financial_Dividends_SemiAnnually),
+		Entry("Qarterly - Works", "\"Quarterly\"", Financial_Dividends_Quarterly),
+		Entry("Monthly - Works", "\"Monthly\"", Financial_Dividends_Monthly),
+		Entry("Invalid - Works", "\"Invalid\"", Financial_Dividends_Invalid),
+		Entry("'0' - Works", "\"0\"", Financial_Dividends_NoFrequency),
+		Entry("'1' - Works", "\"1\"", Financial_Dividends_Annually),
+		Entry("'2' - Works", "\"2\"", Financial_Dividends_SemiAnnually),
+		Entry("'4' - Works", "\"4\"", Financial_Dividends_Quarterly),
+		Entry("'12' - Works", "\"12\"", Financial_Dividends_Monthly),
+		Entry("'13' - Works", "\"13\"", Financial_Dividends_Invalid),
+		Entry("0 - Works", 0, Financial_Dividends_NoFrequency),
+		Entry("1 - Works", 1, Financial_Dividends_Annually),
+		Entry("2 - Works", 2, Financial_Dividends_SemiAnnually),
+		Entry("4 - Works", 4, Financial_Dividends_Quarterly),
+		Entry("12 - Works", 12, Financial_Dividends_Monthly),
+		Entry("13 - Works", 13, Financial_Dividends_Invalid))
+
+	// Test that attempting to deserialize a Financial.Dividends.Frequency will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Dividends.Frequency
+		// This should return an error
+		enum := new(Financial_Dividends_Frequency)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Dividends_Frequency"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Dividends.Frequency
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Dividends_Frequency) {
+
+			// Attempt to convert the value into a Financial.Dividends.Frequency
+			// This should not fail
+			var enum Financial_Dividends_Frequency
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NoFrequency - Works", "NoFrequency", Financial_Dividends_NoFrequency),
+		Entry("Annually - Works", "Annually", Financial_Dividends_Annually),
+		Entry("SemiAnnually - Works", "SemiAnnually", Financial_Dividends_SemiAnnually),
+		Entry("Quarterly - Works", "Quarterly", Financial_Dividends_Quarterly),
+		Entry("Monthly - Works", "Monthly", Financial_Dividends_Monthly),
+		Entry("Invalid - Works", "Invalid", Financial_Dividends_Invalid),
+		Entry("0 - Works", "0", Financial_Dividends_NoFrequency),
+		Entry("1 - Works", "1", Financial_Dividends_Annually),
+		Entry("2 - Works", "2", Financial_Dividends_SemiAnnually),
+		Entry("4 - Works", "4", Financial_Dividends_Quarterly),
+		Entry("12 - Works", "12", Financial_Dividends_Monthly),
+		Entry("13 - Works", "13", Financial_Dividends_Invalid))
+
+	// Test that attempting to deserialize a Financial.Dividends.Frequency will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Dividends.Frequency
+		// This should return an error
+		var enum *Financial_Dividends_Frequency
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Dividends.Frequency
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Dividends_Frequency) {
+
+			// Attempt to convert the value into a Financial.Dividends.Frequency
+			// This should not fail
+			var enum Financial_Dividends_Frequency
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NoFrequency - Works", "NoFrequency", Financial_Dividends_NoFrequency),
+		Entry("Annually - Works", "Annually", Financial_Dividends_Annually),
+		Entry("SemiAnnually - Works", "SemiAnnually", Financial_Dividends_SemiAnnually),
+		Entry("Quarterly - Works", "Quarterly", Financial_Dividends_Quarterly),
+		Entry("Monthly - Works", "Monthly", Financial_Dividends_Monthly),
+		Entry("Invalid - Works", "Invalid", Financial_Dividends_Invalid),
+		Entry("0 - Works", 0, Financial_Dividends_NoFrequency),
+		Entry("1 - Works", 1, Financial_Dividends_Annually),
+		Entry("2 - Works", 2, Financial_Dividends_SemiAnnually),
+		Entry("4 - Works", 4, Financial_Dividends_Quarterly),
+		Entry("12 - Works", 12, Financial_Dividends_Monthly),
+		Entry("13 - Works", 13, Financial_Dividends_Invalid))
+})
+
+var _ = Describe("Financial.Dividends.Type Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Dividends.Type enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Dividends_Type, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("CD - Works", Financial_Dividends_CD, "\"CD\""),
+		Entry("SC - Works", Financial_Dividends_SC, "\"SC\""),
+		Entry("LT - Works", Financial_Dividends_LT, "\"LT\""),
+		Entry("ST - Works", Financial_Dividends_ST, "\"ST\""),
+		Entry("NP - Works", Financial_Dividends_NP, "\"NP\""))
+
+	// Test that converting the Financial.Dividends.Type enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Dividends_Type, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("CD - Works", Financial_Dividends_CD, "CD"),
+		Entry("SC - Works", Financial_Dividends_SC, "SC"),
+		Entry("LT - Works", Financial_Dividends_LT, "LT"),
+		Entry("ST - Works", Financial_Dividends_ST, "ST"),
+		Entry("NP - Works", Financial_Dividends_NP, "NP"))
+
+	// Test that converting the Financial.Dividends.Type enum to an SQL value for all values
+	DescribeTable("Value Tests",
+		func(enum Financial_Dividends_Type, value string) {
+			data, err := enum.Value()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data).Should(Equal(value))
+		},
+		Entry("CD - Works", Financial_Dividends_CD, "CD"),
+		Entry("SC - Works", Financial_Dividends_SC, "SC"),
+		Entry("LT - Works", Financial_Dividends_LT, "LT"),
+		Entry("ST - Works", Financial_Dividends_ST, "ST"),
+		Entry("NP - Works", Financial_Dividends_NP, "NP"))
+
+	// Test that converting the Financial.Dividends.Type enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Dividends_Type, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("CD - Works", Financial_Dividends_CD, "CD"),
+		Entry("SC - Works", Financial_Dividends_SC, "SC"),
+		Entry("LT - Works", Financial_Dividends_LT, "LT"),
+		Entry("ST - Works", Financial_Dividends_ST, "ST"),
+		Entry("NP - Works", Financial_Dividends_NP, "NP"))
+
+	// Test that attempting to deserialize a Financial.Dividends.Type will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Dividends.Type
+		// This should return an error
+		enum := new(Financial_Dividends_Type)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Dividends_Type"))
+	})
+
+	// Test that attempting to deserialize a Financial.Dividends.Type will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Dividends.Type
+		// This should return an error
+		enum := new(Financial_Dividends_Type)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Dividends_Type"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Dividends.Type
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Financial_Dividends_Type) {
+
+			// Attempt to convert the string value into a Financial.Dividends.Type
+			// This should not fail
+			var enum Financial_Dividends_Type
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("CD - Works", "\"CD\"", Financial_Dividends_CD),
+		Entry("SC - Works", "\"SC\"", Financial_Dividends_SC),
+		Entry("LT - Works", "\"LT\"", Financial_Dividends_LT),
+		Entry("ST - Works", "\"ST\"", Financial_Dividends_ST),
+		Entry("NP - Works", "\"NP\"", Financial_Dividends_NP),
+		Entry("0 - Works", "\"0\"", Financial_Dividends_CD),
+		Entry("1 - Works", "\"1\"", Financial_Dividends_SC),
+		Entry("2 - Works", "\"2\"", Financial_Dividends_LT),
+		Entry("3 - Works", "\"3\"", Financial_Dividends_ST),
+		Entry("4 - Works", "\"4\"", Financial_Dividends_NP))
+
+	// Test that attempting to deserialize a Financial.Dividends.Type will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Dividends.Type
+		// This should return an error
+		enum := new(Financial_Dividends_Type)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Dividends_Type"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Dividends.Type
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Dividends_Type) {
+
+			// Attempt to convert the value into a Financial.Dividends.Type
+			// This should not fail
+			var enum Financial_Dividends_Type
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("CD - Works", "CD", Financial_Dividends_CD),
+		Entry("SC - Works", "SC", Financial_Dividends_SC),
+		Entry("LT - Works", "LT", Financial_Dividends_LT),
+		Entry("ST - Works", "ST", Financial_Dividends_ST),
+		Entry("NP - Works", "NP", Financial_Dividends_NP),
+		Entry("0 - Works", "0", Financial_Dividends_CD),
+		Entry("1 - Works", "1", Financial_Dividends_SC),
+		Entry("2 - Works", "2", Financial_Dividends_LT),
+		Entry("3 - Works", "3", Financial_Dividends_ST),
+		Entry("4 - Works", "4", Financial_Dividends_NP))
+
+	// Test that attempting to deserialize a Financial.Dividends.Type will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Dividends.Type
+		// This should return an error
+		var enum *Financial_Dividends_Type
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Dividends.Type
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Dividends_Type) {
+
+			// Attempt to convert the value into a Financial.Dividends.Type
+			// This should not fail
+			var enum Financial_Dividends_Type
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("CD - Works", "CD", Financial_Dividends_CD),
+		Entry("SC - Works", "SC", Financial_Dividends_SC),
+		Entry("LT - Works", "LT", Financial_Dividends_LT),
+		Entry("ST - Works", "ST", Financial_Dividends_ST),
+		Entry("NP - Works", "NP", Financial_Dividends_NP),
+		Entry("0 - Works", 0, Financial_Dividends_CD),
+		Entry("1 - Works", 1, Financial_Dividends_SC),
+		Entry("2 - Works", 2, Financial_Dividends_LT),
+		Entry("3 - Works", 3, Financial_Dividends_ST),
+		Entry("4 - Works", 4, Financial_Dividends_NP))
+})
+
+var _ = Describe("Financial.Exchanges.Type Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Exchanges.Type enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Exchanges_Type, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Exchange - Works", Financial_Exchanges_Exchange, "\"Exchange\""),
+		Entry("TRF - Works", Financial_Exchanges_TRF, "\"TRF\""),
+		Entry("SIP - Works", Financial_Exchanges_SIP, "\"SIP\""))
+
+	// Test that converting the Financial.Exchanges.Type enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Exchanges_Type, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Exchange - Works", Financial_Exchanges_Exchange, "0"),
+		Entry("TRF - Works", Financial_Exchanges_TRF, "1"),
+		Entry("SIP - Works", Financial_Exchanges_SIP, "2"))
+
+	// Test that converting the Financial.Exchanges.Type enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Exchanges_Type, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("Exchange - Works", Financial_Exchanges_Exchange, "Exchange"),
+		Entry("TRF - Works", Financial_Exchanges_TRF, "TRF"),
+		Entry("SIP - Works", Financial_Exchanges_SIP, "SIP"))
+
+	// Test that attempting to deserialize a Financial.Exchanges.Type will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Exchanges.Type
+		// This should return an error
+		enum := new(Financial_Exchanges_Type)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Exchanges_Type"))
+	})
+
+	// Test that attempting to deserialize a Financial.Exchanges.Type will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Exchanges.Type
+		// This should return an error
+		enum := new(Financial_Exchanges_Type)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Exchanges_Type"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Exchanges.Type
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Financial_Exchanges_Type) {
+
+			// Attempt to convert the string value into a Financial.Exchanges.Type
+			// This should not fail
+			var enum Financial_Exchanges_Type
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Exchange - Works", "\"Exchange\"", Financial_Exchanges_Exchange),
+		Entry("TRF - Works", "\"TRF\"", Financial_Exchanges_TRF),
+		Entry("SIP - Works", "\"SIP\"", Financial_Exchanges_SIP),
+		Entry("exchange - Works", "\"exchange\"", Financial_Exchanges_Exchange),
+		Entry("0 - Works", "\"0\"", Financial_Exchanges_Exchange),
+		Entry("1 - Works", "\"1\"", Financial_Exchanges_TRF),
+		Entry("2 - Works", "\"2\"", Financial_Exchanges_SIP))
+
+	// Test that attempting to deserialize a Financial.Exchanges.Type will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Exchanges.Type
+		// This should return an error
+		enum := new(Financial_Exchanges_Type)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Exchanges_Type"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Exchanges.Type
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Exchanges_Type) {
+
+			// Attempt to convert the value into a Financial.Exchanges.Type
+			// This should not fail
+			var enum Financial_Exchanges_Type
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Exchange - Works", "Exchange", Financial_Exchanges_Exchange),
+		Entry("TRF - Works", "TRF", Financial_Exchanges_TRF),
+		Entry("SIP - Works", "SIP", Financial_Exchanges_SIP),
+		Entry("exchange - Works", "exchange", Financial_Exchanges_Exchange),
+		Entry("0 - Works", "0", Financial_Exchanges_Exchange),
+		Entry("1 - Works", "1", Financial_Exchanges_TRF),
+		Entry("2 - Works", "2", Financial_Exchanges_SIP))
+
+	// Test that attempting to deserialize a Financial.Exchanges.Type will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Exchanges.Type
+		// This should return an error
+		var enum *Financial_Exchanges_Type
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Exchanges.Type
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Exchanges_Type) {
+
+			// Attempt to convert the value into a Financial.Exchanges.Type
+			// This should not fail
+			var enum Financial_Exchanges_Type
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Exchange - Works", "Exchange", Financial_Exchanges_Exchange),
+		Entry("TRF - Works", "TRF", Financial_Exchanges_TRF),
+		Entry("SIP - Works", "SIP", Financial_Exchanges_SIP),
+		Entry("exchange - Works", "exchange", Financial_Exchanges_Exchange),
+		Entry("0 - Works", 0, Financial_Exchanges_Exchange),
+		Entry("1 - Works", 1, Financial_Exchanges_TRF),
+		Entry("2 - Works", 2, Financial_Exchanges_SIP))
+})
+
+var _ = Describe("Financial.Options.ContractType Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Options.ContractType enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Options_ContractType, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Call - Works", Financial_Options_Call, "\"Call\""),
+		Entry("Put - Works", Financial_Options_Put, "\"Put\""),
+		Entry("Other - Works", Financial_Options_Other, "\"Other\""))
+
+	// Test that converting the Financial.Options.ContractType enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Options_ContractType, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Call - Works", Financial_Options_Call, "0"),
+		Entry("Put - Works", Financial_Options_Put, "1"),
+		Entry("Other - Works", Financial_Options_Other, "2"))
+
+	// Test that converting the Financial.Options.ContractType enum to an SQL value for all values
+	DescribeTable("Value Tests",
+		func(enum Financial_Options_ContractType, value string) {
+			data, err := enum.Value()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data).Should(Equal(value))
+		},
+		Entry("Call - Works", Financial_Options_Call, "Call"),
+		Entry("Put - Works", Financial_Options_Put, "Put"),
+		Entry("Other - Works", Financial_Options_Other, "Other"))
+
+	// Test that converting the Financial.Options.ContractType enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Options_ContractType, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("Call - Works", Financial_Options_Call, "Call"),
+		Entry("Put - Works", Financial_Options_Put, "Put"),
+		Entry("Other - Works", Financial_Options_Other, "Other"))
+
+	// Test that attempting to deserialize a Financial.Options.ContractType will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Options.ContractType
+		// This should return an error
+		enum := new(Financial_Options_ContractType)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Options_ContractType"))
+	})
+
+	// Test that attempting to deserialize a Financial.Options.ContractType will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.ContractType
+		// This should return an error
+		enum := new(Financial_Options_ContractType)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Options_ContractType"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.ContractType
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Financial_Options_ContractType) {
+
+			// Attempt to convert the string value into a Financial.Options.ContractType
+			// This should not fail
+			var enum Financial_Options_ContractType
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Call - Works", "\"Call\"", Financial_Options_Call),
+		Entry("Put - Works", "\"Put\"", Financial_Options_Put),
+		Entry("Other - Works", "\"Other\"", Financial_Options_Other),
+		Entry("call - Works", "\"call\"", Financial_Options_Call),
+		Entry("put - Works", "\"put\"", Financial_Options_Put),
+		Entry("other - Works", "\"other\"", Financial_Options_Other),
+		Entry("0 - Works", "\"0\"", Financial_Options_Call),
+		Entry("1 - Works", "\"1\"", Financial_Options_Put),
+		Entry("2 - Works", "\"2\"", Financial_Options_Other))
+
+	// Test that attempting to deserialize a Financial.Options.ContractType will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.ContractType
+		// This should return an error
+		enum := new(Financial_Options_ContractType)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Options_ContractType"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.ContractType
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Options_ContractType) {
+
+			// Attempt to convert the value into a Financial.Options.ContractType
+			// This should not fail
+			var enum Financial_Options_ContractType
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Call - Works", "Call", Financial_Options_Call),
+		Entry("Put - Works", "Put", Financial_Options_Put),
+		Entry("Other - Works", "Other", Financial_Options_Other),
+		Entry("call - Works", "call", Financial_Options_Call),
+		Entry("put - Works", "put", Financial_Options_Put),
+		Entry("other - Works", "other", Financial_Options_Other),
+		Entry("0 - Works", "0", Financial_Options_Call),
+		Entry("1 - Works", "1", Financial_Options_Put),
+		Entry("2 - Works", "2", Financial_Options_Other))
+
+	// Test that attempting to deserialize a Financial.Options.ContractType will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.ContractType
+		// This should return an error
+		var enum *Financial_Options_ContractType
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.ContractType
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Options_ContractType) {
+
+			// Attempt to convert the value into a Financial.Options.ContractType
+			// This should not fail
+			var enum Financial_Options_ContractType
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Call - Works", "Call", Financial_Options_Call),
+		Entry("Put - Works", "Put", Financial_Options_Put),
+		Entry("Other - Works", "Other", Financial_Options_Other),
+		Entry("call - Works", "call", Financial_Options_Call),
+		Entry("put - Works", "put", Financial_Options_Put),
+		Entry("other - Works", "other", Financial_Options_Other),
+		Entry("0 - Works", 0, Financial_Options_Call),
+		Entry("1 - Works", 1, Financial_Options_Put),
+		Entry("2 - Works", 2, Financial_Options_Other))
+})
+
+var _ = Describe("Financial.Options.ExerciseStyle Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Options.ExerciseStyle enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Options_ExerciseStyle, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("American - Works", Financial_Options_American, "\"American\""),
+		Entry("European - Works", Financial_Options_European, "\"European\""),
+		Entry("Bermudan - Works", Financial_Options_Bermudan, "\"Bermudan\""))
+
+	// Test that converting the Financial.Options.ExerciseStyle enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Options_ExerciseStyle, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("American - Works", Financial_Options_American, "0"),
+		Entry("European - Works", Financial_Options_European, "1"),
+		Entry("Bermudan - Works", Financial_Options_Bermudan, "2"))
+
+	// Test that converting the Financial.Options.ExerciseStyle enum to an SQL value for all values
+	DescribeTable("Value Tests",
+		func(enum Financial_Options_ExerciseStyle, value string) {
+			data, err := enum.Value()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data).Should(Equal(value))
+		},
+		Entry("American - Works", Financial_Options_American, "American"),
+		Entry("European - Works", Financial_Options_European, "European"),
+		Entry("Bermudan - Works", Financial_Options_Bermudan, "Bermudan"))
+
+	// Test that converting the Financial.Options.ExerciseStyle enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Options_ExerciseStyle, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("American - Works", Financial_Options_American, "American"),
+		Entry("European - Works", Financial_Options_European, "European"),
+		Entry("Bermudan - Works", Financial_Options_Bermudan, "Bermudan"))
+
+	// Test that attempting to deserialize a Financial.Options.ExerciseStyle will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Options.ExerciseStyle
+		// This should return an error
+		enum := new(Financial_Options_ExerciseStyle)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Options_ExerciseStyle"))
+	})
+
+	// Test that attempting to deserialize a Financial.Options.ExerciseStyle will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.ExerciseStyle
+		// This should return an error
+		enum := new(Financial_Options_ExerciseStyle)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Options_ExerciseStyle"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.ExerciseStyle
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Financial_Options_ExerciseStyle) {
+
+			// Attempt to convert the string value into a Financial.Options.ExerciseStyle
+			// This should not fail
+			var enum Financial_Options_ExerciseStyle
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("American - Works", "\"American\"", Financial_Options_American),
+		Entry("European - Works", "\"European\"", Financial_Options_European),
+		Entry("Bermudan - Works", "\"Bermudan\"", Financial_Options_Bermudan),
+		Entry("american - Works", "\"american\"", Financial_Options_American),
+		Entry("european - Works", "\"european\"", Financial_Options_European),
+		Entry("bermudan - Works", "\"bermudan\"", Financial_Options_Bermudan),
+		Entry("0 - Works", "\"0\"", Financial_Options_American),
+		Entry("1 - Works", "\"1\"", Financial_Options_European),
+		Entry("2 - Works", "\"2\"", Financial_Options_Bermudan))
+
+	// Test that attempting to deserialize a Financial.Options.ExerciseStyle will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.ExerciseStyle
+		// This should return an error
+		enum := new(Financial_Options_ExerciseStyle)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Options_ExerciseStyle"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.ExerciseStyle
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Options_ExerciseStyle) {
+
+			// Attempt to convert the value into a Financial.Options.ExerciseStyle
+			// This should not fail
+			var enum Financial_Options_ExerciseStyle
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("American - Works", "American", Financial_Options_American),
+		Entry("European - Works", "European", Financial_Options_European),
+		Entry("Bermudan - Works", "Bermudan", Financial_Options_Bermudan),
+		Entry("american - Works", "american", Financial_Options_American),
+		Entry("european - Works", "european", Financial_Options_European),
+		Entry("bermudan - Works", "bermudan", Financial_Options_Bermudan),
+		Entry("0 - Works", "0", Financial_Options_American),
+		Entry("1 - Works", "1", Financial_Options_European),
+		Entry("2 - Works", "2", Financial_Options_Bermudan))
+
+	// Test that attempting to deserialize a Financial.Options.ExerciseStyle will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.ExerciseStyle
+		// This should return an error
+		var enum *Financial_Options_ExerciseStyle
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.ExerciseStyle
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Options_ExerciseStyle) {
+
+			// Attempt to convert the value into a Financial.Options.ExerciseStyle
+			// This should not fail
+			var enum Financial_Options_ExerciseStyle
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("American - Works", "American", Financial_Options_American),
+		Entry("European - Works", "European", Financial_Options_European),
+		Entry("Bermudan - Works", "Bermudan", Financial_Options_Bermudan),
+		Entry("american - Works", "american", Financial_Options_American),
+		Entry("european - Works", "european", Financial_Options_European),
+		Entry("bermudan - Works", "bermudan", Financial_Options_Bermudan),
+		Entry("0 - Works", 0, Financial_Options_American),
+		Entry("1 - Works", 1, Financial_Options_European),
+		Entry("2 - Works", 2, Financial_Options_Bermudan))
+})
+
+var _ = Describe("Financial.Options.UnderlyingType Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Options.UnderlyingType enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Options_UnderlyingType, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Equity - Works", Financial_Options_Equity, "\"Equity\""),
+		Entry("Currency - Works", Financial_Options_Currency, "\"Currency\""))
+
+	// Test that converting the Financial.Options.UnderlyingType enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Options_UnderlyingType, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Equity - Works", Financial_Options_Equity, "0"),
+		Entry("Currency - Works", Financial_Options_Currency, "1"))
+
+	// Test that converting the Financial.Options.UnderlyingType enum to an SQL value for all values
+	DescribeTable("Value Tests",
+		func(enum Financial_Options_UnderlyingType, value string) {
+			data, err := enum.Value()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data).Should(Equal(value))
+		},
+		Entry("Equity - Works", Financial_Options_Equity, "Equity"),
+		Entry("Currency - Works", Financial_Options_Currency, "Currency"))
+
+	// Test that converting the Financial.Options.UnderlyingType enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Options_UnderlyingType, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("Equity - Works", Financial_Options_Equity, "Equity"),
+		Entry("Currency - Works", Financial_Options_Currency, "Currency"))
+
+	// Test that attempting to deserialize a Financial.Options.UnderlyingType will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Options.UnderlyingType
+		// This should return an error
+		enum := new(Financial_Options_UnderlyingType)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Options_UnderlyingType"))
+	})
+
+	// Test that attempting to deserialize a Financial.Options.UnderlyingType will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.UnderlyingType
+		// This should return an error
+		enum := new(Financial_Options_UnderlyingType)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Options_UnderlyingType"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.UnderlyingType
+	DescribeTable("UnmarshalJSON Tests",
+		func(value string, shouldBe Financial_Options_UnderlyingType) {
+
+			// Attempt to convert the string value into a Financial.Options.UnderlyingType
+			// This should not fail
+			var enum Financial_Options_UnderlyingType
+			err := enum.UnmarshalJSON([]byte(value))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Equity - Works", "\"Equity\"", Financial_Options_Equity),
+		Entry("Currency - Works", "\"Currency\"", Financial_Options_Currency),
+		Entry("equity - Works", "\"equity\"", Financial_Options_Equity),
+		Entry("currency - Works", "\"currency\"", Financial_Options_Currency),
+		Entry("0 - Works", "\"0\"", Financial_Options_Equity),
+		Entry("1 - Works", "\"1\"", Financial_Options_Currency))
+
+	// Test that attempting to deserialize a Financial.Options.UnderlyingType will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.UnderlyingType
+		// This should return an error
+		enum := new(Financial_Options_UnderlyingType)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Options_UnderlyingType"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.UnderlyingType
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Options_UnderlyingType) {
+
+			// Attempt to convert the value into a Financial.Options.UnderlyingType
+			// This should not fail
+			var enum Financial_Options_UnderlyingType
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Equity - Works", "Equity", Financial_Options_Equity),
+		Entry("Currency - Works", "Currency", Financial_Options_Currency),
+		Entry("equity - Works", "equity", Financial_Options_Equity),
+		Entry("currency - Works", "currency", Financial_Options_Currency),
+		Entry("0 - Works", "0", Financial_Options_Equity),
+		Entry("1 - Works", "1", Financial_Options_Currency))
+
+	// Test that attempting to deserialize a Financial.Options.UnderlyingType will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Options.UnderlyingType
+		// This should return an error
+		var enum *Financial_Options_UnderlyingType
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Options.UnderlyingType
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Options_UnderlyingType) {
+
+			// Attempt to convert the value into a Financial.Options.UnderlyingType
+			// This should not fail
+			var enum Financial_Options_UnderlyingType
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Equity - Works", "Equity", Financial_Options_Equity),
+		Entry("Currency - Works", "Currency", Financial_Options_Currency),
+		Entry("equity - Works", "equity", Financial_Options_Equity),
+		Entry("currency - Works", "currency", Financial_Options_Currency),
+		Entry("0 - Works", 0, Financial_Options_Equity),
+		Entry("1 - Works", 1, Financial_Options_Currency))
+})
+
+var _ = Describe("Financial.Quotes.Condition Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Quotes.Condition enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Quotes_Condition, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Regular - Works", Financial_Quotes_Regular, "\"Regular\""),
+		Entry("RegularTwoSidedOpen - Works", Financial_Quotes_RegularTwoSidedOpen, "\"RegularTwoSidedOpen\""),
+		Entry("RegularOneSidedOpen - Works", Financial_Quotes_RegularOneSidedOpen, "\"RegularOneSidedOpen\""),
+		Entry("SlowAsk - Works", Financial_Quotes_SlowAsk, "\"SlowAsk\""),
+		Entry("SlowBid - Works", Financial_Quotes_SlowBid, "\"SlowBid\""),
+		Entry("SlowBidAsk - Works", Financial_Quotes_SlowBidAsk, "\"SlowBidAsk\""),
+		Entry("SlowDueLRPBid - Works", Financial_Quotes_SlowDueLRPBid, "\"SlowDueLRPBid\""),
+		Entry("SlowDueLRPAsk - Works", Financial_Quotes_SlowDueLRPAsk, "\"SlowDueLRPAsk\""),
+		Entry("SlowDueNYSELRP - Works", Financial_Quotes_SlowDueNYSELRP, "\"SlowDueNYSELRP\""),
+		Entry("SlowDueSetSlowListBidAsk - Works", Financial_Quotes_SlowDueSetSlowListBidAsk, "\"SlowDueSetSlowListBidAsk\""),
+		Entry("ManualAskAutomatedBid - Works", Financial_Quotes_ManualAskAutomatedBid, "\"ManualAskAutomatedBid\""),
+		Entry("ManualBidAutomatedAsk - Works", Financial_Quotes_ManualBidAutomatedAsk, "\"ManualBidAutomatedAsk\""),
+		Entry("ManualBidAndAsk - Works", Financial_Quotes_ManualBidAndAsk, "\"ManualBidAndAsk\""),
+		Entry("Opening - Works", Financial_Quotes_Opening, "\"Opening\""),
+		Entry("Closing - Works", Financial_Quotes_Closing, "\"Closing\""),
+		Entry("Closed - Works", Financial_Quotes_Closed, "\"Closed\""),
+		Entry("Resume - Works", Financial_Quotes_Resume, "\"Resume\""),
+		Entry("FastTrading - Works", Financial_Quotes_FastTrading, "\"FastTrading\""),
+		Entry("TradingRangeIndicated - Works", Financial_Quotes_TradingRangeIndicated, "\"TradingRangeIndicated\""),
+		Entry("MarketMakerQuotesClosed - Works", Financial_Quotes_MarketMakerQuotesClosed, "\"MarketMakerQuotesClosed\""),
+		Entry("NonFirm - Works", Financial_Quotes_NonFirm, "\"NonFirm\""),
+		Entry("NewsDissemination - Works", Financial_Quotes_NewsDissemination, "\"NewsDissemination\""),
+		Entry("OrderInflux - Works", Financial_Quotes_OrderInflux, "\"OrderInflux\""),
+		Entry("OrderImbalance - Works", Financial_Quotes_OrderImbalance, "\"OrderImbalance\""),
+		Entry("DueToRelatedSecurityNewsDissemination - Works",
+			Financial_Quotes_DueToRelatedSecurityNewsDissemination, "\"DueToRelatedSecurityNewsDissemination\""),
+		Entry("DueToRelatedSecurityNewsPending - Works",
+			Financial_Quotes_DueToRelatedSecurityNewsPending, "\"DueToRelatedSecurityNewsPending\""),
+		Entry("AdditionalInformation - Works", Financial_Quotes_AdditionalInformation, "\"AdditionalInformation\""),
+		Entry("NewsPending - Works", Financial_Quotes_NewsPending, "\"NewsPending\""),
+		Entry("AdditionalInformationDueToRelatedSecurity - Works",
+			Financial_Quotes_AdditionalInformationDueToRelatedSecurity, "\"AdditionalInformationDueToRelatedSecurity\""),
+		Entry("DueToRelatedSecurity - Works", Financial_Quotes_DueToRelatedSecurity, "\"DueToRelatedSecurity\""),
+		Entry("InViewOfCommon - Works", Financial_Quotes_InViewOfCommon, "\"InViewOfCommon\""),
+		Entry("EquipmentChangeover - Works", Financial_Quotes_EquipmentChangeover, "\"EquipmentChangeover\""),
+		Entry("NoOpenNoResponse - Works", Financial_Quotes_NoOpenNoResponse, "\"NoOpenNoResponse\""),
+		Entry("SubPennyTrading - Works", Financial_Quotes_SubPennyTrading, "\"SubPennyTrading\""),
+		Entry("AutomatedBidNoOfferNoBid - Works", Financial_Quotes_AutomatedBidNoOfferNoBid, "\"AutomatedBidNoOfferNoBid\""),
+		Entry("LULDPPriceBand - Works", Financial_Quotes_LULDPPriceBand, "\"LULDPPriceBand\""),
+		Entry("MarketWideCircuitBreakerLevel1 - Works",
+			Financial_Quotes_MarketWideCircuitBreakerLevel1, "\"MarketWideCircuitBreakerLevel1\""),
+		Entry("MarketWideCircuitBreakerLevel2 - Works",
+			Financial_Quotes_MarketWideCircuitBreakerLevel2, "\"MarketWideCircuitBreakerLevel2\""),
+		Entry("MarketWideCircuitBreakerLevel3 - Works",
+			Financial_Quotes_MarketWideCircuitBreakerLevel3, "\"MarketWideCircuitBreakerLevel3\""),
+		Entry("RepublishedLULDPriceBand - Works", Financial_Quotes_RepublishedLULDPriceBand, "\"RepublishedLULDPriceBand\""),
+		Entry("OnDemandAuction - Works", Financial_Quotes_OnDemandAuction, "\"OnDemandAuction\""),
+		Entry("CashOnlySettlement - Works", Financial_Quotes_CashOnlySettlement, "\"CashOnlySettlement\""),
+		Entry("NextDaySettlement - Works", Financial_Quotes_NextDaySettlement, "\"NextDaySettlement\""),
+		Entry("LULDTradingPause - Works", Financial_Quotes_LULDTradingPause, "\"LULDTradingPause\""),
+		Entry("SlowDuelRPBidAsk - Works", Financial_Quotes_SlowDuelRPBidAsk, "\"SlowDuelRPBidAsk\""),
+		Entry("Cancel - Works", Financial_Quotes_Cancel, "\"Cancel\""),
+		Entry("CorrectedPrice - Works", Financial_Quotes_CorrectedPrice, "\"CorrectedPrice\""),
+		Entry("SIPGenerated - Works", Financial_Quotes_SIPGenerated, "\"SIPGenerated\""),
+		Entry("Unknown - Works", Financial_Quotes_Unknown, "\"Unknown\""),
+		Entry("CrossedMarket - Works", Financial_Quotes_CrossedMarket, "\"CrossedMarket\""),
+		Entry("LockedMarket - Works", Financial_Quotes_LockedMarket, "\"LockedMarket\""),
+		Entry("DepthOnOfferSide - Works", Financial_Quotes_DepthOnOfferSide, "\"DepthOnOfferSide\""),
+		Entry("DepthOnBidSide - Works", Financial_Quotes_DepthOnBidSide, "\"DepthOnBidSide\""),
+		Entry("DepthOnBidAndOffer - Works", Financial_Quotes_DepthOnBidAndOffer, "\"DepthOnBidAndOffer\""),
+		Entry("PreOpeningIndication - Works", Financial_Quotes_PreOpeningIndication, "\"PreOpeningIndication\""),
+		Entry("SyndicateBid - Works", Financial_Quotes_SyndicateBid, "\"SyndicateBid\""),
+		Entry("PreSyndicateBid - Works", Financial_Quotes_PreSyndicateBid, "\"PreSyndicateBid\""),
+		Entry("PenaltyBid - Works", Financial_Quotes_PenaltyBid, "\"PenaltyBid\""),
+		Entry("CQSGenerated - Works", Financial_Quotes_CQSGenerated, "\"CQSGenerated\""),
+		Entry("Invalid - Works", Financial_Quotes_Invalid, "\"Invalid\""))
+
+	// Test that converting the Financial.Quotes.Condition enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Quotes_Condition, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("Regular - Works", Financial_Quotes_Regular, "000"),
+		Entry("RegularTwoSidedOpen - Works", Financial_Quotes_RegularTwoSidedOpen, "001"),
+		Entry("RegularOneSidedOpen - Works", Financial_Quotes_RegularOneSidedOpen, "002"),
+		Entry("SlowAsk - Works", Financial_Quotes_SlowAsk, "003"),
+		Entry("SlowBid - Works", Financial_Quotes_SlowBid, "004"),
+		Entry("SlowBidAsk - Works", Financial_Quotes_SlowBidAsk, "005"),
+		Entry("SlowDueLRPBid - Works", Financial_Quotes_SlowDueLRPBid, "006"),
+		Entry("SlowDueLRPAsk - Works", Financial_Quotes_SlowDueLRPAsk, "007"),
+		Entry("SlowDueNYSELRP - Works", Financial_Quotes_SlowDueNYSELRP, "008"),
+		Entry("SlowDueSetSlowListBidAsk - Works", Financial_Quotes_SlowDueSetSlowListBidAsk, "009"),
+		Entry("ManualAskAutomatedBid - Works", Financial_Quotes_ManualAskAutomatedBid, "010"),
+		Entry("ManualBidAutomatedAsk - Works", Financial_Quotes_ManualBidAutomatedAsk, "011"),
+		Entry("ManualBidAndAsk - Works", Financial_Quotes_ManualBidAndAsk, "012"),
+		Entry("Opening - Works", Financial_Quotes_Opening, "013"),
+		Entry("Closing - Works", Financial_Quotes_Closing, "014"),
+		Entry("Closed - Works", Financial_Quotes_Closed, "015"),
+		Entry("Resume - Works", Financial_Quotes_Resume, "016"),
+		Entry("FastTrading - Works", Financial_Quotes_FastTrading, "017"),
+		Entry("TradingRangeIndicated - Works", Financial_Quotes_TradingRangeIndicated, "018"),
+		Entry("MarketMakerQuotesClosed - Works", Financial_Quotes_MarketMakerQuotesClosed, "019"),
+		Entry("NonFirm - Works", Financial_Quotes_NonFirm, "020"),
+		Entry("NewsDissemination - Works", Financial_Quotes_NewsDissemination, "021"),
+		Entry("OrderInflux - Works", Financial_Quotes_OrderInflux, "022"),
+		Entry("OrderImbalance - Works", Financial_Quotes_OrderImbalance, "023"),
+		Entry("DueToRelatedSecurityNewsDissemination - Works", Financial_Quotes_DueToRelatedSecurityNewsDissemination, "024"),
+		Entry("DueToRelatedSecurityNewsPending - Works", Financial_Quotes_DueToRelatedSecurityNewsPending, "025"),
+		Entry("AdditionalInformation - Works", Financial_Quotes_AdditionalInformation, "026"),
+		Entry("NewsPending - Works", Financial_Quotes_NewsPending, "027"),
+		Entry("AdditionalInformationDueToRelatedSecurity - Works",
+			Financial_Quotes_AdditionalInformationDueToRelatedSecurity, "028"),
+		Entry("DueToRelatedSecurity - Works", Financial_Quotes_DueToRelatedSecurity, "029"),
+		Entry("InViewOfCommon - Works", Financial_Quotes_InViewOfCommon, "030"),
+		Entry("EquipmentChangeover - Works", Financial_Quotes_EquipmentChangeover, "031"),
+		Entry("NoOpenNoResponse - Works", Financial_Quotes_NoOpenNoResponse, "032"),
+		Entry("SubPennyTrading - Works", Financial_Quotes_SubPennyTrading, "033"),
+		Entry("AutomatedBidNoOfferNoBid - Works", Financial_Quotes_AutomatedBidNoOfferNoBid, "034"),
+		Entry("LULDPPriceBand - Works", Financial_Quotes_LULDPPriceBand, "035"),
+		Entry("MarketWideCircuitBreakerLevel1 - Works", Financial_Quotes_MarketWideCircuitBreakerLevel1, "036"),
+		Entry("MarketWideCircuitBreakerLevel2 - Works", Financial_Quotes_MarketWideCircuitBreakerLevel2, "037"),
+		Entry("MarketWideCircuitBreakerLevel3 - Works", Financial_Quotes_MarketWideCircuitBreakerLevel3, "038"),
+		Entry("RepublishedLULDPriceBand - Works", Financial_Quotes_RepublishedLULDPriceBand, "039"),
+		Entry("OnDemandAuction - Works", Financial_Quotes_OnDemandAuction, "040"),
+		Entry("CashOnlySettlement - Works", Financial_Quotes_CashOnlySettlement, "041"),
+		Entry("NextDaySettlement - Works", Financial_Quotes_NextDaySettlement, "042"),
+		Entry("LULDTradingPause - Works", Financial_Quotes_LULDTradingPause, "043"),
+		Entry("SlowDuelRPBidAsk - Works", Financial_Quotes_SlowDuelRPBidAsk, "071"),
+		Entry("Cancel - Works", Financial_Quotes_Cancel, "080"),
+		Entry("CorrectedPrice - Works", Financial_Quotes_CorrectedPrice, "081"),
+		Entry("SIPGenerated - Works", Financial_Quotes_SIPGenerated, "082"),
+		Entry("Unknown - Works", Financial_Quotes_Unknown, "083"),
+		Entry("CrossedMarket - Works", Financial_Quotes_CrossedMarket, "084"),
+		Entry("LockedMarket - Works", Financial_Quotes_LockedMarket, "085"),
+		Entry("DepthOnOfferSide - Works", Financial_Quotes_DepthOnOfferSide, "086"),
+		Entry("DepthOnBidSide - Works", Financial_Quotes_DepthOnBidSide, "087"),
+		Entry("DepthOnBidAndOffer - Works", Financial_Quotes_DepthOnBidAndOffer, "088"),
+		Entry("PreOpeningIndication - Works", Financial_Quotes_PreOpeningIndication, "089"),
+		Entry("SyndicateBid - Works", Financial_Quotes_SyndicateBid, "090"),
+		Entry("PreSyndicateBid - Works", Financial_Quotes_PreSyndicateBid, "091"),
+		Entry("PenaltyBid - Works", Financial_Quotes_PenaltyBid, "092"),
+		Entry("CQSGenerated - Works", Financial_Quotes_CQSGenerated, "094"),
+		Entry("Invalid - Works", Financial_Quotes_Invalid, "999"))
+
+	// Test that converting the Financial.Quotes.Condition enum to an SQL value for all values
+	DescribeTable("Value Tests",
+		func(enum Financial_Quotes_Condition, value int) {
+			data, err := enum.Value()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data).Should(Equal(value))
+		},
+		Entry("Regular - Works", Financial_Quotes_Regular, 0),
+		Entry("RegularTwoSidedOpen - Works", Financial_Quotes_RegularTwoSidedOpen, 1),
+		Entry("RegularOneSidedOpen - Works", Financial_Quotes_RegularOneSidedOpen, 2),
+		Entry("SlowAsk - Works", Financial_Quotes_SlowAsk, 3),
+		Entry("SlowBid - Works", Financial_Quotes_SlowBid, 4),
+		Entry("SlowBidAsk - Works", Financial_Quotes_SlowBidAsk, 5),
+		Entry("SlowDueLRPBid - Works", Financial_Quotes_SlowDueLRPBid, 6),
+		Entry("SlowDueLRPAsk - Works", Financial_Quotes_SlowDueLRPAsk, 7),
+		Entry("SlowDueNYSELRP - Works", Financial_Quotes_SlowDueNYSELRP, 8),
+		Entry("SlowDueSetSlowListBidAsk - Works", Financial_Quotes_SlowDueSetSlowListBidAsk, 9),
+		Entry("ManualAskAutomatedBid - Works", Financial_Quotes_ManualAskAutomatedBid, 10),
+		Entry("ManualBidAutomatedAsk - Works", Financial_Quotes_ManualBidAutomatedAsk, 11),
+		Entry("ManualBidAndAsk - Works", Financial_Quotes_ManualBidAndAsk, 12),
+		Entry("Opening - Works", Financial_Quotes_Opening, 13),
+		Entry("Closing - Works", Financial_Quotes_Closing, 14),
+		Entry("Closed - Works", Financial_Quotes_Closed, 15),
+		Entry("Resume - Works", Financial_Quotes_Resume, 16),
+		Entry("FastTrading - Works", Financial_Quotes_FastTrading, 17),
+		Entry("TradingRangeIndicated - Works", Financial_Quotes_TradingRangeIndicated, 18),
+		Entry("MarketMakerQuotesClosed - Works", Financial_Quotes_MarketMakerQuotesClosed, 19),
+		Entry("NonFirm - Works", Financial_Quotes_NonFirm, 20),
+		Entry("NewsDissemination - Works", Financial_Quotes_NewsDissemination, 21),
+		Entry("OrderInflux - Works", Financial_Quotes_OrderInflux, 22),
+		Entry("OrderImbalance - Works", Financial_Quotes_OrderImbalance, 23),
+		Entry("DueToRelatedSecurityNewsDissemination - Works", Financial_Quotes_DueToRelatedSecurityNewsDissemination, 24),
+		Entry("DueToRelatedSecurityNewsPending - Works", Financial_Quotes_DueToRelatedSecurityNewsPending, 25),
+		Entry("AdditionalInformation - Works", Financial_Quotes_AdditionalInformation, 26),
+		Entry("NewsPending - Works", Financial_Quotes_NewsPending, 27),
+		Entry("AdditionalInformationDueToRelatedSecurity - Works", Financial_Quotes_AdditionalInformationDueToRelatedSecurity, 28),
+		Entry("DueToRelatedSecurity - Works", Financial_Quotes_DueToRelatedSecurity, 29),
+		Entry("InViewOfCommon - Works", Financial_Quotes_InViewOfCommon, 30),
+		Entry("EquipmentChangeover - Works", Financial_Quotes_EquipmentChangeover, 31),
+		Entry("NoOpenNoResponse - Works", Financial_Quotes_NoOpenNoResponse, 32),
+		Entry("SubPennyTrading - Works", Financial_Quotes_SubPennyTrading, 33),
+		Entry("AutomatedBidNoOfferNoBid - Works", Financial_Quotes_AutomatedBidNoOfferNoBid, 34),
+		Entry("LULDPPriceBand - Works", Financial_Quotes_LULDPPriceBand, 35),
+		Entry("MarketWideCircuitBreakerLevel1 - Works", Financial_Quotes_MarketWideCircuitBreakerLevel1, 36),
+		Entry("MarketWideCircuitBreakerLevel2 - Works", Financial_Quotes_MarketWideCircuitBreakerLevel2, 37),
+		Entry("MarketWideCircuitBreakerLevel3 - Works", Financial_Quotes_MarketWideCircuitBreakerLevel3, 38),
+		Entry("RepublishedLULDPriceBand - Works", Financial_Quotes_RepublishedLULDPriceBand, 39),
+		Entry("OnDemandAuction - Works", Financial_Quotes_OnDemandAuction, 40),
+		Entry("CashOnlySettlement - Works", Financial_Quotes_CashOnlySettlement, 41),
+		Entry("NextDaySettlement - Works", Financial_Quotes_NextDaySettlement, 42),
+		Entry("LULDTradingPause - Works", Financial_Quotes_LULDTradingPause, 43),
+		Entry("SlowDuelRPBidAsk - Works", Financial_Quotes_SlowDuelRPBidAsk, 71),
+		Entry("Cancel - Works", Financial_Quotes_Cancel, 80),
+		Entry("CorrectedPrice - Works", Financial_Quotes_CorrectedPrice, 81),
+		Entry("SIPGenerated - Works", Financial_Quotes_SIPGenerated, 82),
+		Entry("Unknown - Works", Financial_Quotes_Unknown, 83),
+		Entry("CrossedMarket - Works", Financial_Quotes_CrossedMarket, 84),
+		Entry("LockedMarket - Works", Financial_Quotes_LockedMarket, 85),
+		Entry("DepthOnOfferSide - Works", Financial_Quotes_DepthOnOfferSide, 86),
+		Entry("DepthOnBidSide - Works", Financial_Quotes_DepthOnBidSide, 87),
+		Entry("DepthOnBidAndOffer - Works", Financial_Quotes_DepthOnBidAndOffer, 88),
+		Entry("PreOpeningIndication - Works", Financial_Quotes_PreOpeningIndication, 89),
+		Entry("SyndicateBid - Works", Financial_Quotes_SyndicateBid, 90),
+		Entry("PreSyndicateBid - Works", Financial_Quotes_PreSyndicateBid, 91),
+		Entry("PenaltyBid - Works", Financial_Quotes_PenaltyBid, 92),
+		Entry("CQSGenerated - Works", Financial_Quotes_CQSGenerated, 94),
+		Entry("Invalid - Works", Financial_Quotes_Invalid, -1))
+
+	// Test that converting the Financial.Quotes.Condition enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Quotes_Condition, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("Regular - Works", Financial_Quotes_Regular, "Regular"),
+		Entry("RegularTwoSidedOpen - Works", Financial_Quotes_RegularTwoSidedOpen, "RegularTwoSidedOpen"),
+		Entry("RegularOneSidedOpen - Works", Financial_Quotes_RegularOneSidedOpen, "RegularOneSidedOpen"),
+		Entry("SlowAsk - Works", Financial_Quotes_SlowAsk, "SlowAsk"),
+		Entry("SlowBid - Works", Financial_Quotes_SlowBid, "SlowBid"),
+		Entry("SlowBidAsk - Works", Financial_Quotes_SlowBidAsk, "SlowBidAsk"),
+		Entry("SlowDueLRPBid - Works", Financial_Quotes_SlowDueLRPBid, "SlowDueLRPBid"),
+		Entry("SlowDueLRPAsk - Works", Financial_Quotes_SlowDueLRPAsk, "SlowDueLRPAsk"),
+		Entry("SlowDueNYSELRP - Works", Financial_Quotes_SlowDueNYSELRP, "SlowDueNYSELRP"),
+		Entry("SlowDueSetSlowListBidAsk - Works", Financial_Quotes_SlowDueSetSlowListBidAsk, "SlowDueSetSlowListBidAsk"),
+		Entry("ManualAskAutomatedBid - Works", Financial_Quotes_ManualAskAutomatedBid, "ManualAskAutomatedBid"),
+		Entry("ManualBidAutomatedAsk - Works", Financial_Quotes_ManualBidAutomatedAsk, "ManualBidAutomatedAsk"),
+		Entry("ManualBidAndAsk - Works", Financial_Quotes_ManualBidAndAsk, "ManualBidAndAsk"),
+		Entry("Opening - Works", Financial_Quotes_Opening, "Opening"),
+		Entry("Closing - Works", Financial_Quotes_Closing, "Closing"),
+		Entry("Closed - Works", Financial_Quotes_Closed, "Closed"),
+		Entry("Resume - Works", Financial_Quotes_Resume, "Resume"),
+		Entry("FastTrading - Works", Financial_Quotes_FastTrading, "FastTrading"),
+		Entry("TradingRangeIndicated - Works", Financial_Quotes_TradingRangeIndicated, "TradingRangeIndicated"),
+		Entry("MarketMakerQuotesClosed - Works", Financial_Quotes_MarketMakerQuotesClosed, "MarketMakerQuotesClosed"),
+		Entry("NonFirm - Works", Financial_Quotes_NonFirm, "NonFirm"),
+		Entry("NewsDissemination - Works", Financial_Quotes_NewsDissemination, "NewsDissemination"),
+		Entry("OrderInflux - Works", Financial_Quotes_OrderInflux, "OrderInflux"),
+		Entry("OrderImbalance - Works", Financial_Quotes_OrderImbalance, "OrderImbalance"),
+		Entry("DueToRelatedSecurityNewsDissemination - Works",
+			Financial_Quotes_DueToRelatedSecurityNewsDissemination, "DueToRelatedSecurityNewsDissemination"),
+		Entry("DueToRelatedSecurityNewsPending - Works",
+			Financial_Quotes_DueToRelatedSecurityNewsPending, "DueToRelatedSecurityNewsPending"),
+		Entry("AdditionalInformation - Works", Financial_Quotes_AdditionalInformation, "AdditionalInformation"),
+		Entry("NewsPending - Works", Financial_Quotes_NewsPending, "NewsPending"),
+		Entry("AdditionalInformationDueToRelatedSecurity - Works",
+			Financial_Quotes_AdditionalInformationDueToRelatedSecurity, "AdditionalInformationDueToRelatedSecurity"),
+		Entry("DueToRelatedSecurity - Works", Financial_Quotes_DueToRelatedSecurity, "DueToRelatedSecurity"),
+		Entry("InViewOfCommon - Works", Financial_Quotes_InViewOfCommon, "InViewOfCommon"),
+		Entry("EquipmentChangeover - Works", Financial_Quotes_EquipmentChangeover, "EquipmentChangeover"),
+		Entry("NoOpenNoResponse - Works", Financial_Quotes_NoOpenNoResponse, "NoOpenNoResponse"),
+		Entry("SubPennyTrading - Works", Financial_Quotes_SubPennyTrading, "SubPennyTrading"),
+		Entry("AutomatedBidNoOfferNoBid - Works", Financial_Quotes_AutomatedBidNoOfferNoBid, "AutomatedBidNoOfferNoBid"),
+		Entry("LULDPPriceBand - Works", Financial_Quotes_LULDPPriceBand, "LULDPPriceBand"),
+		Entry("MarketWideCircuitBreakerLevel1 - Works",
+			Financial_Quotes_MarketWideCircuitBreakerLevel1, "MarketWideCircuitBreakerLevel1"),
+		Entry("MarketWideCircuitBreakerLevel2 - Works",
+			Financial_Quotes_MarketWideCircuitBreakerLevel2, "MarketWideCircuitBreakerLevel2"),
+		Entry("MarketWideCircuitBreakerLevel3 - Works",
+			Financial_Quotes_MarketWideCircuitBreakerLevel3, "MarketWideCircuitBreakerLevel3"),
+		Entry("RepublishedLULDPriceBand - Works", Financial_Quotes_RepublishedLULDPriceBand, "RepublishedLULDPriceBand"),
+		Entry("OnDemandAuction - Works", Financial_Quotes_OnDemandAuction, "OnDemandAuction"),
+		Entry("CashOnlySettlement - Works", Financial_Quotes_CashOnlySettlement, "CashOnlySettlement"),
+		Entry("NextDaySettlement - Works", Financial_Quotes_NextDaySettlement, "NextDaySettlement"),
+		Entry("LULDTradingPause - Works", Financial_Quotes_LULDTradingPause, "LULDTradingPause"),
+		Entry("SlowDuelRPBidAsk - Works", Financial_Quotes_SlowDuelRPBidAsk, "SlowDuelRPBidAsk"),
+		Entry("Cancel - Works", Financial_Quotes_Cancel, "Cancel"),
+		Entry("CorrectedPrice - Works", Financial_Quotes_CorrectedPrice, "CorrectedPrice"),
+		Entry("SIPGenerated - Works", Financial_Quotes_SIPGenerated, "SIPGenerated"),
+		Entry("Unknown - Works", Financial_Quotes_Unknown, "Unknown"),
+		Entry("CrossedMarket - Works", Financial_Quotes_CrossedMarket, "CrossedMarket"),
+		Entry("LockedMarket - Works", Financial_Quotes_LockedMarket, "LockedMarket"),
+		Entry("DepthOnOfferSide - Works", Financial_Quotes_DepthOnOfferSide, "DepthOnOfferSide"),
+		Entry("DepthOnBidSide - Works", Financial_Quotes_DepthOnBidSide, "DepthOnBidSide"),
+		Entry("DepthOnBidAndOffer - Works", Financial_Quotes_DepthOnBidAndOffer, "DepthOnBidAndOffer"),
+		Entry("PreOpeningIndication - Works", Financial_Quotes_PreOpeningIndication, "PreOpeningIndication"),
+		Entry("SyndicateBid - Works", Financial_Quotes_SyndicateBid, "SyndicateBid"),
+		Entry("PreSyndicateBid - Works", Financial_Quotes_PreSyndicateBid, "PreSyndicateBid"),
+		Entry("PenaltyBid - Works", Financial_Quotes_PenaltyBid, "PenaltyBid"),
+		Entry("CQSGenerated - Works", Financial_Quotes_CQSGenerated, "CQSGenerated"),
+		Entry("Invalid - Works", Financial_Quotes_Invalid, "Invalid"))
+
+	// Test that attempting to deserialize a Financial.Quotes.Condition will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Quotes.Condition
+		// This should return an error
+		enum := new(Financial_Quotes_Condition)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Quotes_Condition"))
+	})
+
+	// Test that attempting to deserialize a Financial.Quotes.Condition will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Quotes.Condition
+		// This should return an error
+		enum := new(Financial_Quotes_Condition)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Quotes_Condition"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Quotes.Condition
+	DescribeTable("UnmarshalJSON Tests",
+		func(value interface{}, shouldBe Financial_Quotes_Condition) {
+
+			// Attempt to convert the string value into a Financial.Quotes.Condition
+			// This should not fail
+			var enum Financial_Quotes_Condition
+			err := enum.UnmarshalJSON([]byte(fmt.Sprintf("%v", value)))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Regular - Works", "\"Regular\"", Financial_Quotes_Regular),
+		Entry("RegularTwoSidedOpen - Works", "\"RegularTwoSidedOpen\"", Financial_Quotes_RegularTwoSidedOpen),
+		Entry("RegularOneSidedOpen - Works", "\"RegularOneSidedOpen\"", Financial_Quotes_RegularOneSidedOpen),
+		Entry("SlowAsk - Works", "\"SlowAsk\"", Financial_Quotes_SlowAsk),
+		Entry("SlowBid - Works", "\"SlowBid\"", Financial_Quotes_SlowBid),
+		Entry("SlowBidAsk - Works", "\"SlowBidAsk\"", Financial_Quotes_SlowBidAsk),
+		Entry("SlowDueLRPBid - Works", "\"SlowDueLRPBid\"", Financial_Quotes_SlowDueLRPBid),
+		Entry("SlowDueLRPAsk - Works", "\"SlowDueLRPAsk\"", Financial_Quotes_SlowDueLRPAsk),
+		Entry("SlowDueNYSELRP - Works", "\"SlowDueNYSELRP\"", Financial_Quotes_SlowDueNYSELRP),
+		Entry("SlowDueSetSlowListBidAsk - Works", "\"SlowDueSetSlowListBidAsk\"", Financial_Quotes_SlowDueSetSlowListBidAsk),
+		Entry("ManualAskAutomatedBid - Works", "\"ManualAskAutomatedBid\"", Financial_Quotes_ManualAskAutomatedBid),
+		Entry("ManualBidAutomatedAsk - Works", "\"ManualBidAutomatedAsk\"", Financial_Quotes_ManualBidAutomatedAsk),
+		Entry("ManualBidAndAsk - Works", "\"ManualBidAndAsk\"", Financial_Quotes_ManualBidAndAsk),
+		Entry("Opening - Works", "\"Opening\"", Financial_Quotes_Opening),
+		Entry("Closing - Works", "\"Closing\"", Financial_Quotes_Closing),
+		Entry("Closed - Works", "\"Closed\"", Financial_Quotes_Closed),
+		Entry("Resume - Works", "\"Resume\"", Financial_Quotes_Resume),
+		Entry("FastTrading - Works", "\"FastTrading\"", Financial_Quotes_FastTrading),
+		Entry("TradingRangeIndicated - Works", "\"TradingRangeIndicated\"", Financial_Quotes_TradingRangeIndicated),
+		Entry("MarketMakerQuotesClosed - Works", "\"MarketMakerQuotesClosed\"", Financial_Quotes_MarketMakerQuotesClosed),
+		Entry("NonFirm - Works", "\"NonFirm\"", Financial_Quotes_NonFirm),
+		Entry("NewsDissemination - Works", "\"NewsDissemination\"", Financial_Quotes_NewsDissemination),
+		Entry("OrderInflux - Works", "\"OrderInflux\"", Financial_Quotes_OrderInflux),
+		Entry("OrderImbalance - Works", "\"OrderImbalance\"", Financial_Quotes_OrderImbalance),
+		Entry("DueToRelatedSecurityNewsDissemination - Works",
+			"\"DueToRelatedSecurityNewsDissemination\"", Financial_Quotes_DueToRelatedSecurityNewsDissemination),
+		Entry("DueToRelatedSecurityNewsPending - Works",
+			"\"DueToRelatedSecurityNewsPending\"", Financial_Quotes_DueToRelatedSecurityNewsPending),
+		Entry("AdditionalInformation - Works",
+			"\"AdditionalInformation\"", Financial_Quotes_AdditionalInformation),
+		Entry("NewsPending - Works", "\"NewsPending\"", Financial_Quotes_NewsPending),
+		Entry("AdditionalInformationDueToRelatedSecurity - Works",
+			"\"AdditionalInformationDueToRelatedSecurity\"", Financial_Quotes_AdditionalInformationDueToRelatedSecurity),
+		Entry("DueToRelatedSecurity - Works", "\"DueToRelatedSecurity\"", Financial_Quotes_DueToRelatedSecurity),
+		Entry("InViewOfCommon - Works", "\"InViewOfCommon\"", Financial_Quotes_InViewOfCommon),
+		Entry("EquipmentChangeover - Works", "\"EquipmentChangeover\"", Financial_Quotes_EquipmentChangeover),
+		Entry("NoOpenNoResponse - Works", "\"NoOpenNoResponse\"", Financial_Quotes_NoOpenNoResponse),
+		Entry("SubPennyTrading - Works", "\"SubPennyTrading\"", Financial_Quotes_SubPennyTrading),
+		Entry("AutomatedBidNoOfferNoBid - Works", "\"AutomatedBidNoOfferNoBid\"", Financial_Quotes_AutomatedBidNoOfferNoBid),
+		Entry("LULDPPriceBand - Works", "\"LULDPPriceBand\"", Financial_Quotes_LULDPPriceBand),
+		Entry("MarketWideCircuitBreakerLevel1 - Works",
+			"\"MarketWideCircuitBreakerLevel1\"", Financial_Quotes_MarketWideCircuitBreakerLevel1),
+		Entry("MarketWideCircuitBreakerLevel2 - Works",
+			"\"MarketWideCircuitBreakerLevel2\"", Financial_Quotes_MarketWideCircuitBreakerLevel2),
+		Entry("MarketWideCircuitBreakerLevel3 - Works",
+			"\"MarketWideCircuitBreakerLevel3\"", Financial_Quotes_MarketWideCircuitBreakerLevel3),
+		Entry("RepublishedLULDPriceBand - Works", "\"RepublishedLULDPriceBand\"", Financial_Quotes_RepublishedLULDPriceBand),
+		Entry("OnDemandAuction - Works", "\"OnDemandAuction\"", Financial_Quotes_OnDemandAuction),
+		Entry("CashOnlySettlement - Works", "\"CashOnlySettlement\"", Financial_Quotes_CashOnlySettlement),
+		Entry("NextDaySettlement - Works", "\"NextDaySettlement\"", Financial_Quotes_NextDaySettlement),
+		Entry("LULDTradingPause - Works", "\"LULDTradingPause\"", Financial_Quotes_LULDTradingPause),
+		Entry("SlowDuelRPBidAsk - Works", "\"SlowDuelRPBidAsk\"", Financial_Quotes_SlowDuelRPBidAsk),
+		Entry("Cancel - Works", "\"Cancel\"", Financial_Quotes_Cancel),
+		Entry("CorrectedPrice - Works", "\"CorrectedPrice\"", Financial_Quotes_CorrectedPrice),
+		Entry("SIPGenerated - Works", "\"SIPGenerated\"", Financial_Quotes_SIPGenerated),
+		Entry("Unknown - Works", "\"Unknown\"", Financial_Quotes_Unknown),
+		Entry("CrossedMarket - Works", "\"CrossedMarket\"", Financial_Quotes_CrossedMarket),
+		Entry("LockedMarket - Works", "\"LockedMarket\"", Financial_Quotes_LockedMarket),
+		Entry("DepthOnOfferSide - Works", "\"DepthOnOfferSide\"", Financial_Quotes_DepthOnOfferSide),
+		Entry("DepthOnBidSide - Works", "\"DepthOnBidSide\"", Financial_Quotes_DepthOnBidSide),
+		Entry("DepthOnBidAndOffer - Works", "\"DepthOnBidAndOffer\"", Financial_Quotes_DepthOnBidAndOffer),
+		Entry("PreOpeningIndication - Works", "\"PreOpeningIndication\"", Financial_Quotes_PreOpeningIndication),
+		Entry("SyndicateBid - Works", "\"SyndicateBid\"", Financial_Quotes_SyndicateBid),
+		Entry("PreSyndicateBid - Works", "\"PreSyndicateBid\"", Financial_Quotes_PreSyndicateBid),
+		Entry("PenaltyBid - Works", "\"PenaltyBid\"", Financial_Quotes_PenaltyBid),
+		Entry("CQSGenerated - Works", "\"CQSGenerated\"", Financial_Quotes_CQSGenerated),
+		Entry("Invalid - Works", "\"Invalid\"", Financial_Quotes_Invalid),
+		Entry("'-1' - Works", "\"-1\"", Financial_Quotes_Invalid),
+		Entry("'0' - Works", "\"0\"", Financial_Quotes_Regular),
+		Entry("'1' - Works", "\"1\"", Financial_Quotes_RegularTwoSidedOpen),
+		Entry("'2' - Works", "\"2\"", Financial_Quotes_RegularOneSidedOpen),
+		Entry("'3' - Works", "\"3\"", Financial_Quotes_SlowAsk),
+		Entry("'4' - Works", "\"4\"", Financial_Quotes_SlowBid),
+		Entry("'5' - Works", "\"5\"", Financial_Quotes_SlowBidAsk),
+		Entry("'6' - Works", "\"6\"", Financial_Quotes_SlowDueLRPBid),
+		Entry("'7' - Works", "\"7\"", Financial_Quotes_SlowDueLRPAsk),
+		Entry("'8' - Works", "\"8\"", Financial_Quotes_SlowDueNYSELRP),
+		Entry("'9' - Works", "\"9\"", Financial_Quotes_SlowDueSetSlowListBidAsk),
+		Entry("'10' - Works", "\"10\"", Financial_Quotes_ManualAskAutomatedBid),
+		Entry("'11' - Works", "\"11\"", Financial_Quotes_ManualBidAutomatedAsk),
+		Entry("'12' - Works", "\"12\"", Financial_Quotes_ManualBidAndAsk),
+		Entry("'13' - Works", "\"13\"", Financial_Quotes_Opening),
+		Entry("'14' - Works", "\"14\"", Financial_Quotes_Closing),
+		Entry("'15' - Works", "\"15\"", Financial_Quotes_Closed),
+		Entry("'16' - Works", "\"16\"", Financial_Quotes_Resume),
+		Entry("'17' - Works", "\"17\"", Financial_Quotes_FastTrading),
+		Entry("'18' - Works", "\"18\"", Financial_Quotes_TradingRangeIndicated),
+		Entry("'19' - Works", "\"19\"", Financial_Quotes_MarketMakerQuotesClosed),
+		Entry("'20' - Works", "\"20\"", Financial_Quotes_NonFirm),
+		Entry("'21' - Works", "\"21\"", Financial_Quotes_NewsDissemination),
+		Entry("'22' - Works", "\"22\"", Financial_Quotes_OrderInflux),
+		Entry("'23' - Works", "\"23\"", Financial_Quotes_OrderImbalance),
+		Entry("'24' - Works", "\"24\"", Financial_Quotes_DueToRelatedSecurityNewsDissemination),
+		Entry("'25' - Works", "\"25\"", Financial_Quotes_DueToRelatedSecurityNewsPending),
+		Entry("'26' - Works", "\"26\"", Financial_Quotes_AdditionalInformation),
+		Entry("'27' - Works", "\"27\"", Financial_Quotes_NewsPending),
+		Entry("'28' - Works", "\"28\"", Financial_Quotes_AdditionalInformationDueToRelatedSecurity),
+		Entry("'29' - Works", "\"29\"", Financial_Quotes_DueToRelatedSecurity),
+		Entry("'30' - Works", "\"30\"", Financial_Quotes_InViewOfCommon),
+		Entry("'31' - Works", "\"31\"", Financial_Quotes_EquipmentChangeover),
+		Entry("'32' - Works", "\"32\"", Financial_Quotes_NoOpenNoResponse),
+		Entry("'33' - Works", "\"33\"", Financial_Quotes_SubPennyTrading),
+		Entry("'34' - Works", "\"34\"", Financial_Quotes_AutomatedBidNoOfferNoBid),
+		Entry("'35' - Works", "\"35\"", Financial_Quotes_LULDPPriceBand),
+		Entry("'36' - Works", "\"36\"", Financial_Quotes_MarketWideCircuitBreakerLevel1),
+		Entry("'37' - Works", "\"37\"", Financial_Quotes_MarketWideCircuitBreakerLevel2),
+		Entry("'38' - Works", "\"38\"", Financial_Quotes_MarketWideCircuitBreakerLevel3),
+		Entry("'39' - Works", "\"39\"", Financial_Quotes_RepublishedLULDPriceBand),
+		Entry("'40' - Works", "\"40\"", Financial_Quotes_OnDemandAuction),
+		Entry("'41' - Works", "\"41\"", Financial_Quotes_CashOnlySettlement),
+		Entry("'42' - Works", "\"42\"", Financial_Quotes_NextDaySettlement),
+		Entry("'43' - Works", "\"43\"", Financial_Quotes_LULDTradingPause),
+		Entry("'71' - Works", "\"71\"", Financial_Quotes_SlowDuelRPBidAsk),
+		Entry("'80' - Works", "\"80\"", Financial_Quotes_Cancel),
+		Entry("'81' - Works", "\"81\"", Financial_Quotes_CorrectedPrice),
+		Entry("'82' - Works", "\"82\"", Financial_Quotes_SIPGenerated),
+		Entry("'83' - Works", "\"83\"", Financial_Quotes_Unknown),
+		Entry("'84' - Works", "\"84\"", Financial_Quotes_CrossedMarket),
+		Entry("'85' - Works", "\"85\"", Financial_Quotes_LockedMarket),
+		Entry("'86' - Works", "\"86\"", Financial_Quotes_DepthOnOfferSide),
+		Entry("'87' - Works", "\"87\"", Financial_Quotes_DepthOnBidSide),
+		Entry("'88' - Works", "\"88\"", Financial_Quotes_DepthOnBidAndOffer),
+		Entry("'89' - Works", "\"89\"", Financial_Quotes_PreOpeningIndication),
+		Entry("'90' - Works", "\"90\"", Financial_Quotes_SyndicateBid),
+		Entry("'91' - Works", "\"91\"", Financial_Quotes_PreSyndicateBid),
+		Entry("'92' - Works", "\"92\"", Financial_Quotes_PenaltyBid),
+		Entry("'94' - Works", "\"94\"", Financial_Quotes_CQSGenerated),
+		Entry("'999' - Works", "\"999\"", Financial_Quotes_Invalid),
+		Entry("-1 - Works", -1, Financial_Quotes_Invalid),
+		Entry("0 - Works", 0, Financial_Quotes_Regular),
+		Entry("1 - Works", 1, Financial_Quotes_RegularTwoSidedOpen),
+		Entry("2 - Works", 2, Financial_Quotes_RegularOneSidedOpen),
+		Entry("3 - Works", 3, Financial_Quotes_SlowAsk),
+		Entry("4 - Works", 4, Financial_Quotes_SlowBid),
+		Entry("5 - Works", 5, Financial_Quotes_SlowBidAsk),
+		Entry("6 - Works", 6, Financial_Quotes_SlowDueLRPBid),
+		Entry("7 - Works", 7, Financial_Quotes_SlowDueLRPAsk),
+		Entry("8 - Works", 8, Financial_Quotes_SlowDueNYSELRP),
+		Entry("9 - Works", 9, Financial_Quotes_SlowDueSetSlowListBidAsk),
+		Entry("10 - Works", 10, Financial_Quotes_ManualAskAutomatedBid),
+		Entry("11 - Works", 11, Financial_Quotes_ManualBidAutomatedAsk),
+		Entry("12 - Works", 12, Financial_Quotes_ManualBidAndAsk),
+		Entry("13 - Works", 13, Financial_Quotes_Opening),
+		Entry("14 - Works", 14, Financial_Quotes_Closing),
+		Entry("15 - Works", 15, Financial_Quotes_Closed),
+		Entry("16 - Works", 16, Financial_Quotes_Resume),
+		Entry("17 - Works", 17, Financial_Quotes_FastTrading),
+		Entry("18 - Works", 18, Financial_Quotes_TradingRangeIndicated),
+		Entry("19 - Works", 19, Financial_Quotes_MarketMakerQuotesClosed),
+		Entry("20 - Works", 20, Financial_Quotes_NonFirm),
+		Entry("21 - Works", 21, Financial_Quotes_NewsDissemination),
+		Entry("22 - Works", 22, Financial_Quotes_OrderInflux),
+		Entry("23 - Works", 23, Financial_Quotes_OrderImbalance),
+		Entry("24 - Works", 24, Financial_Quotes_DueToRelatedSecurityNewsDissemination),
+		Entry("25 - Works", 25, Financial_Quotes_DueToRelatedSecurityNewsPending),
+		Entry("26 - Works", 26, Financial_Quotes_AdditionalInformation),
+		Entry("27 - Works", 27, Financial_Quotes_NewsPending),
+		Entry("28 - Works", 28, Financial_Quotes_AdditionalInformationDueToRelatedSecurity),
+		Entry("29 - Works", 29, Financial_Quotes_DueToRelatedSecurity),
+		Entry("30 - Works", 30, Financial_Quotes_InViewOfCommon),
+		Entry("31 - Works", 31, Financial_Quotes_EquipmentChangeover),
+		Entry("32 - Works", 32, Financial_Quotes_NoOpenNoResponse),
+		Entry("33 - Works", 33, Financial_Quotes_SubPennyTrading),
+		Entry("34 - Works", 34, Financial_Quotes_AutomatedBidNoOfferNoBid),
+		Entry("35 - Works", 35, Financial_Quotes_LULDPPriceBand),
+		Entry("36 - Works", 36, Financial_Quotes_MarketWideCircuitBreakerLevel1),
+		Entry("37 - Works", 37, Financial_Quotes_MarketWideCircuitBreakerLevel2),
+		Entry("38 - Works", 38, Financial_Quotes_MarketWideCircuitBreakerLevel3),
+		Entry("39 - Works", 39, Financial_Quotes_RepublishedLULDPriceBand),
+		Entry("40 - Works", 40, Financial_Quotes_OnDemandAuction),
+		Entry("41 - Works", 41, Financial_Quotes_CashOnlySettlement),
+		Entry("42 - Works", 42, Financial_Quotes_NextDaySettlement),
+		Entry("43 - Works", 43, Financial_Quotes_LULDTradingPause),
+		Entry("71 - Works", 71, Financial_Quotes_SlowDuelRPBidAsk),
+		Entry("80 - Works", 80, Financial_Quotes_Cancel),
+		Entry("81 - Works", 81, Financial_Quotes_CorrectedPrice),
+		Entry("82 - Works", 82, Financial_Quotes_SIPGenerated),
+		Entry("83 - Works", 83, Financial_Quotes_Unknown),
+		Entry("84 - Works", 84, Financial_Quotes_CrossedMarket),
+		Entry("85 - Works", 85, Financial_Quotes_LockedMarket),
+		Entry("86 - Works", 86, Financial_Quotes_DepthOnOfferSide),
+		Entry("87 - Works", 87, Financial_Quotes_DepthOnBidSide),
+		Entry("88 - Works", 88, Financial_Quotes_DepthOnBidAndOffer),
+		Entry("89 - Works", 89, Financial_Quotes_PreOpeningIndication),
+		Entry("90 - Works", 90, Financial_Quotes_SyndicateBid),
+		Entry("91 - Works", 91, Financial_Quotes_PreSyndicateBid),
+		Entry("92 - Works", 92, Financial_Quotes_PenaltyBid),
+		Entry("94 - Works", 94, Financial_Quotes_CQSGenerated),
+		Entry("999 - Works", 999, Financial_Quotes_Invalid))
+
+	// Test that attempting to deserialize a Financial.Quotes.Condition will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Quotes.Condition
+		// This should return an error
+		enum := new(Financial_Quotes_Condition)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Quotes_Condition"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Quotes.Condition
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Quotes_Condition) {
+
+			// Attempt to convert the value into a Financial.Quotes.Condition
+			// This should not fail
+			var enum Financial_Quotes_Condition
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Regular - Works", "Regular", Financial_Quotes_Regular),
+		Entry("RegularTwoSidedOpen - Works", "RegularTwoSidedOpen", Financial_Quotes_RegularTwoSidedOpen),
+		Entry("RegularOneSidedOpen - Works", "RegularOneSidedOpen", Financial_Quotes_RegularOneSidedOpen),
+		Entry("SlowAsk - Works", "SlowAsk", Financial_Quotes_SlowAsk),
+		Entry("SlowBid - Works", "SlowBid", Financial_Quotes_SlowBid),
+		Entry("SlowBidAsk - Works", "SlowBidAsk", Financial_Quotes_SlowBidAsk),
+		Entry("SlowDueLRPBid - Works", "SlowDueLRPBid", Financial_Quotes_SlowDueLRPBid),
+		Entry("SlowDueLRPAsk - Works", "SlowDueLRPAsk", Financial_Quotes_SlowDueLRPAsk),
+		Entry("SlowDueNYSELRP - Works", "SlowDueNYSELRP", Financial_Quotes_SlowDueNYSELRP),
+		Entry("SlowDueSetSlowListBidAsk - Works", "SlowDueSetSlowListBidAsk", Financial_Quotes_SlowDueSetSlowListBidAsk),
+		Entry("ManualAskAutomatedBid - Works", "ManualAskAutomatedBid", Financial_Quotes_ManualAskAutomatedBid),
+		Entry("ManualBidAutomatedAsk - Works", "ManualBidAutomatedAsk", Financial_Quotes_ManualBidAutomatedAsk),
+		Entry("ManualBidAndAsk - Works", "ManualBidAndAsk", Financial_Quotes_ManualBidAndAsk),
+		Entry("Opening - Works", "Opening", Financial_Quotes_Opening),
+		Entry("Closing - Works", "Closing", Financial_Quotes_Closing),
+		Entry("Closed - Works", "Closed", Financial_Quotes_Closed),
+		Entry("Resume - Works", "Resume", Financial_Quotes_Resume),
+		Entry("FastTrading - Works", "FastTrading", Financial_Quotes_FastTrading),
+		Entry("TradingRangeIndicated - Works", "TradingRangeIndicated", Financial_Quotes_TradingRangeIndicated),
+		Entry("MarketMakerQuotesClosed - Works", "MarketMakerQuotesClosed", Financial_Quotes_MarketMakerQuotesClosed),
+		Entry("NonFirm - Works", "NonFirm", Financial_Quotes_NonFirm),
+		Entry("NewsDissemination - Works", "NewsDissemination", Financial_Quotes_NewsDissemination),
+		Entry("OrderInflux - Works", "OrderInflux", Financial_Quotes_OrderInflux),
+		Entry("OrderImbalance - Works", "OrderImbalance", Financial_Quotes_OrderImbalance),
+		Entry("DueToRelatedSecurityNewsDissemination - Works", "DueToRelatedSecurityNewsDissemination", Financial_Quotes_DueToRelatedSecurityNewsDissemination),
+		Entry("DueToRelatedSecurityNewsPending - Works", "DueToRelatedSecurityNewsPending", Financial_Quotes_DueToRelatedSecurityNewsPending),
+		Entry("AdditionalInformation - Works", "AdditionalInformation", Financial_Quotes_AdditionalInformation),
+		Entry("NewsPending - Works", "NewsPending", Financial_Quotes_NewsPending),
+		Entry("AdditionalInformationDueToRelatedSecurity - Works", "AdditionalInformationDueToRelatedSecurity", Financial_Quotes_AdditionalInformationDueToRelatedSecurity),
+		Entry("DueToRelatedSecurity - Works", "DueToRelatedSecurity", Financial_Quotes_DueToRelatedSecurity),
+		Entry("InViewOfCommon - Works", "InViewOfCommon", Financial_Quotes_InViewOfCommon),
+		Entry("EquipmentChangeover - Works", "EquipmentChangeover", Financial_Quotes_EquipmentChangeover),
+		Entry("NoOpenNoResponse - Works", "NoOpenNoResponse", Financial_Quotes_NoOpenNoResponse),
+		Entry("SubPennyTrading - Works", "SubPennyTrading", Financial_Quotes_SubPennyTrading),
+		Entry("AutomatedBidNoOfferNoBid - Works", "AutomatedBidNoOfferNoBid", Financial_Quotes_AutomatedBidNoOfferNoBid),
+		Entry("LULDPPriceBand - Works", "LULDPPriceBand", Financial_Quotes_LULDPPriceBand),
+		Entry("MarketWideCircuitBreakerLevel1 - Works", "MarketWideCircuitBreakerLevel1", Financial_Quotes_MarketWideCircuitBreakerLevel1),
+		Entry("MarketWideCircuitBreakerLevel2 - Works", "MarketWideCircuitBreakerLevel2", Financial_Quotes_MarketWideCircuitBreakerLevel2),
+		Entry("MarketWideCircuitBreakerLevel3 - Works", "MarketWideCircuitBreakerLevel3", Financial_Quotes_MarketWideCircuitBreakerLevel3),
+		Entry("RepublishedLULDPriceBand - Works", "RepublishedLULDPriceBand", Financial_Quotes_RepublishedLULDPriceBand),
+		Entry("OnDemandAuction - Works", "OnDemandAuction", Financial_Quotes_OnDemandAuction),
+		Entry("CashOnlySettlement - Works", "CashOnlySettlement", Financial_Quotes_CashOnlySettlement),
+		Entry("NextDaySettlement - Works", "NextDaySettlement", Financial_Quotes_NextDaySettlement),
+		Entry("LULDTradingPause - Works", "LULDTradingPause", Financial_Quotes_LULDTradingPause),
+		Entry("SlowDuelRPBidAsk - Works", "SlowDuelRPBidAsk", Financial_Quotes_SlowDuelRPBidAsk),
+		Entry("Cancel - Works", "Cancel", Financial_Quotes_Cancel),
+		Entry("CorrectedPrice - Works", "CorrectedPrice", Financial_Quotes_CorrectedPrice),
+		Entry("SIPGenerated - Works", "SIPGenerated", Financial_Quotes_SIPGenerated),
+		Entry("Unknown - Works", "Unknown", Financial_Quotes_Unknown),
+		Entry("CrossedMarket - Works", "CrossedMarket", Financial_Quotes_CrossedMarket),
+		Entry("LockedMarket - Works", "LockedMarket", Financial_Quotes_LockedMarket),
+		Entry("DepthOnOfferSide - Works", "DepthOnOfferSide", Financial_Quotes_DepthOnOfferSide),
+		Entry("DepthOnBidSide - Works", "DepthOnBidSide", Financial_Quotes_DepthOnBidSide),
+		Entry("DepthOnBidAndOffer - Works", "DepthOnBidAndOffer", Financial_Quotes_DepthOnBidAndOffer),
+		Entry("PreOpeningIndication - Works", "PreOpeningIndication", Financial_Quotes_PreOpeningIndication),
+		Entry("SyndicateBid - Works", "SyndicateBid", Financial_Quotes_SyndicateBid),
+		Entry("PreSyndicateBid - Works", "PreSyndicateBid", Financial_Quotes_PreSyndicateBid),
+		Entry("PenaltyBid - Works", "PenaltyBid", Financial_Quotes_PenaltyBid),
+		Entry("CQSGenerated - Works", "CQSGenerated", Financial_Quotes_CQSGenerated),
+		Entry("Invalid - Works", "Invalid", Financial_Quotes_Invalid),
+		Entry("0 - Works", "000", Financial_Quotes_Regular),
+		Entry("1 - Works", "001", Financial_Quotes_RegularTwoSidedOpen),
+		Entry("2 - Works", "002", Financial_Quotes_RegularOneSidedOpen),
+		Entry("3 - Works", "003", Financial_Quotes_SlowAsk),
+		Entry("4 - Works", "004", Financial_Quotes_SlowBid),
+		Entry("5 - Works", "005", Financial_Quotes_SlowBidAsk),
+		Entry("6 - Works", "006", Financial_Quotes_SlowDueLRPBid),
+		Entry("7 - Works", "007", Financial_Quotes_SlowDueLRPAsk),
+		Entry("8 - Works", "008", Financial_Quotes_SlowDueNYSELRP),
+		Entry("9 - Works", "009", Financial_Quotes_SlowDueSetSlowListBidAsk),
+		Entry("10 - Works", "010", Financial_Quotes_ManualAskAutomatedBid),
+		Entry("11 - Works", "011", Financial_Quotes_ManualBidAutomatedAsk),
+		Entry("12 - Works", "012", Financial_Quotes_ManualBidAndAsk),
+		Entry("13 - Works", "013", Financial_Quotes_Opening),
+		Entry("14 - Works", "014", Financial_Quotes_Closing),
+		Entry("15 - Works", "015", Financial_Quotes_Closed),
+		Entry("16 - Works", "016", Financial_Quotes_Resume),
+		Entry("17 - Works", "017", Financial_Quotes_FastTrading),
+		Entry("18 - Works", "018", Financial_Quotes_TradingRangeIndicated),
+		Entry("19 - Works", "019", Financial_Quotes_MarketMakerQuotesClosed),
+		Entry("20 - Works", "020", Financial_Quotes_NonFirm),
+		Entry("21 - Works", "021", Financial_Quotes_NewsDissemination),
+		Entry("22 - Works", "022", Financial_Quotes_OrderInflux),
+		Entry("23 - Works", "023", Financial_Quotes_OrderImbalance),
+		Entry("24 - Works", "024", Financial_Quotes_DueToRelatedSecurityNewsDissemination),
+		Entry("25 - Works", "025", Financial_Quotes_DueToRelatedSecurityNewsPending),
+		Entry("26 - Works", "026", Financial_Quotes_AdditionalInformation),
+		Entry("27 - Works", "027", Financial_Quotes_NewsPending),
+		Entry("28 - Works", "028", Financial_Quotes_AdditionalInformationDueToRelatedSecurity),
+		Entry("29 - Works", "029", Financial_Quotes_DueToRelatedSecurity),
+		Entry("30 - Works", "030", Financial_Quotes_InViewOfCommon),
+		Entry("31 - Works", "031", Financial_Quotes_EquipmentChangeover),
+		Entry("32 - Works", "032", Financial_Quotes_NoOpenNoResponse),
+		Entry("33 - Works", "033", Financial_Quotes_SubPennyTrading),
+		Entry("34 - Works", "034", Financial_Quotes_AutomatedBidNoOfferNoBid),
+		Entry("35 - Works", "035", Financial_Quotes_LULDPPriceBand),
+		Entry("36 - Works", "036", Financial_Quotes_MarketWideCircuitBreakerLevel1),
+		Entry("37 - Works", "037", Financial_Quotes_MarketWideCircuitBreakerLevel2),
+		Entry("38 - Works", "038", Financial_Quotes_MarketWideCircuitBreakerLevel3),
+		Entry("39 - Works", "039", Financial_Quotes_RepublishedLULDPriceBand),
+		Entry("40 - Works", "040", Financial_Quotes_OnDemandAuction),
+		Entry("41 - Works", "041", Financial_Quotes_CashOnlySettlement),
+		Entry("42 - Works", "042", Financial_Quotes_NextDaySettlement),
+		Entry("43 - Works", "043", Financial_Quotes_LULDTradingPause),
+		Entry("71 - Works", "071", Financial_Quotes_SlowDuelRPBidAsk),
+		Entry("80 - Works", "080", Financial_Quotes_Cancel),
+		Entry("81 - Works", "081", Financial_Quotes_CorrectedPrice),
+		Entry("82 - Works", "082", Financial_Quotes_SIPGenerated),
+		Entry("83 - Works", "083", Financial_Quotes_Unknown),
+		Entry("84 - Works", "084", Financial_Quotes_CrossedMarket),
+		Entry("85 - Works", "085", Financial_Quotes_LockedMarket),
+		Entry("86 - Works", "086", Financial_Quotes_DepthOnOfferSide),
+		Entry("87 - Works", "087", Financial_Quotes_DepthOnBidSide),
+		Entry("88 - Works", "088", Financial_Quotes_DepthOnBidAndOffer),
+		Entry("89 - Works", "089", Financial_Quotes_PreOpeningIndication),
+		Entry("90 - Works", "090", Financial_Quotes_SyndicateBid),
+		Entry("91 - Works", "091", Financial_Quotes_PreSyndicateBid),
+		Entry("92 - Works", "092", Financial_Quotes_PenaltyBid),
+		Entry("94 - Works", "094", Financial_Quotes_CQSGenerated),
+		Entry("0 - Works", "0", Financial_Quotes_Regular),
+		Entry("1 - Works", "1", Financial_Quotes_RegularTwoSidedOpen),
+		Entry("2 - Works", "2", Financial_Quotes_RegularOneSidedOpen),
+		Entry("3 - Works", "3", Financial_Quotes_SlowAsk),
+		Entry("4 - Works", "4", Financial_Quotes_SlowBid),
+		Entry("5 - Works", "5", Financial_Quotes_SlowBidAsk),
+		Entry("6 - Works", "6", Financial_Quotes_SlowDueLRPBid),
+		Entry("7 - Works", "7", Financial_Quotes_SlowDueLRPAsk),
+		Entry("8 - Works", "8", Financial_Quotes_SlowDueNYSELRP),
+		Entry("9 - Works", "9", Financial_Quotes_SlowDueSetSlowListBidAsk),
+		Entry("10 - Works", "10", Financial_Quotes_ManualAskAutomatedBid),
+		Entry("11 - Works", "11", Financial_Quotes_ManualBidAutomatedAsk),
+		Entry("12 - Works", "12", Financial_Quotes_ManualBidAndAsk),
+		Entry("13 - Works", "13", Financial_Quotes_Opening),
+		Entry("14 - Works", "14", Financial_Quotes_Closing),
+		Entry("15 - Works", "15", Financial_Quotes_Closed),
+		Entry("16 - Works", "16", Financial_Quotes_Resume),
+		Entry("17 - Works", "17", Financial_Quotes_FastTrading),
+		Entry("18 - Works", "18", Financial_Quotes_TradingRangeIndicated),
+		Entry("19 - Works", "19", Financial_Quotes_MarketMakerQuotesClosed),
+		Entry("20 - Works", "20", Financial_Quotes_NonFirm),
+		Entry("21 - Works", "21", Financial_Quotes_NewsDissemination),
+		Entry("22 - Works", "22", Financial_Quotes_OrderInflux),
+		Entry("23 - Works", "23", Financial_Quotes_OrderImbalance),
+		Entry("24 - Works", "24", Financial_Quotes_DueToRelatedSecurityNewsDissemination),
+		Entry("25 - Works", "25", Financial_Quotes_DueToRelatedSecurityNewsPending),
+		Entry("26 - Works", "26", Financial_Quotes_AdditionalInformation),
+		Entry("27 - Works", "27", Financial_Quotes_NewsPending),
+		Entry("28 - Works", "28", Financial_Quotes_AdditionalInformationDueToRelatedSecurity),
+		Entry("29 - Works", "29", Financial_Quotes_DueToRelatedSecurity),
+		Entry("30 - Works", "30", Financial_Quotes_InViewOfCommon),
+		Entry("31 - Works", "31", Financial_Quotes_EquipmentChangeover),
+		Entry("32 - Works", "32", Financial_Quotes_NoOpenNoResponse),
+		Entry("33 - Works", "33", Financial_Quotes_SubPennyTrading),
+		Entry("34 - Works", "34", Financial_Quotes_AutomatedBidNoOfferNoBid),
+		Entry("35 - Works", "35", Financial_Quotes_LULDPPriceBand),
+		Entry("36 - Works", "36", Financial_Quotes_MarketWideCircuitBreakerLevel1),
+		Entry("37 - Works", "37", Financial_Quotes_MarketWideCircuitBreakerLevel2),
+		Entry("38 - Works", "38", Financial_Quotes_MarketWideCircuitBreakerLevel3),
+		Entry("39 - Works", "39", Financial_Quotes_RepublishedLULDPriceBand),
+		Entry("40 - Works", "40", Financial_Quotes_OnDemandAuction),
+		Entry("41 - Works", "41", Financial_Quotes_CashOnlySettlement),
+		Entry("42 - Works", "42", Financial_Quotes_NextDaySettlement),
+		Entry("43 - Works", "43", Financial_Quotes_LULDTradingPause),
+		Entry("71 - Works", "71", Financial_Quotes_SlowDuelRPBidAsk),
+		Entry("80 - Works", "80", Financial_Quotes_Cancel),
+		Entry("81 - Works", "81", Financial_Quotes_CorrectedPrice),
+		Entry("82 - Works", "82", Financial_Quotes_SIPGenerated),
+		Entry("83 - Works", "83", Financial_Quotes_Unknown),
+		Entry("84 - Works", "84", Financial_Quotes_CrossedMarket),
+		Entry("85 - Works", "85", Financial_Quotes_LockedMarket),
+		Entry("86 - Works", "86", Financial_Quotes_DepthOnOfferSide),
+		Entry("87 - Works", "87", Financial_Quotes_DepthOnBidSide),
+		Entry("88 - Works", "88", Financial_Quotes_DepthOnBidAndOffer),
+		Entry("89 - Works", "89", Financial_Quotes_PreOpeningIndication),
+		Entry("90 - Works", "90", Financial_Quotes_SyndicateBid),
+		Entry("91 - Works", "91", Financial_Quotes_PreSyndicateBid),
+		Entry("92 - Works", "92", Financial_Quotes_PenaltyBid),
+		Entry("94 - Works", "94", Financial_Quotes_CQSGenerated),
+		Entry("999 - Works", "999", Financial_Quotes_Invalid))
+
+	// Test that attempting to deserialize a Financial.Quotes.Condition will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Quotes.Condition
+		// This should return an error
+		var enum *Financial_Quotes_Condition
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Quotes.Condition
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Quotes_Condition) {
+
+			// Attempt to convert the value into a Financial.Quotes.Condition
+			// This should not fail
+			var enum Financial_Quotes_Condition
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("Regular - Works", "Regular", Financial_Quotes_Regular),
+		Entry("RegularTwoSidedOpen - Works", "RegularTwoSidedOpen", Financial_Quotes_RegularTwoSidedOpen),
+		Entry("RegularOneSidedOpen - Works", "RegularOneSidedOpen", Financial_Quotes_RegularOneSidedOpen),
+		Entry("SlowAsk - Works", "SlowAsk", Financial_Quotes_SlowAsk),
+		Entry("SlowBid - Works", "SlowBid", Financial_Quotes_SlowBid),
+		Entry("SlowBidAsk - Works", "SlowBidAsk", Financial_Quotes_SlowBidAsk),
+		Entry("SlowDueLRPBid - Works", "SlowDueLRPBid", Financial_Quotes_SlowDueLRPBid),
+		Entry("SlowDueLRPAsk - Works", "SlowDueLRPAsk", Financial_Quotes_SlowDueLRPAsk),
+		Entry("SlowDueNYSELRP - Works", "SlowDueNYSELRP", Financial_Quotes_SlowDueNYSELRP),
+		Entry("SlowDueSetSlowListBidAsk - Works", "SlowDueSetSlowListBidAsk", Financial_Quotes_SlowDueSetSlowListBidAsk),
+		Entry("ManualAskAutomatedBid - Works", "ManualAskAutomatedBid", Financial_Quotes_ManualAskAutomatedBid),
+		Entry("ManualBidAutomatedAsk - Works", "ManualBidAutomatedAsk", Financial_Quotes_ManualBidAutomatedAsk),
+		Entry("ManualBidAndAsk - Works", "ManualBidAndAsk", Financial_Quotes_ManualBidAndAsk),
+		Entry("Opening - Works", "Opening", Financial_Quotes_Opening),
+		Entry("Closing - Works", "Closing", Financial_Quotes_Closing),
+		Entry("Closed - Works", "Closed", Financial_Quotes_Closed),
+		Entry("Resume - Works", "Resume", Financial_Quotes_Resume),
+		Entry("FastTrading - Works", "FastTrading", Financial_Quotes_FastTrading),
+		Entry("TradingRangeIndicated - Works", "TradingRangeIndicated", Financial_Quotes_TradingRangeIndicated),
+		Entry("MarketMakerQuotesClosed - Works", "MarketMakerQuotesClosed", Financial_Quotes_MarketMakerQuotesClosed),
+		Entry("NonFirm - Works", "NonFirm", Financial_Quotes_NonFirm),
+		Entry("NewsDissemination - Works", "NewsDissemination", Financial_Quotes_NewsDissemination),
+		Entry("OrderInflux - Works", "OrderInflux", Financial_Quotes_OrderInflux),
+		Entry("OrderImbalance - Works", "OrderImbalance", Financial_Quotes_OrderImbalance),
+		Entry("DueToRelatedSecurityNewsDissemination - Works", "DueToRelatedSecurityNewsDissemination", Financial_Quotes_DueToRelatedSecurityNewsDissemination),
+		Entry("DueToRelatedSecurityNewsPending - Works", "DueToRelatedSecurityNewsPending", Financial_Quotes_DueToRelatedSecurityNewsPending),
+		Entry("AdditionalInformation - Works", "AdditionalInformation", Financial_Quotes_AdditionalInformation),
+		Entry("NewsPending - Works", "NewsPending", Financial_Quotes_NewsPending),
+		Entry("AdditionalInformationDueToRelatedSecurity - Works", "AdditionalInformationDueToRelatedSecurity", Financial_Quotes_AdditionalInformationDueToRelatedSecurity),
+		Entry("DueToRelatedSecurity - Works", "DueToRelatedSecurity", Financial_Quotes_DueToRelatedSecurity),
+		Entry("InViewOfCommon - Works", "InViewOfCommon", Financial_Quotes_InViewOfCommon),
+		Entry("EquipmentChangeover - Works", "EquipmentChangeover", Financial_Quotes_EquipmentChangeover),
+		Entry("NoOpenNoResponse - Works", "NoOpenNoResponse", Financial_Quotes_NoOpenNoResponse),
+		Entry("SubPennyTrading - Works", "SubPennyTrading", Financial_Quotes_SubPennyTrading),
+		Entry("AutomatedBidNoOfferNoBid - Works", "AutomatedBidNoOfferNoBid", Financial_Quotes_AutomatedBidNoOfferNoBid),
+		Entry("LULDPPriceBand - Works", "LULDPPriceBand", Financial_Quotes_LULDPPriceBand),
+		Entry("MarketWideCircuitBreakerLevel1 - Works", "MarketWideCircuitBreakerLevel1", Financial_Quotes_MarketWideCircuitBreakerLevel1),
+		Entry("MarketWideCircuitBreakerLevel2 - Works", "MarketWideCircuitBreakerLevel2", Financial_Quotes_MarketWideCircuitBreakerLevel2),
+		Entry("MarketWideCircuitBreakerLevel3 - Works", "MarketWideCircuitBreakerLevel3", Financial_Quotes_MarketWideCircuitBreakerLevel3),
+		Entry("RepublishedLULDPriceBand - Works", "RepublishedLULDPriceBand", Financial_Quotes_RepublishedLULDPriceBand),
+		Entry("OnDemandAuction - Works", "OnDemandAuction", Financial_Quotes_OnDemandAuction),
+		Entry("CashOnlySettlement - Works", "CashOnlySettlement", Financial_Quotes_CashOnlySettlement),
+		Entry("NextDaySettlement - Works", "NextDaySettlement", Financial_Quotes_NextDaySettlement),
+		Entry("LULDTradingPause - Works", "LULDTradingPause", Financial_Quotes_LULDTradingPause),
+		Entry("SlowDuelRPBidAsk - Works", "SlowDuelRPBidAsk", Financial_Quotes_SlowDuelRPBidAsk),
+		Entry("Cancel - Works", "Cancel", Financial_Quotes_Cancel),
+		Entry("CorrectedPrice - Works", "CorrectedPrice", Financial_Quotes_CorrectedPrice),
+		Entry("SIPGenerated - Works", "SIPGenerated", Financial_Quotes_SIPGenerated),
+		Entry("Unknown - Works", "Unknown", Financial_Quotes_Unknown),
+		Entry("CrossedMarket - Works", "CrossedMarket", Financial_Quotes_CrossedMarket),
+		Entry("LockedMarket - Works", "LockedMarket", Financial_Quotes_LockedMarket),
+		Entry("DepthOnOfferSide - Works", "DepthOnOfferSide", Financial_Quotes_DepthOnOfferSide),
+		Entry("DepthOnBidSide - Works", "DepthOnBidSide", Financial_Quotes_DepthOnBidSide),
+		Entry("DepthOnBidAndOffer - Works", "DepthOnBidAndOffer", Financial_Quotes_DepthOnBidAndOffer),
+		Entry("PreOpeningIndication - Works", "PreOpeningIndication", Financial_Quotes_PreOpeningIndication),
+		Entry("SyndicateBid - Works", "SyndicateBid", Financial_Quotes_SyndicateBid),
+		Entry("PreSyndicateBid - Works", "PreSyndicateBid", Financial_Quotes_PreSyndicateBid),
+		Entry("PenaltyBid - Works", "PenaltyBid", Financial_Quotes_PenaltyBid),
+		Entry("CQSGenerated - Works", "CQSGenerated", Financial_Quotes_CQSGenerated),
+		Entry("Invalid - Works", "Invalid", Financial_Quotes_Invalid),
+		Entry("0 - Works", 0, Financial_Quotes_Regular),
+		Entry("1 - Works", 1, Financial_Quotes_RegularTwoSidedOpen),
+		Entry("2 - Works", 2, Financial_Quotes_RegularOneSidedOpen),
+		Entry("3 - Works", 3, Financial_Quotes_SlowAsk),
+		Entry("4 - Works", 4, Financial_Quotes_SlowBid),
+		Entry("5 - Works", 5, Financial_Quotes_SlowBidAsk),
+		Entry("6 - Works", 6, Financial_Quotes_SlowDueLRPBid),
+		Entry("7 - Works", 7, Financial_Quotes_SlowDueLRPAsk),
+		Entry("8 - Works", 8, Financial_Quotes_SlowDueNYSELRP),
+		Entry("9 - Works", 9, Financial_Quotes_SlowDueSetSlowListBidAsk),
+		Entry("10 - Works", 10, Financial_Quotes_ManualAskAutomatedBid),
+		Entry("11 - Works", 11, Financial_Quotes_ManualBidAutomatedAsk),
+		Entry("12 - Works", 12, Financial_Quotes_ManualBidAndAsk),
+		Entry("13 - Works", 13, Financial_Quotes_Opening),
+		Entry("14 - Works", 14, Financial_Quotes_Closing),
+		Entry("15 - Works", 15, Financial_Quotes_Closed),
+		Entry("16 - Works", 16, Financial_Quotes_Resume),
+		Entry("17 - Works", 17, Financial_Quotes_FastTrading),
+		Entry("18 - Works", 18, Financial_Quotes_TradingRangeIndicated),
+		Entry("19 - Works", 19, Financial_Quotes_MarketMakerQuotesClosed),
+		Entry("20 - Works", 20, Financial_Quotes_NonFirm),
+		Entry("21 - Works", 21, Financial_Quotes_NewsDissemination),
+		Entry("22 - Works", 22, Financial_Quotes_OrderInflux),
+		Entry("23 - Works", 23, Financial_Quotes_OrderImbalance),
+		Entry("24 - Works", 24, Financial_Quotes_DueToRelatedSecurityNewsDissemination),
+		Entry("25 - Works", 25, Financial_Quotes_DueToRelatedSecurityNewsPending),
+		Entry("26 - Works", 26, Financial_Quotes_AdditionalInformation),
+		Entry("27 - Works", 27, Financial_Quotes_NewsPending),
+		Entry("28 - Works", 28, Financial_Quotes_AdditionalInformationDueToRelatedSecurity),
+		Entry("29 - Works", 29, Financial_Quotes_DueToRelatedSecurity),
+		Entry("30 - Works", 30, Financial_Quotes_InViewOfCommon),
+		Entry("31 - Works", 31, Financial_Quotes_EquipmentChangeover),
+		Entry("32 - Works", 32, Financial_Quotes_NoOpenNoResponse),
+		Entry("33 - Works", 33, Financial_Quotes_SubPennyTrading),
+		Entry("34 - Works", 34, Financial_Quotes_AutomatedBidNoOfferNoBid),
+		Entry("35 - Works", 35, Financial_Quotes_LULDPPriceBand),
+		Entry("36 - Works", 36, Financial_Quotes_MarketWideCircuitBreakerLevel1),
+		Entry("37 - Works", 37, Financial_Quotes_MarketWideCircuitBreakerLevel2),
+		Entry("38 - Works", 38, Financial_Quotes_MarketWideCircuitBreakerLevel3),
+		Entry("39 - Works", 39, Financial_Quotes_RepublishedLULDPriceBand),
+		Entry("40 - Works", 40, Financial_Quotes_OnDemandAuction),
+		Entry("41 - Works", 41, Financial_Quotes_CashOnlySettlement),
+		Entry("42 - Works", 42, Financial_Quotes_NextDaySettlement),
+		Entry("43 - Works", 43, Financial_Quotes_LULDTradingPause),
+		Entry("71 - Works", 71, Financial_Quotes_SlowDuelRPBidAsk),
+		Entry("80 - Works", 80, Financial_Quotes_Cancel),
+		Entry("81 - Works", 81, Financial_Quotes_CorrectedPrice),
+		Entry("82 - Works", 82, Financial_Quotes_SIPGenerated),
+		Entry("83 - Works", 83, Financial_Quotes_Unknown),
+		Entry("84 - Works", 84, Financial_Quotes_CrossedMarket),
+		Entry("85 - Works", 85, Financial_Quotes_LockedMarket),
+		Entry("86 - Works", 86, Financial_Quotes_DepthOnOfferSide),
+		Entry("87 - Works", 87, Financial_Quotes_DepthOnBidSide),
+		Entry("88 - Works", 88, Financial_Quotes_DepthOnBidAndOffer),
+		Entry("89 - Works", 89, Financial_Quotes_PreOpeningIndication),
+		Entry("90 - Works", 90, Financial_Quotes_SyndicateBid),
+		Entry("91 - Works", 91, Financial_Quotes_PreSyndicateBid),
+		Entry("92 - Works", 92, Financial_Quotes_PenaltyBid),
+		Entry("94 - Works", 94, Financial_Quotes_CQSGenerated),
+		Entry("999 - Works", 999, Financial_Quotes_Invalid))
+})
+
+var _ = Describe("Financial.Quotes.Indicator Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Quotes.Indicator enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Quotes_Indicator, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("NBBNBOExecutable - Works", Financial_Quotes_NBBNBOExecutable, "\"NBBNBOExecutable\""),
+		Entry("NBBBelowLowerBand - Works", Financial_Quotes_NBBBelowLowerBand, "\"NBBBelowLowerBand\""),
+		Entry("NBOAboveUpperBand - Works", Financial_Quotes_NBOAboveUpperBand, "\"NBOAboveUpperBand\""),
+		Entry("NBBBelowLowerBandAndNBOAboveUpperBand - Works",
+			Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand, "\"NBBBelowLowerBandAndNBOAboveUpperBand\""),
+		Entry("NBBEqualsUpperBand - Works", Financial_Quotes_NBBEqualsUpperBand, "\"NBBEqualsUpperBand\""),
+		Entry("NBOEqualsLowerBand - Works", Financial_Quotes_NBOEqualsLowerBand, "\"NBOEqualsLowerBand\""),
+		Entry("NBBEqualsUpperBandAndNBOAboveUpperBand - Works",
+			Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand, "\"NBBEqualsUpperBandAndNBOAboveUpperBand\""),
+		Entry("NBBBelowLowerBandAndNBOEqualsLowerBand - Works",
+			Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand, "\"NBBBelowLowerBandAndNBOEqualsLowerBand\""),
+		Entry("BidPriceAboveUpperLimitPriceBand - Works",
+			Financial_Quotes_BidPriceAboveUpperLimitPriceBand, "\"BidPriceAboveUpperLimitPriceBand\""),
+		Entry("OfferPriceBelowLowerLimitPriceBand - Works",
+			Financial_Quotes_OfferPriceBelowLowerLimitPriceBand, "\"OfferPriceBelowLowerLimitPriceBand\""),
+		Entry("BidAndOfferOutsidePriceBand - Works",
+			Financial_Quotes_BidAndOfferOutsidePriceBand, "\"BidAndOfferOutsidePriceBand\""),
+		Entry("OpeningUpdate - Works", Financial_Quotes_OpeningUpdate, "\"OpeningUpdate\""),
+		Entry("IntraDayUpdate - Works", Financial_Quotes_IntraDayUpdate, "\"IntraDayUpdate\""),
+		Entry("RestatedValue - Works", Financial_Quotes_RestatedValue, "\"RestatedValue\""),
+		Entry("SuspendedDuringTradingHalt - Works",
+			Financial_Quotes_SuspendedDuringTradingHalt, "\"SuspendedDuringTradingHalt\""),
+		Entry("ReOpeningUpdate - Works", Financial_Quotes_ReOpeningUpdate, "\"ReOpeningUpdate\""),
+		Entry("OutsidePriceBandRuleHours - Works", Financial_Quotes_OutsidePriceBandRuleHours, "\"OutsidePriceBandRuleHours\""),
+		Entry("AuctionExtension - Works", Financial_Quotes_AuctionExtension, "\"AuctionExtension\""),
+		Entry("LULDPriceBand - Works", Financial_Quotes_LULDPriceBand, "\"LULDPriceBand\""),
+		Entry("RepublishedLULDPriceBandInd - Works",
+			Financial_Quotes_RepublishedLULDPriceBandInd, "\"RepublishedLULDPriceBandInd\""),
+		Entry("NBBLimitStateEntered - Works", Financial_Quotes_NBBLimitStateEntered, "\"NBBLimitStateEntered\""),
+		Entry("NBBLimitStateExited - Works", Financial_Quotes_NBBLimitStateExited, "\"NBBLimitStateExited\""),
+		Entry("NBOLimitStateEntered - Works", Financial_Quotes_NBOLimitStateEntered, "\"NBOLimitStateEntered\""),
+		Entry("NBOLimitStateExited - Works", Financial_Quotes_NBOLimitStateExited, "\"NBOLimitStateExited\""),
+		Entry("NBBAndNBOLimitStateEntered - Works",
+			Financial_Quotes_NBBAndNBOLimitStateEntered, "\"NBBAndNBOLimitStateEntered\""),
+		Entry("NBBAndNBOLimitStateExited - Works", Financial_Quotes_NBBAndNBOLimitStateExited, "\"NBBAndNBOLimitStateExited\""),
+		Entry("NBBLimitStateEnteredNBOLimitStateExited - Works",
+			Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited, "\"NBBLimitStateEnteredNBOLimitStateExited\""),
+		Entry("NBBLimitStateExitedNBOLimitStateEntered - Works",
+			Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered, "\"NBBLimitStateExitedNBOLimitStateEntered\""),
+		Entry("Normal - Works", Financial_Quotes_Normal, "\"Normal\""),
+		Entry("Bankrupt - Works", Financial_Quotes_Bankrupt, "\"Bankrupt\""),
+		Entry("Deficient - Works", Financial_Quotes_Deficient, "\"Deficient\""),
+		Entry("Delinquent - Works", Financial_Quotes_Delinquent, "\"Delinquent\""),
+		Entry("BankruptAndDeficient - Works", Financial_Quotes_BankruptAndDeficient, "\"BankruptAndDeficient\""),
+		Entry("BankruptAndDelinquent - Works", Financial_Quotes_BankruptAndDelinquent, "\"BankruptAndDelinquent\""),
+		Entry("DeficientAndDelinquent - Works", Financial_Quotes_DeficientAndDelinquent, "\"DeficientAndDelinquent\""),
+		Entry("DeficientDeliquentBankrupt - Works",
+			Financial_Quotes_DeficientDeliquentBankrupt, "\"DeficientDeliquentBankrupt\""),
+		Entry("Liquidation - Works", Financial_Quotes_Liquidation, "\"Liquidation\""),
+		Entry("CreationsSuspended - Works", Financial_Quotes_CreationsSuspended, "\"CreationsSuspended\""),
+		Entry("RedemptionsSuspended - Works", Financial_Quotes_RedemptionsSuspended, "\"RedemptionsSuspended\""),
+		Entry("CreationsRedemptionsSuspended - Works",
+			Financial_Quotes_CreationsRedemptionsSuspended, "\"CreationsRedemptionsSuspended\""),
+		Entry("NormalTrading - Works", Financial_Quotes_NormalTrading, "\"NormalTrading\""),
+		Entry("OpeningDelay - Works", Financial_Quotes_OpeningDelay, "\"OpeningDelay\""),
+		Entry("TradingHalt - Works", Financial_Quotes_TradingHalt, "\"TradingHalt\""),
+		Entry("TradingResume - Works", Financial_Quotes_TradingResume, "\"TradingResume\""),
+		Entry("NoOpenNoResume - Works", Financial_Quotes_NoOpenNoResume, "\"NoOpenNoResume\""),
+		Entry("PriceIndication - Works", Financial_Quotes_PriceIndication, "\"PriceIndication\""),
+		Entry("TradingRangeIndication - Works", Financial_Quotes_TradingRangeIndication, "\"TradingRangeIndication\""),
+		Entry("MarketImbalanceBuy - Works", Financial_Quotes_MarketImbalanceBuy, "\"MarketImbalanceBuy\""),
+		Entry("MarketImbalanceSell - Works", Financial_Quotes_MarketImbalanceSell, "\"MarketImbalanceSell\""),
+		Entry("MarketOnCloseImbalanceBuy - Works", Financial_Quotes_MarketOnCloseImbalanceBuy, "\"MarketOnCloseImbalanceBuy\""),
+		Entry("MarketOnCloseImbalanceSell - Works",
+			Financial_Quotes_MarketOnCloseImbalanceSell, "\"MarketOnCloseImbalanceSell\""),
+		Entry("NoMarketImbalance - Works", Financial_Quotes_NoMarketImbalance, "\"NoMarketImbalance\""),
+		Entry("NoMarketOnCloseImbalance - Works", Financial_Quotes_NoMarketOnCloseImbalance, "\"NoMarketOnCloseImbalance\""),
+		Entry("ShortSaleRestriction - Works", Financial_Quotes_ShortSaleRestriction, "\"ShortSaleRestriction\""),
+		Entry("LimitUpLimitDown - Works", Financial_Quotes_LimitUpLimitDown, "\"LimitUpLimitDown\""),
+		Entry("QuotationResumption - Works", Financial_Quotes_QuotationResumption, "\"QuotationResumption\""),
+		Entry("TradingResumption - Works", Financial_Quotes_TradingResumption, "\"TradingResumption\""),
+		Entry("VolatilityTradingPause - Works", Financial_Quotes_VolatilityTradingPause, "\"VolatilityTradingPause\""),
+		Entry("PolygonReserved - Works", Financial_Quotes_PolygonReserved, "\"PolygonReserved\""),
+		Entry("HaltNewsPending - Works", Financial_Quotes_HaltNewsPending, "\"HaltNewsPending\""),
+		Entry("UpdateNewsDissemination - Works", Financial_Quotes_UpdateNewsDissemination, "\"UpdateNewsDissemination\""),
+		Entry("HaltSingleStockTradingPause - Works",
+			Financial_Quotes_HaltSingleStockTradingPause, "\"HaltSingleStockTradingPause\""),
+		Entry("HaltRegulatoryExtraordinaryMarketActivity - Works",
+			Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity, "\"HaltRegulatoryExtraordinaryMarketActivity\""),
+		Entry("HaltETF - Works", Financial_Quotes_HaltETF, "\"HaltETF\""),
+		Entry("HaltInformationRequested - Works", Financial_Quotes_HaltInformationRequested, "\"HaltInformationRequested\""),
+		Entry("HaltExchangeNonCompliance - Works", Financial_Quotes_HaltExchangeNonCompliance, "\"HaltExchangeNonCompliance\""),
+		Entry("HaltFilingsNotCurrent - Works", Financial_Quotes_HaltFilingsNotCurrent, "\"HaltFilingsNotCurrent\""),
+		Entry("HaltSECTradingSuspension - Works", Financial_Quotes_HaltSECTradingSuspension, "\"HaltSECTradingSuspension\""),
+		Entry("HaltRegulatoryConcern - Works", Financial_Quotes_HaltRegulatoryConcern, "\"HaltRegulatoryConcern\""),
+		Entry("HaltMarketOperations - Works", Financial_Quotes_HaltMarketOperations, "\"HaltMarketOperations\""),
+		Entry("IPOSecurityNotYetTrading - Works", Financial_Quotes_IPOSecurityNotYetTrading, "\"IPOSecurityNotYetTrading\""),
+		Entry("HaltCorporateAction - Works", Financial_Quotes_HaltCorporateAction, "\"HaltCorporateAction\""),
+		Entry("QuotationNotAvailable - Works", Financial_Quotes_QuotationNotAvailable, "\"QuotationNotAvailable\""),
+		Entry("HaltVolatilityTradingPause - Works",
+			Financial_Quotes_HaltVolatilityTradingPause, "\"HaltVolatilityTradingPause\""),
+		Entry("HaltVolatilityTradingPauseStraddleCondition - Works",
+			Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition, "\"HaltVolatilityTradingPauseStraddleCondition\""),
+		Entry("UpdateNewsAndResumptionTimes - Works",
+			Financial_Quotes_UpdateNewsAndResumptionTimes, "\"UpdateNewsAndResumptionTimes\""),
+		Entry("HaltSingleStockTradingPauseQuotesOnly - Works",
+			Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly, "\"HaltSingleStockTradingPauseQuotesOnly\""),
+		Entry("ResumeQualificationIssuesReviewedResolved - Works",
+			Financial_Quotes_ResumeQualificationIssuesReviewedResolved, "\"ResumeQualificationIssuesReviewedResolved\""),
+		Entry("ResumeFilingRequirementsSatisfiedResolved - Works",
+			Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved, "\"ResumeFilingRequirementsSatisfiedResolved\""),
+		Entry("ResumeNewsNotForthcoming - Works", Financial_Quotes_ResumeNewsNotForthcoming, "\"ResumeNewsNotForthcoming\""),
+		Entry("ResumeQualificationsMaintRequirementsMet - Works",
+			Financial_Quotes_ResumeQualificationsMaintRequirementsMet, "\"ResumeQualificationsMaintRequirementsMet\""),
+		Entry("ResumeQualificationsFilingsMet - Works",
+			Financial_Quotes_ResumeQualificationsFilingsMet, "\"ResumeQualificationsFilingsMet\""),
+		Entry("ResumeRegulatoryAuth - Works", Financial_Quotes_ResumeRegulatoryAuth, "\"ResumeRegulatoryAuth\""),
+		Entry("NewIssueAvailable - Works", Financial_Quotes_NewIssueAvailable, "\"NewIssueAvailable\""),
+		Entry("IssueAvailable - Works", Financial_Quotes_IssueAvailable, "\"IssueAvailable\""),
+		Entry("MWCBCarryFromPreviousDay - Works", Financial_Quotes_MWCBCarryFromPreviousDay, "\"MWCBCarryFromPreviousDay\""),
+		Entry("MWCBResume - Works", Financial_Quotes_MWCBResume, "\"MWCBResume\""),
+		Entry("IPOSecurityReleasedForQuotation - Works",
+			Financial_Quotes_IPOSecurityReleasedForQuotation, "\"IPOSecurityReleasedForQuotation\""),
+		Entry("IPOSecurityPositioningWindowExtension - Works",
+			Financial_Quotes_IPOSecurityPositioningWindowExtension, "\"IPOSecurityPositioningWindowExtension\""),
+		Entry("MWCBLevel1 - Works", Financial_Quotes_MWCBLevel1, "\"MWCBLevel1\""),
+		Entry("MWCBLevel2 - Works", Financial_Quotes_MWCBLevel2, "\"MWCBLevel2\""),
+		Entry("MWCBLevel3 - Works", Financial_Quotes_MWCBLevel3, "\"MWCBLevel3\""),
+		Entry("HaltSubPennyTrading - Works", Financial_Quotes_HaltSubPennyTrading, "\"HaltSubPennyTrading\""),
+		Entry("OrderImbalanceInd - Works", Financial_Quotes_OrderImbalanceInd, "\"OrderImbalanceInd\""),
+		Entry("LULDTradingPaused - Works", Financial_Quotes_LULDTradingPaused, "\"LULDTradingPaused\""),
+		Entry("NONE - Works", Financial_Quotes_NONE, "\"NONE\""),
+		Entry("ShortSalesRestrictionActivated - Works",
+			Financial_Quotes_ShortSalesRestrictionActivated, "\"ShortSalesRestrictionActivated\""),
+		Entry("ShortSalesRestrictionContinued - Works",
+			Financial_Quotes_ShortSalesRestrictionContinued, "\"ShortSalesRestrictionContinued\""),
+		Entry("ShortSalesRestrictionDeactivated - Works",
+			Financial_Quotes_ShortSalesRestrictionDeactivated, "\"ShortSalesRestrictionDeactivated\""),
+		Entry("ShortSalesRestrictionInEffect - Works",
+			Financial_Quotes_ShortSalesRestrictionInEffect, "\"ShortSalesRestrictionInEffect\""),
+		Entry("ShortSalesRestrictionMax - Works", Financial_Quotes_ShortSalesRestrictionMax, "\"ShortSalesRestrictionMax\""),
+		Entry("RetailInterestOnBid - Works", Financial_Quotes_RetailInterestOnBid, "\"RetailInterestOnBid\""),
+		Entry("RetailInterestOnAsk - Works", Financial_Quotes_RetailInterestOnAsk, "\"RetailInterestOnAsk\""),
+		Entry("RetailInterestOnBidAndAsk - Works", Financial_Quotes_RetailInterestOnBidAndAsk, "\"RetailInterestOnBidAndAsk\""),
+		Entry("FinraBBONoChange - Works", Financial_Quotes_FinraBBONoChange, "\"FinraBBONoChange\""),
+		Entry("FinraBBODoesNotExist - Works", Financial_Quotes_FinraBBODoesNotExist, "\"FinraBBODoesNotExist\""),
+		Entry("FinraBBBOExecutable - Works", Financial_Quotes_FinraBBBOExecutable, "\"FinraBBBOExecutable\""),
+		Entry("FinraBBBelowLowerBand - Works", Financial_Quotes_FinraBBBelowLowerBand, "\"FinraBBBelowLowerBand\""),
+		Entry("FinraBOAboveUpperBand - Works", Financial_Quotes_FinraBOAboveUpperBand, "\"FinraBOAboveUpperBand\""),
+		Entry("FinraBBBelowLowerBandBOAbboveUpperBand - Works",
+			Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand, "\"FinraBBBelowLowerBandBOAbboveUpperBand\""),
+		Entry("NBBONoChange - Works", Financial_Quotes_NBBONoChange, "\"NBBONoChange\""),
+		Entry("NBBOQuoteIsNBBO - Works", Financial_Quotes_NBBOQuoteIsNBBO, "\"NBBOQuoteIsNBBO\""),
+		Entry("NBBONoBBNoBO - Works", Financial_Quotes_NBBONoBBNoBO, "\"NBBONoBBNoBO\""),
+		Entry("NBBOBBBOShortAppendage - Works", Financial_Quotes_NBBOBBBOShortAppendage, "\"NBBOBBBOShortAppendage\""),
+		Entry("NBBOBBBOLongAppendage - Works", Financial_Quotes_NBBOBBBOLongAppendage, "\"NBBOBBBOLongAppendage\""),
+		Entry("HeldTradeNotLastSaleNotConsolidated - Works",
+			Financial_Quotes_HeldTradeNotLastSaleNotConsolidated, "\"HeldTradeNotLastSaleNotConsolidated\""),
+		Entry("HeldTradeLastSaleButNotConsolidated - Works",
+			Financial_Quotes_HeldTradeLastSaleButNotConsolidated, "\"HeldTradeLastSaleButNotConsolidated\""),
+		Entry("HeldTradeLastSaleAndConsolidated - Works",
+			Financial_Quotes_HeldTradeLastSaleAndConsolidated, "\"HeldTradeLastSaleAndConsolidated\""),
+		Entry("CTANotDueToRelatedSecurity - Works",
+			Financial_Quotes_CTANotDueToRelatedSecurity, "\"CTANotDueToRelatedSecurity\""),
+		Entry("CTADueToRelatedSecurity - Works", Financial_Quotes_CTADueToRelatedSecurity, "\"CTADueToRelatedSecurity\""),
+		Entry("CTANotInViewOfCommon - Works", Financial_Quotes_CTANotInViewOfCommon, "\"CTANotInViewOfCommon\""),
+		Entry("CTAInViewOfCommon - Works", Financial_Quotes_CTAInViewOfCommon, "\"CTAInViewOfCommon\""),
+		Entry("CTAPriceIndicator - Works", Financial_Quotes_CTAPriceIndicator, "\"CTAPriceIndicator\""),
+		Entry("CTANewPriceIndicator - Works", Financial_Quotes_CTANewPriceIndicator, "\"CTANewPriceIndicator\""),
+		Entry("CTACorrectedPriceIndication - Works",
+			Financial_Quotes_CTACorrectedPriceIndication, "\"CTACorrectedPriceIndication\""),
+		Entry("CTACancelledMarketImbalance - Works",
+			Financial_Quotes_CTACancelledMarketImbalance, "\"CTACancelledMarketImbalance\""))
+
+	// Test that converting the Financial.Quotes.Indicator enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Quotes_Indicator, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("NBBNBOExecutable - Works", Financial_Quotes_NBBNBOExecutable, "0"),
+		Entry("NBBBelowLowerBand - Works", Financial_Quotes_NBBBelowLowerBand, "1"),
+		Entry("NBOAboveUpperBand - Works", Financial_Quotes_NBOAboveUpperBand, "2"),
+		Entry("NBBBelowLowerBandAndNBOAboveUpperBand - Works", Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand, "3"),
+		Entry("NBBEqualsUpperBand - Works", Financial_Quotes_NBBEqualsUpperBand, "4"),
+		Entry("NBOEqualsLowerBand - Works", Financial_Quotes_NBOEqualsLowerBand, "5"),
+		Entry("NBBEqualsUpperBandAndNBOAboveUpperBand - Works", Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand, "6"),
+		Entry("NBBBelowLowerBandAndNBOEqualsLowerBand - Works", Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand, "7"),
+		Entry("BidPriceAboveUpperLimitPriceBand - Works", Financial_Quotes_BidPriceAboveUpperLimitPriceBand, "8"),
+		Entry("OfferPriceBelowLowerLimitPriceBand - Works", Financial_Quotes_OfferPriceBelowLowerLimitPriceBand, "9"),
+		Entry("BidAndOfferOutsidePriceBand - Works", Financial_Quotes_BidAndOfferOutsidePriceBand, "10"),
+		Entry("OpeningUpdate - Works", Financial_Quotes_OpeningUpdate, "11"),
+		Entry("IntraDayUpdate - Works", Financial_Quotes_IntraDayUpdate, "12"),
+		Entry("RestatedValue - Works", Financial_Quotes_RestatedValue, "13"),
+		Entry("SuspendedDuringTradingHalt - Works", Financial_Quotes_SuspendedDuringTradingHalt, "14"),
+		Entry("ReOpeningUpdate - Works", Financial_Quotes_ReOpeningUpdate, "15"),
+		Entry("OutsidePriceBandRuleHours - Works", Financial_Quotes_OutsidePriceBandRuleHours, "16"),
+		Entry("AuctionExtension - Works", Financial_Quotes_AuctionExtension, "17"),
+		Entry("LULDPriceBand - Works", Financial_Quotes_LULDPriceBand, "18"),
+		Entry("RepublishedLULDPriceBandInd - Works", Financial_Quotes_RepublishedLULDPriceBandInd, "19"),
+		Entry("NBBLimitStateEntered - Works", Financial_Quotes_NBBLimitStateEntered, "20"),
+		Entry("NBBLimitStateExited - Works", Financial_Quotes_NBBLimitStateExited, "21"),
+		Entry("NBOLimitStateEntered - Works", Financial_Quotes_NBOLimitStateEntered, "22"),
+		Entry("NBOLimitStateExited - Works", Financial_Quotes_NBOLimitStateExited, "23"),
+		Entry("NBBAndNBOLimitStateEntered - Works", Financial_Quotes_NBBAndNBOLimitStateEntered, "24"),
+		Entry("NBBAndNBOLimitStateExited - Works", Financial_Quotes_NBBAndNBOLimitStateExited, "25"),
+		Entry("NBBLimitStateEnteredNBOLimitStateExited - Works", Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited, "26"),
+		Entry("NBBLimitStateExitedNBOLimitStateEntered - Works", Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered, "27"),
+		Entry("Normal - Works", Financial_Quotes_Normal, "28"),
+		Entry("Bankrupt - Works", Financial_Quotes_Bankrupt, "29"),
+		Entry("Deficient - Works", Financial_Quotes_Deficient, "30"),
+		Entry("Delinquent - Works", Financial_Quotes_Delinquent, "31"),
+		Entry("BankruptAndDeficient - Works", Financial_Quotes_BankruptAndDeficient, "32"),
+		Entry("BankruptAndDelinquent - Works", Financial_Quotes_BankruptAndDelinquent, "33"),
+		Entry("DeficientAndDelinquent - Works", Financial_Quotes_DeficientAndDelinquent, "34"),
+		Entry("DeficientDeliquentBankrupt - Works", Financial_Quotes_DeficientDeliquentBankrupt, "35"),
+		Entry("Liquidation - Works", Financial_Quotes_Liquidation, "36"),
+		Entry("CreationsSuspended - Works", Financial_Quotes_CreationsSuspended, "37"),
+		Entry("RedemptionsSuspended - Works", Financial_Quotes_RedemptionsSuspended, "38"),
+		Entry("CreationsRedemptionsSuspended - Works", Financial_Quotes_CreationsRedemptionsSuspended, "39"),
+		Entry("NormalTrading - Works", Financial_Quotes_NormalTrading, "40"),
+		Entry("OpeningDelay - Works", Financial_Quotes_OpeningDelay, "41"),
+		Entry("TradingHalt - Works", Financial_Quotes_TradingHalt, "42"),
+		Entry("TradingResume - Works", Financial_Quotes_TradingResume, "43"),
+		Entry("NoOpenNoResume - Works", Financial_Quotes_NoOpenNoResume, "44"),
+		Entry("PriceIndication - Works", Financial_Quotes_PriceIndication, "45"),
+		Entry("TradingRangeIndication - Works", Financial_Quotes_TradingRangeIndication, "46"),
+		Entry("MarketImbalanceBuy - Works", Financial_Quotes_MarketImbalanceBuy, "47"),
+		Entry("MarketImbalanceSell - Works", Financial_Quotes_MarketImbalanceSell, "48"),
+		Entry("MarketOnCloseImbalanceBuy - Works", Financial_Quotes_MarketOnCloseImbalanceBuy, "49"),
+		Entry("MarketOnCloseImbalanceSell - Works", Financial_Quotes_MarketOnCloseImbalanceSell, "50"),
+		Entry("NoMarketImbalance - Works", Financial_Quotes_NoMarketImbalance, "51"),
+		Entry("NoMarketOnCloseImbalance - Works", Financial_Quotes_NoMarketOnCloseImbalance, "52"),
+		Entry("ShortSaleRestriction - Works", Financial_Quotes_ShortSaleRestriction, "53"),
+		Entry("LimitUpLimitDown - Works", Financial_Quotes_LimitUpLimitDown, "54"),
+		Entry("QuotationResumption - Works", Financial_Quotes_QuotationResumption, "55"),
+		Entry("TradingResumption - Works", Financial_Quotes_TradingResumption, "56"),
+		Entry("VolatilityTradingPause - Works", Financial_Quotes_VolatilityTradingPause, "57"),
+		Entry("PolygonReserved - Works", Financial_Quotes_PolygonReserved, "58"),
+		Entry("HaltNewsPending - Works", Financial_Quotes_HaltNewsPending, "59"),
+		Entry("UpdateNewsDissemination - Works", Financial_Quotes_UpdateNewsDissemination, "60"),
+		Entry("HaltSingleStockTradingPause - Works", Financial_Quotes_HaltSingleStockTradingPause, "61"),
+		Entry("HaltRegulatoryExtraordinaryMarketActivity - Works", Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity, "62"),
+		Entry("HaltETF - Works", Financial_Quotes_HaltETF, "63"),
+		Entry("HaltInformationRequested - Works", Financial_Quotes_HaltInformationRequested, "64"),
+		Entry("HaltExchangeNonCompliance - Works", Financial_Quotes_HaltExchangeNonCompliance, "65"),
+		Entry("HaltFilingsNotCurrent - Works", Financial_Quotes_HaltFilingsNotCurrent, "66"),
+		Entry("HaltSECTradingSuspension - Works", Financial_Quotes_HaltSECTradingSuspension, "67"),
+		Entry("HaltRegulatoryConcern - Works", Financial_Quotes_HaltRegulatoryConcern, "68"),
+		Entry("HaltMarketOperations - Works", Financial_Quotes_HaltMarketOperations, "69"),
+		Entry("IPOSecurityNotYetTrading - Works", Financial_Quotes_IPOSecurityNotYetTrading, "70"),
+		Entry("HaltCorporateAction - Works", Financial_Quotes_HaltCorporateAction, "71"),
+		Entry("QuotationNotAvailable - Works", Financial_Quotes_QuotationNotAvailable, "72"),
+		Entry("HaltVolatilityTradingPause - Works", Financial_Quotes_HaltVolatilityTradingPause, "73"),
+		Entry("HaltVolatilityTradingPauseStraddleCondition - Works", Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition, "74"),
+		Entry("UpdateNewsAndResumptionTimes - Works", Financial_Quotes_UpdateNewsAndResumptionTimes, "75"),
+		Entry("HaltSingleStockTradingPauseQuotesOnly - Works", Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly, "76"),
+		Entry("ResumeQualificationIssuesReviewedResolved - Works", Financial_Quotes_ResumeQualificationIssuesReviewedResolved, "77"),
+		Entry("ResumeFilingRequirementsSatisfiedResolved - Works", Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved, "78"),
+		Entry("ResumeNewsNotForthcoming - Works", Financial_Quotes_ResumeNewsNotForthcoming, "79"),
+		Entry("ResumeQualificationsMaintRequirementsMet - Works", Financial_Quotes_ResumeQualificationsMaintRequirementsMet, "80"),
+		Entry("ResumeQualificationsFilingsMet - Works", Financial_Quotes_ResumeQualificationsFilingsMet, "81"),
+		Entry("ResumeRegulatoryAuth - Works", Financial_Quotes_ResumeRegulatoryAuth, "82"),
+		Entry("NewIssueAvailable - Works", Financial_Quotes_NewIssueAvailable, "83"),
+		Entry("IssueAvailable - Works", Financial_Quotes_IssueAvailable, "84"),
+		Entry("MWCBCarryFromPreviousDay - Works", Financial_Quotes_MWCBCarryFromPreviousDay, "85"),
+		Entry("MWCBResume - Works", Financial_Quotes_MWCBResume, "86"),
+		Entry("IPOSecurityReleasedForQuotation - Works", Financial_Quotes_IPOSecurityReleasedForQuotation, "87"),
+		Entry("IPOSecurityPositioningWindowExtension - Works", Financial_Quotes_IPOSecurityPositioningWindowExtension, "88"),
+		Entry("MWCBLevel1 - Works", Financial_Quotes_MWCBLevel1, "89"),
+		Entry("MWCBLevel2 - Works", Financial_Quotes_MWCBLevel2, "90"),
+		Entry("MWCBLevel3 - Works", Financial_Quotes_MWCBLevel3, "91"),
+		Entry("HaltSubPennyTrading - Works", Financial_Quotes_HaltSubPennyTrading, "92"),
+		Entry("OrderImbalanceInd - Works", Financial_Quotes_OrderImbalanceInd, "93"),
+		Entry("LULDTradingPaused - Works", Financial_Quotes_LULDTradingPaused, "94"),
+		Entry("NONE - Works", Financial_Quotes_NONE, "95"),
+		Entry("ShortSalesRestrictionActivated - Works", Financial_Quotes_ShortSalesRestrictionActivated, "96"),
+		Entry("ShortSalesRestrictionContinued - Works", Financial_Quotes_ShortSalesRestrictionContinued, "97"),
+		Entry("ShortSalesRestrictionDeactivated - Works", Financial_Quotes_ShortSalesRestrictionDeactivated, "98"),
+		Entry("ShortSalesRestrictionInEffect - Works", Financial_Quotes_ShortSalesRestrictionInEffect, "99"),
+		Entry("ShortSalesRestrictionMax - Works", Financial_Quotes_ShortSalesRestrictionMax, "100"),
+		Entry("NBBONoChange - Works", Financial_Quotes_NBBONoChange, "101"),
+		Entry("NBBOQuoteIsNBBO - Works", Financial_Quotes_NBBOQuoteIsNBBO, "102"),
+		Entry("NBBONoBBNoBO - Works", Financial_Quotes_NBBONoBBNoBO, "103"),
+		Entry("NBBOBBBOShortAppendage - Works", Financial_Quotes_NBBOBBBOShortAppendage, "104"),
+		Entry("NBBOBBBOLongAppendage - Works", Financial_Quotes_NBBOBBBOLongAppendage, "105"),
+		Entry("HeldTradeNotLastSaleNotConsolidated - Works", Financial_Quotes_HeldTradeNotLastSaleNotConsolidated, "106"),
+		Entry("HeldTradeLastSaleButNotConsolidated - Works", Financial_Quotes_HeldTradeLastSaleButNotConsolidated, "107"),
+		Entry("HeldTradeLastSaleAndConsolidated - Works", Financial_Quotes_HeldTradeLastSaleAndConsolidated, "108"),
+		Entry("RetailInterestOnBid - Works", Financial_Quotes_RetailInterestOnBid, "109"),
+		Entry("RetailInterestOnAsk - Works", Financial_Quotes_RetailInterestOnAsk, "110"),
+		Entry("RetailInterestOnBidAndAsk - Works", Financial_Quotes_RetailInterestOnBidAndAsk, "111"),
+		Entry("FinraBBONoChange - Works", Financial_Quotes_FinraBBONoChange, "112"),
+		Entry("FinraBBODoesNotExist - Works", Financial_Quotes_FinraBBODoesNotExist, "113"),
+		Entry("FinraBBBOExecutable - Works", Financial_Quotes_FinraBBBOExecutable, "114"),
+		Entry("FinraBBBelowLowerBand - Works", Financial_Quotes_FinraBBBelowLowerBand, "115"),
+		Entry("FinraBOAboveUpperBand - Works", Financial_Quotes_FinraBOAboveUpperBand, "116"),
+		Entry("FinraBBBelowLowerBandBOAbboveUpperBand - Works", Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand, "117"),
+		Entry("CTANotDueToRelatedSecurity - Works", Financial_Quotes_CTANotDueToRelatedSecurity, "118"),
+		Entry("CTADueToRelatedSecurity - Works", Financial_Quotes_CTADueToRelatedSecurity, "119"),
+		Entry("CTANotInViewOfCommon - Works", Financial_Quotes_CTANotInViewOfCommon, "120"),
+		Entry("CTAInViewOfCommon - Works", Financial_Quotes_CTAInViewOfCommon, "121"),
+		Entry("CTAPriceIndicator - Works", Financial_Quotes_CTAPriceIndicator, "122"),
+		Entry("CTANewPriceIndicator - Works", Financial_Quotes_CTANewPriceIndicator, "123"),
+		Entry("CTACorrectedPriceIndication - Works", Financial_Quotes_CTACorrectedPriceIndication, "124"),
+		Entry("CTACancelledMarketImbalance - Works", Financial_Quotes_CTACancelledMarketImbalance, "125"))
+
+	// Test that converting the Financial.Quotes.Indicator enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Quotes_Indicator, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("NBBNBOExecutable - Works", Financial_Quotes_NBBNBOExecutable, "NBBNBOExecutable"),
+		Entry("NBBBelowLowerBand - Works", Financial_Quotes_NBBBelowLowerBand, "NBBBelowLowerBand"),
+		Entry("NBOAboveUpperBand - Works", Financial_Quotes_NBOAboveUpperBand, "NBOAboveUpperBand"),
+		Entry("NBBBelowLowerBandAndNBOAboveUpperBand - Works",
+			Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand, "NBBBelowLowerBandAndNBOAboveUpperBand"),
+		Entry("NBBEqualsUpperBand - Works", Financial_Quotes_NBBEqualsUpperBand, "NBBEqualsUpperBand"),
+		Entry("NBOEqualsLowerBand - Works", Financial_Quotes_NBOEqualsLowerBand, "NBOEqualsLowerBand"),
+		Entry("NBBEqualsUpperBandAndNBOAboveUpperBand - Works",
+			Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand, "NBBEqualsUpperBandAndNBOAboveUpperBand"),
+		Entry("NBBBelowLowerBandAndNBOEqualsLowerBand - Works",
+			Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand, "NBBBelowLowerBandAndNBOEqualsLowerBand"),
+		Entry("BidPriceAboveUpperLimitPriceBand - Works",
+			Financial_Quotes_BidPriceAboveUpperLimitPriceBand, "BidPriceAboveUpperLimitPriceBand"),
+		Entry("OfferPriceBelowLowerLimitPriceBand - Works",
+			Financial_Quotes_OfferPriceBelowLowerLimitPriceBand, "OfferPriceBelowLowerLimitPriceBand"),
+		Entry("BidAndOfferOutsidePriceBand - Works",
+			Financial_Quotes_BidAndOfferOutsidePriceBand, "BidAndOfferOutsidePriceBand"),
+		Entry("OpeningUpdate - Works", Financial_Quotes_OpeningUpdate, "OpeningUpdate"),
+		Entry("IntraDayUpdate - Works", Financial_Quotes_IntraDayUpdate, "IntraDayUpdate"),
+		Entry("RestatedValue - Works", Financial_Quotes_RestatedValue, "RestatedValue"),
+		Entry("SuspendedDuringTradingHalt - Works",
+			Financial_Quotes_SuspendedDuringTradingHalt, "SuspendedDuringTradingHalt"),
+		Entry("ReOpeningUpdate - Works", Financial_Quotes_ReOpeningUpdate, "ReOpeningUpdate"),
+		Entry("OutsidePriceBandRuleHours - Works", Financial_Quotes_OutsidePriceBandRuleHours, "OutsidePriceBandRuleHours"),
+		Entry("AuctionExtension - Works", Financial_Quotes_AuctionExtension, "AuctionExtension"),
+		Entry("LULDPriceBand - Works", Financial_Quotes_LULDPriceBand, "LULDPriceBand"),
+		Entry("RepublishedLULDPriceBandInd - Works",
+			Financial_Quotes_RepublishedLULDPriceBandInd, "RepublishedLULDPriceBandInd"),
+		Entry("NBBLimitStateEntered - Works", Financial_Quotes_NBBLimitStateEntered, "NBBLimitStateEntered"),
+		Entry("NBBLimitStateExited - Works", Financial_Quotes_NBBLimitStateExited, "NBBLimitStateExited"),
+		Entry("NBOLimitStateEntered - Works", Financial_Quotes_NBOLimitStateEntered, "NBOLimitStateEntered"),
+		Entry("NBOLimitStateExited - Works", Financial_Quotes_NBOLimitStateExited, "NBOLimitStateExited"),
+		Entry("NBBAndNBOLimitStateEntered - Works",
+			Financial_Quotes_NBBAndNBOLimitStateEntered, "NBBAndNBOLimitStateEntered"),
+		Entry("NBBAndNBOLimitStateExited - Works", Financial_Quotes_NBBAndNBOLimitStateExited, "NBBAndNBOLimitStateExited"),
+		Entry("NBBLimitStateEnteredNBOLimitStateExited - Works",
+			Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited, "NBBLimitStateEnteredNBOLimitStateExited"),
+		Entry("NBBLimitStateExitedNBOLimitStateEntered - Works",
+			Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered, "NBBLimitStateExitedNBOLimitStateEntered"),
+		Entry("Normal - Works", Financial_Quotes_Normal, "Normal"),
+		Entry("Bankrupt - Works", Financial_Quotes_Bankrupt, "Bankrupt"),
+		Entry("Deficient - Works", Financial_Quotes_Deficient, "Deficient"),
+		Entry("Delinquent - Works", Financial_Quotes_Delinquent, "Delinquent"),
+		Entry("BankruptAndDeficient - Works", Financial_Quotes_BankruptAndDeficient, "BankruptAndDeficient"),
+		Entry("BankruptAndDelinquent - Works", Financial_Quotes_BankruptAndDelinquent, "BankruptAndDelinquent"),
+		Entry("DeficientAndDelinquent - Works", Financial_Quotes_DeficientAndDelinquent, "DeficientAndDelinquent"),
+		Entry("DeficientDeliquentBankrupt - Works",
+			Financial_Quotes_DeficientDeliquentBankrupt, "DeficientDeliquentBankrupt"),
+		Entry("Liquidation - Works", Financial_Quotes_Liquidation, "Liquidation"),
+		Entry("CreationsSuspended - Works", Financial_Quotes_CreationsSuspended, "CreationsSuspended"),
+		Entry("RedemptionsSuspended - Works", Financial_Quotes_RedemptionsSuspended, "RedemptionsSuspended"),
+		Entry("CreationsRedemptionsSuspended - Works",
+			Financial_Quotes_CreationsRedemptionsSuspended, "CreationsRedemptionsSuspended"),
+		Entry("NormalTrading - Works", Financial_Quotes_NormalTrading, "NormalTrading"),
+		Entry("OpeningDelay - Works", Financial_Quotes_OpeningDelay, "OpeningDelay"),
+		Entry("TradingHalt - Works", Financial_Quotes_TradingHalt, "TradingHalt"),
+		Entry("TradingResume - Works", Financial_Quotes_TradingResume, "TradingResume"),
+		Entry("NoOpenNoResume - Works", Financial_Quotes_NoOpenNoResume, "NoOpenNoResume"),
+		Entry("PriceIndication - Works", Financial_Quotes_PriceIndication, "PriceIndication"),
+		Entry("TradingRangeIndication - Works", Financial_Quotes_TradingRangeIndication, "TradingRangeIndication"),
+		Entry("MarketImbalanceBuy - Works", Financial_Quotes_MarketImbalanceBuy, "MarketImbalanceBuy"),
+		Entry("MarketImbalanceSell - Works", Financial_Quotes_MarketImbalanceSell, "MarketImbalanceSell"),
+		Entry("MarketOnCloseImbalanceBuy - Works", Financial_Quotes_MarketOnCloseImbalanceBuy, "MarketOnCloseImbalanceBuy"),
+		Entry("MarketOnCloseImbalanceSell - Works",
+			Financial_Quotes_MarketOnCloseImbalanceSell, "MarketOnCloseImbalanceSell"),
+		Entry("NoMarketImbalance - Works", Financial_Quotes_NoMarketImbalance, "NoMarketImbalance"),
+		Entry("NoMarketOnCloseImbalance - Works", Financial_Quotes_NoMarketOnCloseImbalance, "NoMarketOnCloseImbalance"),
+		Entry("ShortSaleRestriction - Works", Financial_Quotes_ShortSaleRestriction, "ShortSaleRestriction"),
+		Entry("LimitUpLimitDown - Works", Financial_Quotes_LimitUpLimitDown, "LimitUpLimitDown"),
+		Entry("QuotationResumption - Works", Financial_Quotes_QuotationResumption, "QuotationResumption"),
+		Entry("TradingResumption - Works", Financial_Quotes_TradingResumption, "TradingResumption"),
+		Entry("VolatilityTradingPause - Works", Financial_Quotes_VolatilityTradingPause, "VolatilityTradingPause"),
+		Entry("PolygonReserved - Works", Financial_Quotes_PolygonReserved, "PolygonReserved"),
+		Entry("HaltNewsPending - Works", Financial_Quotes_HaltNewsPending, "HaltNewsPending"),
+		Entry("UpdateNewsDissemination - Works", Financial_Quotes_UpdateNewsDissemination, "UpdateNewsDissemination"),
+		Entry("HaltSingleStockTradingPause - Works",
+			Financial_Quotes_HaltSingleStockTradingPause, "HaltSingleStockTradingPause"),
+		Entry("HaltRegulatoryExtraordinaryMarketActivity - Works",
+			Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity, "HaltRegulatoryExtraordinaryMarketActivity"),
+		Entry("HaltETF - Works", Financial_Quotes_HaltETF, "HaltETF"),
+		Entry("HaltInformationRequested - Works", Financial_Quotes_HaltInformationRequested, "HaltInformationRequested"),
+		Entry("HaltExchangeNonCompliance - Works", Financial_Quotes_HaltExchangeNonCompliance, "HaltExchangeNonCompliance"),
+		Entry("HaltFilingsNotCurrent - Works", Financial_Quotes_HaltFilingsNotCurrent, "HaltFilingsNotCurrent"),
+		Entry("HaltSECTradingSuspension - Works", Financial_Quotes_HaltSECTradingSuspension, "HaltSECTradingSuspension"),
+		Entry("HaltRegulatoryConcern - Works", Financial_Quotes_HaltRegulatoryConcern, "HaltRegulatoryConcern"),
+		Entry("HaltMarketOperations - Works", Financial_Quotes_HaltMarketOperations, "HaltMarketOperations"),
+		Entry("IPOSecurityNotYetTrading - Works", Financial_Quotes_IPOSecurityNotYetTrading, "IPOSecurityNotYetTrading"),
+		Entry("HaltCorporateAction - Works", Financial_Quotes_HaltCorporateAction, "HaltCorporateAction"),
+		Entry("QuotationNotAvailable - Works", Financial_Quotes_QuotationNotAvailable, "QuotationNotAvailable"),
+		Entry("HaltVolatilityTradingPause - Works",
+			Financial_Quotes_HaltVolatilityTradingPause, "HaltVolatilityTradingPause"),
+		Entry("HaltVolatilityTradingPauseStraddleCondition - Works",
+			Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition, "HaltVolatilityTradingPauseStraddleCondition"),
+		Entry("UpdateNewsAndResumptionTimes - Works",
+			Financial_Quotes_UpdateNewsAndResumptionTimes, "UpdateNewsAndResumptionTimes"),
+		Entry("HaltSingleStockTradingPauseQuotesOnly - Works",
+			Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly, "HaltSingleStockTradingPauseQuotesOnly"),
+		Entry("ResumeQualificationIssuesReviewedResolved - Works",
+			Financial_Quotes_ResumeQualificationIssuesReviewedResolved, "ResumeQualificationIssuesReviewedResolved"),
+		Entry("ResumeFilingRequirementsSatisfiedResolved - Works",
+			Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved, "ResumeFilingRequirementsSatisfiedResolved"),
+		Entry("ResumeNewsNotForthcoming - Works", Financial_Quotes_ResumeNewsNotForthcoming, "ResumeNewsNotForthcoming"),
+		Entry("ResumeQualificationsMaintRequirementsMet - Works",
+			Financial_Quotes_ResumeQualificationsMaintRequirementsMet, "ResumeQualificationsMaintRequirementsMet"),
+		Entry("ResumeQualificationsFilingsMet - Works",
+			Financial_Quotes_ResumeQualificationsFilingsMet, "ResumeQualificationsFilingsMet"),
+		Entry("ResumeRegulatoryAuth - Works", Financial_Quotes_ResumeRegulatoryAuth, "ResumeRegulatoryAuth"),
+		Entry("NewIssueAvailable - Works", Financial_Quotes_NewIssueAvailable, "NewIssueAvailable"),
+		Entry("IssueAvailable - Works", Financial_Quotes_IssueAvailable, "IssueAvailable"),
+		Entry("MWCBCarryFromPreviousDay - Works", Financial_Quotes_MWCBCarryFromPreviousDay, "MWCBCarryFromPreviousDay"),
+		Entry("MWCBResume - Works", Financial_Quotes_MWCBResume, "MWCBResume"),
+		Entry("IPOSecurityReleasedForQuotation - Works",
+			Financial_Quotes_IPOSecurityReleasedForQuotation, "IPOSecurityReleasedForQuotation"),
+		Entry("IPOSecurityPositioningWindowExtension - Works",
+			Financial_Quotes_IPOSecurityPositioningWindowExtension, "IPOSecurityPositioningWindowExtension"),
+		Entry("MWCBLevel1 - Works", Financial_Quotes_MWCBLevel1, "MWCBLevel1"),
+		Entry("MWCBLevel2 - Works", Financial_Quotes_MWCBLevel2, "MWCBLevel2"),
+		Entry("MWCBLevel3 - Works", Financial_Quotes_MWCBLevel3, "MWCBLevel3"),
+		Entry("HaltSubPennyTrading - Works", Financial_Quotes_HaltSubPennyTrading, "HaltSubPennyTrading"),
+		Entry("OrderImbalanceInd - Works", Financial_Quotes_OrderImbalanceInd, "OrderImbalanceInd"),
+		Entry("LULDTradingPaused - Works", Financial_Quotes_LULDTradingPaused, "LULDTradingPaused"),
+		Entry("NONE - Works", Financial_Quotes_NONE, "NONE"),
+		Entry("ShortSalesRestrictionActivated - Works",
+			Financial_Quotes_ShortSalesRestrictionActivated, "ShortSalesRestrictionActivated"),
+		Entry("ShortSalesRestrictionContinued - Works",
+			Financial_Quotes_ShortSalesRestrictionContinued, "ShortSalesRestrictionContinued"),
+		Entry("ShortSalesRestrictionDeactivated - Works",
+			Financial_Quotes_ShortSalesRestrictionDeactivated, "ShortSalesRestrictionDeactivated"),
+		Entry("ShortSalesRestrictionInEffect - Works",
+			Financial_Quotes_ShortSalesRestrictionInEffect, "ShortSalesRestrictionInEffect"),
+		Entry("ShortSalesRestrictionMax - Works", Financial_Quotes_ShortSalesRestrictionMax, "ShortSalesRestrictionMax"),
+		Entry("RetailInterestOnBid - Works", Financial_Quotes_RetailInterestOnBid, "RetailInterestOnBid"),
+		Entry("RetailInterestOnAsk - Works", Financial_Quotes_RetailInterestOnAsk, "RetailInterestOnAsk"),
+		Entry("RetailInterestOnBidAndAsk - Works", Financial_Quotes_RetailInterestOnBidAndAsk, "RetailInterestOnBidAndAsk"),
+		Entry("FinraBBONoChange - Works", Financial_Quotes_FinraBBONoChange, "FinraBBONoChange"),
+		Entry("FinraBBODoesNotExist - Works", Financial_Quotes_FinraBBODoesNotExist, "FinraBBODoesNotExist"),
+		Entry("FinraBBBOExecutable - Works", Financial_Quotes_FinraBBBOExecutable, "FinraBBBOExecutable"),
+		Entry("FinraBBBelowLowerBand - Works", Financial_Quotes_FinraBBBelowLowerBand, "FinraBBBelowLowerBand"),
+		Entry("FinraBOAboveUpperBand - Works", Financial_Quotes_FinraBOAboveUpperBand, "FinraBOAboveUpperBand"),
+		Entry("FinraBBBelowLowerBandBOAbboveUpperBand - Works",
+			Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand, "FinraBBBelowLowerBandBOAbboveUpperBand"),
+		Entry("NBBONoChange - Works", Financial_Quotes_NBBONoChange, "NBBONoChange"),
+		Entry("NBBOQuoteIsNBBO - Works", Financial_Quotes_NBBOQuoteIsNBBO, "NBBOQuoteIsNBBO"),
+		Entry("NBBONoBBNoBO - Works", Financial_Quotes_NBBONoBBNoBO, "NBBONoBBNoBO"),
+		Entry("NBBOBBBOShortAppendage - Works", Financial_Quotes_NBBOBBBOShortAppendage, "NBBOBBBOShortAppendage"),
+		Entry("NBBOBBBOLongAppendage - Works", Financial_Quotes_NBBOBBBOLongAppendage, "NBBOBBBOLongAppendage"),
+		Entry("HeldTradeNotLastSaleNotConsolidated - Works",
+			Financial_Quotes_HeldTradeNotLastSaleNotConsolidated, "HeldTradeNotLastSaleNotConsolidated"),
+		Entry("HeldTradeLastSaleButNotConsolidated - Works",
+			Financial_Quotes_HeldTradeLastSaleButNotConsolidated, "HeldTradeLastSaleButNotConsolidated"),
+		Entry("HeldTradeLastSaleAndConsolidated - Works",
+			Financial_Quotes_HeldTradeLastSaleAndConsolidated, "HeldTradeLastSaleAndConsolidated"),
+		Entry("CTANotDueToRelatedSecurity - Works",
+			Financial_Quotes_CTANotDueToRelatedSecurity, "CTANotDueToRelatedSecurity"),
+		Entry("CTADueToRelatedSecurity - Works", Financial_Quotes_CTADueToRelatedSecurity, "CTADueToRelatedSecurity"),
+		Entry("CTANotInViewOfCommon - Works", Financial_Quotes_CTANotInViewOfCommon, "CTANotInViewOfCommon"),
+		Entry("CTAInViewOfCommon - Works", Financial_Quotes_CTAInViewOfCommon, "CTAInViewOfCommon"),
+		Entry("CTAPriceIndicator - Works", Financial_Quotes_CTAPriceIndicator, "CTAPriceIndicator"),
+		Entry("CTANewPriceIndicator - Works", Financial_Quotes_CTANewPriceIndicator, "CTANewPriceIndicator"),
+		Entry("CTACorrectedPriceIndication - Works",
+			Financial_Quotes_CTACorrectedPriceIndication, "CTACorrectedPriceIndication"),
+		Entry("CTACancelledMarketImbalance - Works",
+			Financial_Quotes_CTACancelledMarketImbalance, "CTACancelledMarketImbalance"))
+
+	// Test that attempting to deserialize a Financial.Quotes.Indicator will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Quotes.Indicator
+		// This should return an error
+		enum := new(Financial_Quotes_Indicator)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Quotes_Indicator"))
+	})
+
+	// Test that attempting to deserialize a Financial.Quotes.Indicator will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Quotes.Indicator
+		// This should return an error
+		enum := new(Financial_Quotes_Indicator)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Quotes_Indicator"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Quotes.Indicator
+	DescribeTable("UnmarshalJSON Tests",
+		func(value interface{}, shouldBe Financial_Quotes_Indicator) {
+
+			// Attempt to convert the string value into a Financial.Quotes.Indicator
+			// This should not fail
+			var enum Financial_Quotes_Indicator
+			err := enum.UnmarshalJSON([]byte(fmt.Sprintf("%v", value)))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NBBNBOExecutable - Works", "\"NBBNBOExecutable\"", Financial_Quotes_NBBNBOExecutable),
+		Entry("NBBBelowLowerBand - Works", "\"NBBBelowLowerBand\"", Financial_Quotes_NBBBelowLowerBand),
+		Entry("NBOAboveUpperBand - Works", "\"NBOAboveUpperBand\"", Financial_Quotes_NBOAboveUpperBand),
+		Entry("NBBBelowLowerBandAndNBOAboveUpperBand - Works",
+			"\"NBBBelowLowerBandAndNBOAboveUpperBand\"", Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand),
+		Entry("NBBEqualsUpperBand - Works", "\"NBBEqualsUpperBand\"", Financial_Quotes_NBBEqualsUpperBand),
+		Entry("NBOEqualsLowerBand - Works", "\"NBOEqualsLowerBand\"", Financial_Quotes_NBOEqualsLowerBand),
+		Entry("NBBEqualsUpperBandAndNBOAboveUpperBand - Works",
+			"\"NBBEqualsUpperBandAndNBOAboveUpperBand\"", Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand),
+		Entry("NBBBelowLowerBandAndNBOEqualsLowerBand - Works",
+			"\"NBBBelowLowerBandAndNBOEqualsLowerBand\"", Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand),
+		Entry("BidPriceAboveUpperLimitPriceBand - Works",
+			"\"BidPriceAboveUpperLimitPriceBand\"", Financial_Quotes_BidPriceAboveUpperLimitPriceBand),
+		Entry("OfferPriceBelowLowerLimitPriceBand - Works",
+			"\"OfferPriceBelowLowerLimitPriceBand\"", Financial_Quotes_OfferPriceBelowLowerLimitPriceBand),
+		Entry("BidAndOfferOutsidePriceBand - Works",
+			"\"BidAndOfferOutsidePriceBand\"", Financial_Quotes_BidAndOfferOutsidePriceBand),
+		Entry("OpeningUpdate - Works", "\"OpeningUpdate\"", Financial_Quotes_OpeningUpdate),
+		Entry("IntraDayUpdate - Works", "\"IntraDayUpdate\"", Financial_Quotes_IntraDayUpdate),
+		Entry("RestatedValue - Works", "\"RestatedValue\"", Financial_Quotes_RestatedValue),
+		Entry("SuspendedDuringTradingHalt - Works",
+			"\"SuspendedDuringTradingHalt\"", Financial_Quotes_SuspendedDuringTradingHalt),
+		Entry("ReOpeningUpdate - Works", "\"ReOpeningUpdate\"", Financial_Quotes_ReOpeningUpdate),
+		Entry("OutsidePriceBandRuleHours - Works", "\"OutsidePriceBandRuleHours\"", Financial_Quotes_OutsidePriceBandRuleHours),
+		Entry("AuctionExtension - Works", "\"AuctionExtension\"", Financial_Quotes_AuctionExtension),
+		Entry("LULDPriceBand - Works", "\"LULDPriceBand\"", Financial_Quotes_LULDPriceBand),
+		Entry("RepublishedLULDPriceBandInd - Works",
+			"\"RepublishedLULDPriceBandInd\"", Financial_Quotes_RepublishedLULDPriceBandInd),
+		Entry("NBBLimitStateEntered - Works", "\"NBBLimitStateEntered\"", Financial_Quotes_NBBLimitStateEntered),
+		Entry("NBBLimitStateExited - Works", "\"NBBLimitStateExited\"", Financial_Quotes_NBBLimitStateExited),
+		Entry("NBOLimitStateEntered - Works", "\"NBOLimitStateEntered\"", Financial_Quotes_NBOLimitStateEntered),
+		Entry("NBOLimitStateExited - Works", "\"NBOLimitStateExited\"", Financial_Quotes_NBOLimitStateExited),
+		Entry("NBBAndNBOLimitStateEntered - Works",
+			"\"NBBAndNBOLimitStateEntered\"", Financial_Quotes_NBBAndNBOLimitStateEntered),
+		Entry("NBBAndNBOLimitStateExited - Works",
+			"\"NBBAndNBOLimitStateExited\"", Financial_Quotes_NBBAndNBOLimitStateExited),
+		Entry("NBBLimitStateEnteredNBOLimitStateExited - Works",
+			"\"NBBLimitStateEnteredNBOLimitStateExited\"", Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited),
+		Entry("NBBLimitStateExitedNBOLimitStateEntered - Works",
+			"\"NBBLimitStateExitedNBOLimitStateEntered\"", Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered),
+		Entry("Normal - Works", "\"Normal\"", Financial_Quotes_Normal),
+		Entry("Bankrupt - Works", "\"Bankrupt\"", Financial_Quotes_Bankrupt),
+		Entry("Deficient - Works", "\"Deficient\"", Financial_Quotes_Deficient),
+		Entry("Delinquent - Works", "\"Delinquent\"", Financial_Quotes_Delinquent),
+		Entry("BankruptAndDeficient - Works", "\"BankruptAndDeficient\"", Financial_Quotes_BankruptAndDeficient),
+		Entry("BankruptAndDelinquent - Works", "\"BankruptAndDelinquent\"", Financial_Quotes_BankruptAndDelinquent),
+		Entry("DeficientAndDelinquent - Works", "\"DeficientAndDelinquent\"", Financial_Quotes_DeficientAndDelinquent),
+		Entry("DeficientDeliquentBankrupt - Works",
+			"\"DeficientDeliquentBankrupt\"", Financial_Quotes_DeficientDeliquentBankrupt),
+		Entry("Liquidation - Works", "\"Liquidation\"", Financial_Quotes_Liquidation),
+		Entry("CreationsSuspended - Works", "\"CreationsSuspended\"", Financial_Quotes_CreationsSuspended),
+		Entry("RedemptionsSuspended - Works", "\"RedemptionsSuspended\"", Financial_Quotes_RedemptionsSuspended),
+		Entry("CreationsRedemptionsSuspended - Works",
+			"\"CreationsRedemptionsSuspended\"", Financial_Quotes_CreationsRedemptionsSuspended),
+		Entry("NormalTrading - Works", "\"NormalTrading\"", Financial_Quotes_NormalTrading),
+		Entry("OpeningDelay - Works", "\"OpeningDelay\"", Financial_Quotes_OpeningDelay),
+		Entry("TradingHalt - Works", "\"TradingHalt\"", Financial_Quotes_TradingHalt),
+		Entry("TradingResume - Works", "\"TradingResume\"", Financial_Quotes_TradingResume),
+		Entry("NoOpenNoResume - Works", "\"NoOpenNoResume\"", Financial_Quotes_NoOpenNoResume),
+		Entry("PriceIndication - Works", "\"PriceIndication\"", Financial_Quotes_PriceIndication),
+		Entry("TradingRangeIndication - Works", "\"TradingRangeIndication\"", Financial_Quotes_TradingRangeIndication),
+		Entry("MarketImbalanceBuy - Works", "\"MarketImbalanceBuy\"", Financial_Quotes_MarketImbalanceBuy),
+		Entry("MarketImbalanceSell - Works", "\"MarketImbalanceSell\"", Financial_Quotes_MarketImbalanceSell),
+		Entry("MarketOnCloseImbalanceBuy - Works", "\"MarketOnCloseImbalanceBuy\"", Financial_Quotes_MarketOnCloseImbalanceBuy),
+		Entry("MarketOnCloseImbalanceSell - Works",
+			"\"MarketOnCloseImbalanceSell\"", Financial_Quotes_MarketOnCloseImbalanceSell),
+		Entry("NoMarketImbalance - Works", "\"NoMarketImbalance\"", Financial_Quotes_NoMarketImbalance),
+		Entry("NoMarketOnCloseImbalance - Works", "\"NoMarketOnCloseImbalance\"", Financial_Quotes_NoMarketOnCloseImbalance),
+		Entry("ShortSaleRestriction - Works", "\"ShortSaleRestriction\"", Financial_Quotes_ShortSaleRestriction),
+		Entry("LimitUpLimitDown - Works", "\"LimitUpLimitDown\"", Financial_Quotes_LimitUpLimitDown),
+		Entry("QuotationResumption - Works", "\"QuotationResumption\"", Financial_Quotes_QuotationResumption),
+		Entry("TradingResumption - Works", "\"TradingResumption\"", Financial_Quotes_TradingResumption),
+		Entry("VolatilityTradingPause - Works", "\"VolatilityTradingPause\"", Financial_Quotes_VolatilityTradingPause),
+		Entry("PolygonReserved - Works", "\"PolygonReserved\"", Financial_Quotes_PolygonReserved),
+		Entry("HaltNewsPending - Works", "\"HaltNewsPending\"", Financial_Quotes_HaltNewsPending),
+		Entry("UpdateNewsDissemination - Works", "\"UpdateNewsDissemination\"", Financial_Quotes_UpdateNewsDissemination),
+		Entry("HaltSingleStockTradingPause - Works",
+			"\"HaltSingleStockTradingPause\"", Financial_Quotes_HaltSingleStockTradingPause),
+		Entry("HaltRegulatoryExtraordinaryMarketActivity - Works",
+			"\"HaltRegulatoryExtraordinaryMarketActivity\"", Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity),
+		Entry("HaltETF - Works", "\"HaltETF\"", Financial_Quotes_HaltETF),
+		Entry("HaltInformationRequested - Works", "\"HaltInformationRequested\"", Financial_Quotes_HaltInformationRequested),
+		Entry("HaltExchangeNonCompliance - Works", "\"HaltExchangeNonCompliance\"", Financial_Quotes_HaltExchangeNonCompliance),
+		Entry("HaltFilingsNotCurrent - Works", "\"HaltFilingsNotCurrent\"", Financial_Quotes_HaltFilingsNotCurrent),
+		Entry("HaltSECTradingSuspension - Works", "\"HaltSECTradingSuspension\"", Financial_Quotes_HaltSECTradingSuspension),
+		Entry("HaltRegulatoryConcern - Works", "\"HaltRegulatoryConcern\"", Financial_Quotes_HaltRegulatoryConcern),
+		Entry("HaltMarketOperations - Works", "\"HaltMarketOperations\"", Financial_Quotes_HaltMarketOperations),
+		Entry("IPOSecurityNotYetTrading - Works", "\"IPOSecurityNotYetTrading\"", Financial_Quotes_IPOSecurityNotYetTrading),
+		Entry("HaltCorporateAction - Works", "\"HaltCorporateAction\"", Financial_Quotes_HaltCorporateAction),
+		Entry("QuotationNotAvailable - Works", "\"QuotationNotAvailable\"", Financial_Quotes_QuotationNotAvailable),
+		Entry("HaltVolatilityTradingPause - Works",
+			"\"HaltVolatilityTradingPause\"", Financial_Quotes_HaltVolatilityTradingPause),
+		Entry("HaltVolatilityTradingPauseStraddleCondition - Works",
+			"\"HaltVolatilityTradingPauseStraddleCondition\"", Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition),
+		Entry("UpdateNewsAndResumptionTimes - Works",
+			"\"UpdateNewsAndResumptionTimes\"", Financial_Quotes_UpdateNewsAndResumptionTimes),
+		Entry("HaltSingleStockTradingPauseQuotesOnly - Works",
+			"\"HaltSingleStockTradingPauseQuotesOnly\"", Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly),
+		Entry("ResumeQualificationIssuesReviewedResolved - Works",
+			"\"ResumeQualificationIssuesReviewedResolved\"", Financial_Quotes_ResumeQualificationIssuesReviewedResolved),
+		Entry("ResumeFilingRequirementsSatisfiedResolved - Works",
+			"\"ResumeFilingRequirementsSatisfiedResolved\"", Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved),
+		Entry("ResumeNewsNotForthcoming - Works", "\"ResumeNewsNotForthcoming\"", Financial_Quotes_ResumeNewsNotForthcoming),
+		Entry("ResumeQualificationsMaintRequirementsMet - Works",
+			"\"ResumeQualificationsMaintRequirementsMet\"", Financial_Quotes_ResumeQualificationsMaintRequirementsMet),
+		Entry("ResumeQualificationsFilingsMet - Works",
+			"\"ResumeQualificationsFilingsMet\"", Financial_Quotes_ResumeQualificationsFilingsMet),
+		Entry("ResumeRegulatoryAuth - Works", "\"ResumeRegulatoryAuth\"", Financial_Quotes_ResumeRegulatoryAuth),
+		Entry("NewIssueAvailable - Works", "\"NewIssueAvailable\"", Financial_Quotes_NewIssueAvailable),
+		Entry("IssueAvailable - Works", "\"IssueAvailable\"", Financial_Quotes_IssueAvailable),
+		Entry("MWCBCarryFromPreviousDay - Works", "\"MWCBCarryFromPreviousDay\"", Financial_Quotes_MWCBCarryFromPreviousDay),
+		Entry("MWCBResume - Works", "\"MWCBResume\"", Financial_Quotes_MWCBResume),
+		Entry("IPOSecurityReleasedForQuotation - Works",
+			"\"IPOSecurityReleasedForQuotation\"", Financial_Quotes_IPOSecurityReleasedForQuotation),
+		Entry("IPOSecurityPositioningWindowExtension - Works",
+			"\"IPOSecurityPositioningWindowExtension\"", Financial_Quotes_IPOSecurityPositioningWindowExtension),
+		Entry("MWCBLevel1 - Works", "\"MWCBLevel1\"", Financial_Quotes_MWCBLevel1),
+		Entry("MWCBLevel2 - Works", "\"MWCBLevel2\"", Financial_Quotes_MWCBLevel2),
+		Entry("MWCBLevel3 - Works", "\"MWCBLevel3\"", Financial_Quotes_MWCBLevel3),
+		Entry("HaltSubPennyTrading - Works", "\"HaltSubPennyTrading\"", Financial_Quotes_HaltSubPennyTrading),
+		Entry("OrderImbalanceInd - Works", "\"OrderImbalanceInd\"", Financial_Quotes_OrderImbalanceInd),
+		Entry("LULDTradingPaused - Works", "\"LULDTradingPaused\"", Financial_Quotes_LULDTradingPaused),
+		Entry("NONE - Works", "\"NONE\"", Financial_Quotes_NONE),
+		Entry("ShortSalesRestrictionActivated - Works",
+			"\"ShortSalesRestrictionActivated\"", Financial_Quotes_ShortSalesRestrictionActivated),
+		Entry("ShortSalesRestrictionContinued - Works",
+			"\"ShortSalesRestrictionContinued\"", Financial_Quotes_ShortSalesRestrictionContinued),
+		Entry("ShortSalesRestrictionDeactivated - Works",
+			"\"ShortSalesRestrictionDeactivated\"", Financial_Quotes_ShortSalesRestrictionDeactivated),
+		Entry("ShortSalesRestrictionInEffect - Works",
+			"\"ShortSalesRestrictionInEffect\"", Financial_Quotes_ShortSalesRestrictionInEffect),
+		Entry("ShortSalesRestrictionMax - Works", "\"ShortSalesRestrictionMax\"", Financial_Quotes_ShortSalesRestrictionMax),
+		Entry("RetailInterestOnBid - Works", "\"RetailInterestOnBid\"", Financial_Quotes_RetailInterestOnBid),
+		Entry("RetailInterestOnAsk - Works", "\"RetailInterestOnAsk\"", Financial_Quotes_RetailInterestOnAsk),
+		Entry("RetailInterestOnBidAndAsk - Works", "\"RetailInterestOnBidAndAsk\"", Financial_Quotes_RetailInterestOnBidAndAsk),
+		Entry("FinraBBONoChange - Works", "\"FinraBBONoChange\"", Financial_Quotes_FinraBBONoChange),
+		Entry("FinraBBODoesNotExist - Works", "\"FinraBBODoesNotExist\"", Financial_Quotes_FinraBBODoesNotExist),
+		Entry("FinraBBBOExecutable - Works", "\"FinraBBBOExecutable\"", Financial_Quotes_FinraBBBOExecutable),
+		Entry("FinraBBBelowLowerBand - Works", "\"FinraBBBelowLowerBand\"", Financial_Quotes_FinraBBBelowLowerBand),
+		Entry("FinraBOAboveUpperBand - Works", "\"FinraBOAboveUpperBand\"", Financial_Quotes_FinraBOAboveUpperBand),
+		Entry("FinraBBBelowLowerBandBOAbboveUpperBand - Works",
+			"\"FinraBBBelowLowerBandBOAbboveUpperBand\"", Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand),
+		Entry("NBBONoChange - Works", "\"NBBONoChange\"", Financial_Quotes_NBBONoChange),
+		Entry("NBBOQuoteIsNBBO - Works", "\"NBBOQuoteIsNBBO\"", Financial_Quotes_NBBOQuoteIsNBBO),
+		Entry("NBBONoBBNoBO - Works", "\"NBBONoBBNoBO\"", Financial_Quotes_NBBONoBBNoBO),
+		Entry("NBBOBBBOShortAppendage - Works", "\"NBBOBBBOShortAppendage\"", Financial_Quotes_NBBOBBBOShortAppendage),
+		Entry("NBBOBBBOLongAppendage - Works", "\"NBBOBBBOLongAppendage\"", Financial_Quotes_NBBOBBBOLongAppendage),
+		Entry("HeldTradeNotLastSaleNotConsolidated - Works",
+			"\"HeldTradeNotLastSaleNotConsolidated\"", Financial_Quotes_HeldTradeNotLastSaleNotConsolidated),
+		Entry("HeldTradeLastSaleButNotConsolidated - Works",
+			"\"HeldTradeLastSaleButNotConsolidated\"", Financial_Quotes_HeldTradeLastSaleButNotConsolidated),
+		Entry("HeldTradeLastSaleAndConsolidated - Works",
+			"\"HeldTradeLastSaleAndConsolidated\"", Financial_Quotes_HeldTradeLastSaleAndConsolidated),
+		Entry("CTANotDueToRelatedSecurity - Works",
+			"\"CTANotDueToRelatedSecurity\"", Financial_Quotes_CTANotDueToRelatedSecurity),
+		Entry("CTADueToRelatedSecurity - Works", "\"CTADueToRelatedSecurity\"", Financial_Quotes_CTADueToRelatedSecurity),
+		Entry("CTANotInViewOfCommon - Works", "\"CTANotInViewOfCommon\"", Financial_Quotes_CTANotInViewOfCommon),
+		Entry("CTAInViewOfCommon - Works", "\"CTAInViewOfCommon\"", Financial_Quotes_CTAInViewOfCommon),
+		Entry("CTAPriceIndicator - Works", "\"CTAPriceIndicator\"", Financial_Quotes_CTAPriceIndicator),
+		Entry("CTANewPriceIndicator - Works", "\"CTANewPriceIndicator\"", Financial_Quotes_CTANewPriceIndicator),
+		Entry("CTACorrectedPriceIndication - Works",
+			"\"CTACorrectedPriceIndication\"", Financial_Quotes_CTACorrectedPriceIndication),
+		Entry("CTACancelledMarketImbalance - Works",
+			"\"CTACancelledMarketImbalance\"", Financial_Quotes_CTACancelledMarketImbalance),
+		Entry("'0' - Works", "\"0\"", Financial_Quotes_NBBNBOExecutable),
+		Entry("'1' - Works", "\"1\"", Financial_Quotes_NBBBelowLowerBand),
+		Entry("'2' - Works", "\"2\"", Financial_Quotes_NBOAboveUpperBand),
+		Entry("'3' - Works", "\"3\"", Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand),
+		Entry("'4' - Works", "\"4\"", Financial_Quotes_NBBEqualsUpperBand),
+		Entry("'5' - Works", "\"5\"", Financial_Quotes_NBOEqualsLowerBand),
+		Entry("'6' - Works", "\"6\"", Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand),
+		Entry("'7' - Works", "\"7\"", Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand),
+		Entry("'8' - Works", "\"8\"", Financial_Quotes_BidPriceAboveUpperLimitPriceBand),
+		Entry("'9' - Works", "\"9\"", Financial_Quotes_OfferPriceBelowLowerLimitPriceBand),
+		Entry("'10' - Works", "\"10\"", Financial_Quotes_BidAndOfferOutsidePriceBand),
+		Entry("'11' - Works", "\"11\"", Financial_Quotes_OpeningUpdate),
+		Entry("'12' - Works", "\"12\"", Financial_Quotes_IntraDayUpdate),
+		Entry("'13' - Works", "\"13\"", Financial_Quotes_RestatedValue),
+		Entry("'14' - Works", "\"14\"", Financial_Quotes_SuspendedDuringTradingHalt),
+		Entry("'15' - Works", "\"15\"", Financial_Quotes_ReOpeningUpdate),
+		Entry("'16' - Works", "\"16\"", Financial_Quotes_OutsidePriceBandRuleHours),
+		Entry("'17' - Works", "\"17\"", Financial_Quotes_AuctionExtension),
+		Entry("'18' - Works", "\"18\"", Financial_Quotes_LULDPriceBand),
+		Entry("'19' - Works", "\"19\"", Financial_Quotes_RepublishedLULDPriceBandInd),
+		Entry("'20' - Works", "\"20\"", Financial_Quotes_NBBLimitStateEntered),
+		Entry("'21' - Works", "\"21\"", Financial_Quotes_NBBLimitStateExited),
+		Entry("'22' - Works", "\"22\"", Financial_Quotes_NBOLimitStateEntered),
+		Entry("'23' - Works", "\"23\"", Financial_Quotes_NBOLimitStateExited),
+		Entry("'24' - Works", "\"24\"", Financial_Quotes_NBBAndNBOLimitStateEntered),
+		Entry("'25' - Works", "\"25\"", Financial_Quotes_NBBAndNBOLimitStateExited),
+		Entry("'26' - Works", "\"26\"", Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited),
+		Entry("'27' - Works", "\"27\"", Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered),
+		Entry("'28' - Works", "\"28\"", Financial_Quotes_Normal),
+		Entry("'29' - Works", "\"29\"", Financial_Quotes_Bankrupt),
+		Entry("'30' - Works", "\"30\"", Financial_Quotes_Deficient),
+		Entry("'31' - Works", "\"31\"", Financial_Quotes_Delinquent),
+		Entry("'32' - Works", "\"32\"", Financial_Quotes_BankruptAndDeficient),
+		Entry("'33' - Works", "\"33\"", Financial_Quotes_BankruptAndDelinquent),
+		Entry("'34' - Works", "\"34\"", Financial_Quotes_DeficientAndDelinquent),
+		Entry("'35' - Works", "\"35\"", Financial_Quotes_DeficientDeliquentBankrupt),
+		Entry("'36' - Works", "\"36\"", Financial_Quotes_Liquidation),
+		Entry("'37' - Works", "\"37\"", Financial_Quotes_CreationsSuspended),
+		Entry("'38' - Works", "\"38\"", Financial_Quotes_RedemptionsSuspended),
+		Entry("'39' - Works", "\"39\"", Financial_Quotes_CreationsRedemptionsSuspended),
+		Entry("'40' - Works", "\"40\"", Financial_Quotes_NormalTrading),
+		Entry("'41' - Works", "\"41\"", Financial_Quotes_OpeningDelay),
+		Entry("'42' - Works", "\"42\"", Financial_Quotes_TradingHalt),
+		Entry("'43' - Works", "\"43\"", Financial_Quotes_TradingResume),
+		Entry("'44' - Works", "\"44\"", Financial_Quotes_NoOpenNoResume),
+		Entry("'45' - Works", "\"45\"", Financial_Quotes_PriceIndication),
+		Entry("'46' - Works", "\"46\"", Financial_Quotes_TradingRangeIndication),
+		Entry("'47' - Works", "\"47\"", Financial_Quotes_MarketImbalanceBuy),
+		Entry("'48' - Works", "\"48\"", Financial_Quotes_MarketImbalanceSell),
+		Entry("'49' - Works", "\"49\"", Financial_Quotes_MarketOnCloseImbalanceBuy),
+		Entry("'50' - Works", "\"50\"", Financial_Quotes_MarketOnCloseImbalanceSell),
+		Entry("'51' - Works", "\"51\"", Financial_Quotes_NoMarketImbalance),
+		Entry("'52' - Works", "\"52\"", Financial_Quotes_NoMarketOnCloseImbalance),
+		Entry("'53' - Works", "\"53\"", Financial_Quotes_ShortSaleRestriction),
+		Entry("'54' - Works", "\"54\"", Financial_Quotes_LimitUpLimitDown),
+		Entry("'55' - Works", "\"55\"", Financial_Quotes_QuotationResumption),
+		Entry("'56' - Works", "\"56\"", Financial_Quotes_TradingResumption),
+		Entry("'57' - Works", "\"57\"", Financial_Quotes_VolatilityTradingPause),
+		Entry("'58' - Works", "\"58\"", Financial_Quotes_PolygonReserved),
+		Entry("'59' - Works", "\"59\"", Financial_Quotes_HaltNewsPending),
+		Entry("'60' - Works", "\"60\"", Financial_Quotes_UpdateNewsDissemination),
+		Entry("'61' - Works", "\"61\"", Financial_Quotes_HaltSingleStockTradingPause),
+		Entry("'62' - Works", "\"62\"", Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity),
+		Entry("'63' - Works", "\"63\"", Financial_Quotes_HaltETF),
+		Entry("'64' - Works", "\"64\"", Financial_Quotes_HaltInformationRequested),
+		Entry("'65' - Works", "\"65\"", Financial_Quotes_HaltExchangeNonCompliance),
+		Entry("'66' - Works", "\"66\"", Financial_Quotes_HaltFilingsNotCurrent),
+		Entry("'67' - Works", "\"67\"", Financial_Quotes_HaltSECTradingSuspension),
+		Entry("'68' - Works", "\"68\"", Financial_Quotes_HaltRegulatoryConcern),
+		Entry("'69' - Works", "\"69\"", Financial_Quotes_HaltMarketOperations),
+		Entry("'70' - Works", "\"70\"", Financial_Quotes_IPOSecurityNotYetTrading),
+		Entry("'71' - Works", "\"71\"", Financial_Quotes_HaltCorporateAction),
+		Entry("'72' - Works", "\"72\"", Financial_Quotes_QuotationNotAvailable),
+		Entry("'73' - Works", "\"73\"", Financial_Quotes_HaltVolatilityTradingPause),
+		Entry("'74' - Works", "\"74\"", Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition),
+		Entry("'75' - Works", "\"75\"", Financial_Quotes_UpdateNewsAndResumptionTimes),
+		Entry("'76' - Works", "\"76\"", Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly),
+		Entry("'77' - Works", "\"77\"", Financial_Quotes_ResumeQualificationIssuesReviewedResolved),
+		Entry("'78' - Works", "\"78\"", Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved),
+		Entry("'79' - Works", "\"79\"", Financial_Quotes_ResumeNewsNotForthcoming),
+		Entry("'80' - Works", "\"80\"", Financial_Quotes_ResumeQualificationsMaintRequirementsMet),
+		Entry("'81' - Works", "\"81\"", Financial_Quotes_ResumeQualificationsFilingsMet),
+		Entry("'82' - Works", "\"82\"", Financial_Quotes_ResumeRegulatoryAuth),
+		Entry("'83' - Works", "\"83\"", Financial_Quotes_NewIssueAvailable),
+		Entry("'84' - Works", "\"84\"", Financial_Quotes_IssueAvailable),
+		Entry("'85' - Works", "\"85\"", Financial_Quotes_MWCBCarryFromPreviousDay),
+		Entry("'86' - Works", "\"86\"", Financial_Quotes_MWCBResume),
+		Entry("'87' - Works", "\"87\"", Financial_Quotes_IPOSecurityReleasedForQuotation),
+		Entry("'88' - Works", "\"88\"", Financial_Quotes_IPOSecurityPositioningWindowExtension),
+		Entry("'89' - Works", "\"89\"", Financial_Quotes_MWCBLevel1),
+		Entry("'90' - Works", "\"90\"", Financial_Quotes_MWCBLevel2),
+		Entry("'91' - Works", "\"91\"", Financial_Quotes_MWCBLevel3),
+		Entry("'92' - Works", "\"92\"", Financial_Quotes_HaltSubPennyTrading),
+		Entry("'93' - Works", "\"93\"", Financial_Quotes_OrderImbalanceInd),
+		Entry("'94' - Works", "\"94\"", Financial_Quotes_LULDTradingPaused),
+		Entry("'95' - Works", "\"95\"", Financial_Quotes_NONE),
+		Entry("'96' - Works", "\"96\"", Financial_Quotes_ShortSalesRestrictionActivated),
+		Entry("'97' - Works", "\"97\"", Financial_Quotes_ShortSalesRestrictionContinued),
+		Entry("'98' - Works", "\"98\"", Financial_Quotes_ShortSalesRestrictionDeactivated),
+		Entry("'99' - Works", "\"99\"", Financial_Quotes_ShortSalesRestrictionInEffect),
+		Entry("'100' - Works", "\"100\"", Financial_Quotes_ShortSalesRestrictionMax),
+		Entry("'101' - Works", "\"101\"", Financial_Quotes_NBBONoChange),
+		Entry("'102' - Works", "\"102\"", Financial_Quotes_NBBOQuoteIsNBBO),
+		Entry("'103' - Works", "\"103\"", Financial_Quotes_NBBONoBBNoBO),
+		Entry("'104' - Works", "\"104\"", Financial_Quotes_NBBOBBBOShortAppendage),
+		Entry("'105' - Works", "\"105\"", Financial_Quotes_NBBOBBBOLongAppendage),
+		Entry("'106' - Works", "\"106\"", Financial_Quotes_HeldTradeNotLastSaleNotConsolidated),
+		Entry("'107' - Works", "\"107\"", Financial_Quotes_HeldTradeLastSaleButNotConsolidated),
+		Entry("'108' - Works", "\"108\"", Financial_Quotes_HeldTradeLastSaleAndConsolidated),
+		Entry("'109' - Works", "\"109\"", Financial_Quotes_RetailInterestOnBid),
+		Entry("'110' - Works", "\"110\"", Financial_Quotes_RetailInterestOnAsk),
+		Entry("'111' - Works", "\"111\"", Financial_Quotes_RetailInterestOnBidAndAsk),
+		Entry("'112' - Works", "\"112\"", Financial_Quotes_FinraBBONoChange),
+		Entry("'113' - Works", "\"113\"", Financial_Quotes_FinraBBODoesNotExist),
+		Entry("'114' - Works", "\"114\"", Financial_Quotes_FinraBBBOExecutable),
+		Entry("'115' - Works", "\"115\"", Financial_Quotes_FinraBBBelowLowerBand),
+		Entry("'116' - Works", "\"116\"", Financial_Quotes_FinraBOAboveUpperBand),
+		Entry("'117' - Works", "\"117\"", Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand),
+		Entry("'118' - Works", "\"118\"", Financial_Quotes_CTANotDueToRelatedSecurity),
+		Entry("'119' - Works", "\"119\"", Financial_Quotes_CTADueToRelatedSecurity),
+		Entry("'120' - Works", "\"120\"", Financial_Quotes_CTANotInViewOfCommon),
+		Entry("'121' - Works", "\"121\"", Financial_Quotes_CTAInViewOfCommon),
+		Entry("'122' - Works", "\"122\"", Financial_Quotes_CTAPriceIndicator),
+		Entry("'123' - Works", "\"123\"", Financial_Quotes_CTANewPriceIndicator),
+		Entry("'124' - Works", "\"124\"", Financial_Quotes_CTACorrectedPriceIndication),
+		Entry("'125' - Works", "\"125\"", Financial_Quotes_CTACancelledMarketImbalance),
+		Entry("0 - Works", 0, Financial_Quotes_NBBNBOExecutable),
+		Entry("1 - Works", 1, Financial_Quotes_NBBBelowLowerBand),
+		Entry("2 - Works", 2, Financial_Quotes_NBOAboveUpperBand),
+		Entry("3 - Works", 3, Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand),
+		Entry("4 - Works", 4, Financial_Quotes_NBBEqualsUpperBand),
+		Entry("5 - Works", 5, Financial_Quotes_NBOEqualsLowerBand),
+		Entry("6 - Works", 6, Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand),
+		Entry("7 - Works", 7, Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand),
+		Entry("8 - Works", 8, Financial_Quotes_BidPriceAboveUpperLimitPriceBand),
+		Entry("9 - Works", 9, Financial_Quotes_OfferPriceBelowLowerLimitPriceBand),
+		Entry("10 - Works", 10, Financial_Quotes_BidAndOfferOutsidePriceBand),
+		Entry("11 - Works", 11, Financial_Quotes_OpeningUpdate),
+		Entry("12 - Works", 12, Financial_Quotes_IntraDayUpdate),
+		Entry("13 - Works", 13, Financial_Quotes_RestatedValue),
+		Entry("14 - Works", 14, Financial_Quotes_SuspendedDuringTradingHalt),
+		Entry("15 - Works", 15, Financial_Quotes_ReOpeningUpdate),
+		Entry("16 - Works", 16, Financial_Quotes_OutsidePriceBandRuleHours),
+		Entry("17 - Works", 17, Financial_Quotes_AuctionExtension),
+		Entry("18 - Works", 18, Financial_Quotes_LULDPriceBand),
+		Entry("19 - Works", 19, Financial_Quotes_RepublishedLULDPriceBandInd),
+		Entry("20 - Works", 20, Financial_Quotes_NBBLimitStateEntered),
+		Entry("21 - Works", 21, Financial_Quotes_NBBLimitStateExited),
+		Entry("22 - Works", 22, Financial_Quotes_NBOLimitStateEntered),
+		Entry("23 - Works", 23, Financial_Quotes_NBOLimitStateExited),
+		Entry("24 - Works", 24, Financial_Quotes_NBBAndNBOLimitStateEntered),
+		Entry("25 - Works", 25, Financial_Quotes_NBBAndNBOLimitStateExited),
+		Entry("26 - Works", 26, Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited),
+		Entry("27 - Works", 27, Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered),
+		Entry("28 - Works", 28, Financial_Quotes_Normal),
+		Entry("29 - Works", 29, Financial_Quotes_Bankrupt),
+		Entry("30 - Works", 30, Financial_Quotes_Deficient),
+		Entry("31 - Works", 31, Financial_Quotes_Delinquent),
+		Entry("32 - Works", 32, Financial_Quotes_BankruptAndDeficient),
+		Entry("33 - Works", 33, Financial_Quotes_BankruptAndDelinquent),
+		Entry("34 - Works", 34, Financial_Quotes_DeficientAndDelinquent),
+		Entry("35 - Works", 35, Financial_Quotes_DeficientDeliquentBankrupt),
+		Entry("36 - Works", 36, Financial_Quotes_Liquidation),
+		Entry("37 - Works", 37, Financial_Quotes_CreationsSuspended),
+		Entry("38 - Works", 38, Financial_Quotes_RedemptionsSuspended),
+		Entry("39 - Works", 39, Financial_Quotes_CreationsRedemptionsSuspended),
+		Entry("40 - Works", 40, Financial_Quotes_NormalTrading),
+		Entry("41 - Works", 41, Financial_Quotes_OpeningDelay),
+		Entry("42 - Works", 42, Financial_Quotes_TradingHalt),
+		Entry("43 - Works", 43, Financial_Quotes_TradingResume),
+		Entry("44 - Works", 44, Financial_Quotes_NoOpenNoResume),
+		Entry("45 - Works", 45, Financial_Quotes_PriceIndication),
+		Entry("46 - Works", 46, Financial_Quotes_TradingRangeIndication),
+		Entry("47 - Works", 47, Financial_Quotes_MarketImbalanceBuy),
+		Entry("48 - Works", 48, Financial_Quotes_MarketImbalanceSell),
+		Entry("49 - Works", 49, Financial_Quotes_MarketOnCloseImbalanceBuy),
+		Entry("50 - Works", 50, Financial_Quotes_MarketOnCloseImbalanceSell),
+		Entry("51 - Works", 51, Financial_Quotes_NoMarketImbalance),
+		Entry("52 - Works", 52, Financial_Quotes_NoMarketOnCloseImbalance),
+		Entry("53 - Works", 53, Financial_Quotes_ShortSaleRestriction),
+		Entry("54 - Works", 54, Financial_Quotes_LimitUpLimitDown),
+		Entry("55 - Works", 55, Financial_Quotes_QuotationResumption),
+		Entry("56 - Works", 56, Financial_Quotes_TradingResumption),
+		Entry("57 - Works", 57, Financial_Quotes_VolatilityTradingPause),
+		Entry("58 - Works", 58, Financial_Quotes_PolygonReserved),
+		Entry("59 - Works", 59, Financial_Quotes_HaltNewsPending),
+		Entry("60 - Works", 60, Financial_Quotes_UpdateNewsDissemination),
+		Entry("61 - Works", 61, Financial_Quotes_HaltSingleStockTradingPause),
+		Entry("62 - Works", 62, Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity),
+		Entry("63 - Works", 63, Financial_Quotes_HaltETF),
+		Entry("64 - Works", 64, Financial_Quotes_HaltInformationRequested),
+		Entry("65 - Works", 65, Financial_Quotes_HaltExchangeNonCompliance),
+		Entry("66 - Works", 66, Financial_Quotes_HaltFilingsNotCurrent),
+		Entry("67 - Works", 67, Financial_Quotes_HaltSECTradingSuspension),
+		Entry("68 - Works", 68, Financial_Quotes_HaltRegulatoryConcern),
+		Entry("69 - Works", 69, Financial_Quotes_HaltMarketOperations),
+		Entry("70 - Works", 70, Financial_Quotes_IPOSecurityNotYetTrading),
+		Entry("71 - Works", 71, Financial_Quotes_HaltCorporateAction),
+		Entry("72 - Works", 72, Financial_Quotes_QuotationNotAvailable),
+		Entry("73 - Works", 73, Financial_Quotes_HaltVolatilityTradingPause),
+		Entry("74 - Works", 74, Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition),
+		Entry("75 - Works", 75, Financial_Quotes_UpdateNewsAndResumptionTimes),
+		Entry("76 - Works", 76, Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly),
+		Entry("77 - Works", 77, Financial_Quotes_ResumeQualificationIssuesReviewedResolved),
+		Entry("78 - Works", 78, Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved),
+		Entry("79 - Works", 79, Financial_Quotes_ResumeNewsNotForthcoming),
+		Entry("80 - Works", 80, Financial_Quotes_ResumeQualificationsMaintRequirementsMet),
+		Entry("81 - Works", 81, Financial_Quotes_ResumeQualificationsFilingsMet),
+		Entry("82 - Works", 82, Financial_Quotes_ResumeRegulatoryAuth),
+		Entry("83 - Works", 83, Financial_Quotes_NewIssueAvailable),
+		Entry("84 - Works", 84, Financial_Quotes_IssueAvailable),
+		Entry("85 - Works", 85, Financial_Quotes_MWCBCarryFromPreviousDay),
+		Entry("86 - Works", 86, Financial_Quotes_MWCBResume),
+		Entry("87 - Works", 87, Financial_Quotes_IPOSecurityReleasedForQuotation),
+		Entry("88 - Works", 88, Financial_Quotes_IPOSecurityPositioningWindowExtension),
+		Entry("89 - Works", 89, Financial_Quotes_MWCBLevel1),
+		Entry("90 - Works", 90, Financial_Quotes_MWCBLevel2),
+		Entry("91 - Works", 91, Financial_Quotes_MWCBLevel3),
+		Entry("92 - Works", 92, Financial_Quotes_HaltSubPennyTrading),
+		Entry("93 - Works", 93, Financial_Quotes_OrderImbalanceInd),
+		Entry("94 - Works", 94, Financial_Quotes_LULDTradingPaused),
+		Entry("95 - Works", 95, Financial_Quotes_NONE),
+		Entry("96 - Works", 96, Financial_Quotes_ShortSalesRestrictionActivated),
+		Entry("97 - Works", 97, Financial_Quotes_ShortSalesRestrictionContinued),
+		Entry("98 - Works", 98, Financial_Quotes_ShortSalesRestrictionDeactivated),
+		Entry("99 - Works", 99, Financial_Quotes_ShortSalesRestrictionInEffect),
+		Entry("100 - Works", 100, Financial_Quotes_ShortSalesRestrictionMax),
+		Entry("101 - Works", 101, Financial_Quotes_NBBONoChange),
+		Entry("102 - Works", 102, Financial_Quotes_NBBOQuoteIsNBBO),
+		Entry("103 - Works", 103, Financial_Quotes_NBBONoBBNoBO),
+		Entry("104 - Works", 104, Financial_Quotes_NBBOBBBOShortAppendage),
+		Entry("105 - Works", 105, Financial_Quotes_NBBOBBBOLongAppendage),
+		Entry("106 - Works", 106, Financial_Quotes_HeldTradeNotLastSaleNotConsolidated),
+		Entry("107 - Works", 107, Financial_Quotes_HeldTradeLastSaleButNotConsolidated),
+		Entry("108 - Works", 108, Financial_Quotes_HeldTradeLastSaleAndConsolidated),
+		Entry("109 - Works", 109, Financial_Quotes_RetailInterestOnBid),
+		Entry("110 - Works", 110, Financial_Quotes_RetailInterestOnAsk),
+		Entry("111 - Works", 111, Financial_Quotes_RetailInterestOnBidAndAsk),
+		Entry("112 - Works", 112, Financial_Quotes_FinraBBONoChange),
+		Entry("113 - Works", 113, Financial_Quotes_FinraBBODoesNotExist),
+		Entry("114 - Works", 114, Financial_Quotes_FinraBBBOExecutable),
+		Entry("115 - Works", 115, Financial_Quotes_FinraBBBelowLowerBand),
+		Entry("116 - Works", 116, Financial_Quotes_FinraBOAboveUpperBand),
+		Entry("117 - Works", 117, Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand),
+		Entry("118 - Works", 118, Financial_Quotes_CTANotDueToRelatedSecurity),
+		Entry("119 - Works", 119, Financial_Quotes_CTADueToRelatedSecurity),
+		Entry("120 - Works", 120, Financial_Quotes_CTANotInViewOfCommon),
+		Entry("121 - Works", 121, Financial_Quotes_CTAInViewOfCommon),
+		Entry("122 - Works", 122, Financial_Quotes_CTAPriceIndicator),
+		Entry("123 - Works", 123, Financial_Quotes_CTANewPriceIndicator),
+		Entry("124 - Works", 124, Financial_Quotes_CTACorrectedPriceIndication),
+		Entry("125 - Works", 125, Financial_Quotes_CTACancelledMarketImbalance))
+
+	// Test that attempting to deserialize a Financial.Quotes.Indicator will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Quotes.Indicator
+		// This should return an error
+		enum := new(Financial_Quotes_Indicator)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Quotes_Indicator"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Quotes.Indicator
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Quotes_Indicator) {
+
+			// Attempt to convert the value into a Financial.Quotes.Indicator
+			// This should not fail
+			var enum Financial_Quotes_Indicator
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NBBNBOExecutable - Works", "NBBNBOExecutable", Financial_Quotes_NBBNBOExecutable),
+		Entry("NBBBelowLowerBand - Works", "NBBBelowLowerBand", Financial_Quotes_NBBBelowLowerBand),
+		Entry("NBOAboveUpperBand - Works", "NBOAboveUpperBand", Financial_Quotes_NBOAboveUpperBand),
+		Entry("NBBBelowLowerBandAndNBOAboveUpperBand - Works",
+			"NBBBelowLowerBandAndNBOAboveUpperBand", Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand),
+		Entry("NBBEqualsUpperBand - Works", "NBBEqualsUpperBand", Financial_Quotes_NBBEqualsUpperBand),
+		Entry("NBOEqualsLowerBand - Works", "NBOEqualsLowerBand", Financial_Quotes_NBOEqualsLowerBand),
+		Entry("NBBEqualsUpperBandAndNBOAboveUpperBand - Works",
+			"NBBEqualsUpperBandAndNBOAboveUpperBand", Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand),
+		Entry("NBBBelowLowerBandAndNBOEqualsLowerBand - Works",
+			"NBBBelowLowerBandAndNBOEqualsLowerBand", Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand),
+		Entry("BidPriceAboveUpperLimitPriceBand - Works",
+			"BidPriceAboveUpperLimitPriceBand", Financial_Quotes_BidPriceAboveUpperLimitPriceBand),
+		Entry("OfferPriceBelowLowerLimitPriceBand - Works",
+			"OfferPriceBelowLowerLimitPriceBand", Financial_Quotes_OfferPriceBelowLowerLimitPriceBand),
+		Entry("BidAndOfferOutsidePriceBand - Works",
+			"BidAndOfferOutsidePriceBand", Financial_Quotes_BidAndOfferOutsidePriceBand),
+		Entry("OpeningUpdate - Works", "OpeningUpdate", Financial_Quotes_OpeningUpdate),
+		Entry("IntraDayUpdate - Works", "IntraDayUpdate", Financial_Quotes_IntraDayUpdate),
+		Entry("RestatedValue - Works", "RestatedValue", Financial_Quotes_RestatedValue),
+		Entry("SuspendedDuringTradingHalt - Works", "SuspendedDuringTradingHalt", Financial_Quotes_SuspendedDuringTradingHalt),
+		Entry("ReOpeningUpdate - Works", "ReOpeningUpdate", Financial_Quotes_ReOpeningUpdate),
+		Entry("OutsidePriceBandRuleHours - Works", "OutsidePriceBandRuleHours", Financial_Quotes_OutsidePriceBandRuleHours),
+		Entry("AuctionExtension - Works", "AuctionExtension", Financial_Quotes_AuctionExtension),
+		Entry("LULDPriceBand - Works", "LULDPriceBand", Financial_Quotes_LULDPriceBand),
+		Entry("RepublishedLULDPriceBandInd - Works",
+			"RepublishedLULDPriceBandInd", Financial_Quotes_RepublishedLULDPriceBandInd),
+		Entry("NBBLimitStateEntered - Works", "NBBLimitStateEntered", Financial_Quotes_NBBLimitStateEntered),
+		Entry("NBBLimitStateExited - Works", "NBBLimitStateExited", Financial_Quotes_NBBLimitStateExited),
+		Entry("NBOLimitStateEntered - Works", "NBOLimitStateEntered", Financial_Quotes_NBOLimitStateEntered),
+		Entry("NBOLimitStateExited - Works", "NBOLimitStateExited", Financial_Quotes_NBOLimitStateExited),
+		Entry("NBBAndNBOLimitStateEntered - Works", "NBBAndNBOLimitStateEntered", Financial_Quotes_NBBAndNBOLimitStateEntered),
+		Entry("NBBAndNBOLimitStateExited - Works", "NBBAndNBOLimitStateExited", Financial_Quotes_NBBAndNBOLimitStateExited),
+		Entry("NBBLimitStateEnteredNBOLimitStateExited - Works",
+			"NBBLimitStateEnteredNBOLimitStateExited", Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited),
+		Entry("NBBLimitStateExitedNBOLimitStateEntered - Works",
+			"NBBLimitStateExitedNBOLimitStateEntered", Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered),
+		Entry("Normal - Works", "Normal", Financial_Quotes_Normal),
+		Entry("Bankrupt - Works", "Bankrupt", Financial_Quotes_Bankrupt),
+		Entry("Deficient - Works", "Deficient", Financial_Quotes_Deficient),
+		Entry("Delinquent - Works", "Delinquent", Financial_Quotes_Delinquent),
+		Entry("BankruptAndDeficient - Works", "BankruptAndDeficient", Financial_Quotes_BankruptAndDeficient),
+		Entry("BankruptAndDelinquent - Works", "BankruptAndDelinquent", Financial_Quotes_BankruptAndDelinquent),
+		Entry("DeficientAndDelinquent - Works", "DeficientAndDelinquent", Financial_Quotes_DeficientAndDelinquent),
+		Entry("DeficientDeliquentBankrupt - Works", "DeficientDeliquentBankrupt", Financial_Quotes_DeficientDeliquentBankrupt),
+		Entry("Liquidation - Works", "Liquidation", Financial_Quotes_Liquidation),
+		Entry("CreationsSuspended - Works", "CreationsSuspended", Financial_Quotes_CreationsSuspended),
+		Entry("RedemptionsSuspended - Works", "RedemptionsSuspended", Financial_Quotes_RedemptionsSuspended),
+		Entry("CreationsRedemptionsSuspended - Works",
+			"CreationsRedemptionsSuspended", Financial_Quotes_CreationsRedemptionsSuspended),
+		Entry("NormalTrading - Works", "NormalTrading", Financial_Quotes_NormalTrading),
+		Entry("OpeningDelay - Works", "OpeningDelay", Financial_Quotes_OpeningDelay),
+		Entry("TradingHalt - Works", "TradingHalt", Financial_Quotes_TradingHalt),
+		Entry("TradingResume - Works", "TradingResume", Financial_Quotes_TradingResume),
+		Entry("NoOpenNoResume - Works", "NoOpenNoResume", Financial_Quotes_NoOpenNoResume),
+		Entry("PriceIndication - Works", "PriceIndication", Financial_Quotes_PriceIndication),
+		Entry("TradingRangeIndication - Works", "TradingRangeIndication", Financial_Quotes_TradingRangeIndication),
+		Entry("MarketImbalanceBuy - Works", "MarketImbalanceBuy", Financial_Quotes_MarketImbalanceBuy),
+		Entry("MarketImbalanceSell - Works", "MarketImbalanceSell", Financial_Quotes_MarketImbalanceSell),
+		Entry("MarketOnCloseImbalanceBuy - Works", "MarketOnCloseImbalanceBuy", Financial_Quotes_MarketOnCloseImbalanceBuy),
+		Entry("MarketOnCloseImbalanceSell - Works", "MarketOnCloseImbalanceSell", Financial_Quotes_MarketOnCloseImbalanceSell),
+		Entry("NoMarketImbalance - Works", "NoMarketImbalance", Financial_Quotes_NoMarketImbalance),
+		Entry("NoMarketOnCloseImbalance - Works", "NoMarketOnCloseImbalance", Financial_Quotes_NoMarketOnCloseImbalance),
+		Entry("ShortSaleRestriction - Works", "ShortSaleRestriction", Financial_Quotes_ShortSaleRestriction),
+		Entry("LimitUpLimitDown - Works", "LimitUpLimitDown", Financial_Quotes_LimitUpLimitDown),
+		Entry("QuotationResumption - Works", "QuotationResumption", Financial_Quotes_QuotationResumption),
+		Entry("TradingResumption - Works", "TradingResumption", Financial_Quotes_TradingResumption),
+		Entry("VolatilityTradingPause - Works", "VolatilityTradingPause", Financial_Quotes_VolatilityTradingPause),
+		Entry("PolygonReserved - Works", "PolygonReserved", Financial_Quotes_PolygonReserved),
+		Entry("HaltNewsPending - Works", "HaltNewsPending", Financial_Quotes_HaltNewsPending),
+		Entry("UpdateNewsDissemination - Works", "UpdateNewsDissemination", Financial_Quotes_UpdateNewsDissemination),
+		Entry("HaltSingleStockTradingPause - Works",
+			"HaltSingleStockTradingPause", Financial_Quotes_HaltSingleStockTradingPause),
+		Entry("HaltRegulatoryExtraordinaryMarketActivity - Works",
+			"HaltRegulatoryExtraordinaryMarketActivity", Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity),
+		Entry("HaltETF - Works", "HaltETF", Financial_Quotes_HaltETF),
+		Entry("HaltInformationRequested - Works", "HaltInformationRequested", Financial_Quotes_HaltInformationRequested),
+		Entry("HaltExchangeNonCompliance - Works", "HaltExchangeNonCompliance", Financial_Quotes_HaltExchangeNonCompliance),
+		Entry("HaltFilingsNotCurrent - Works", "HaltFilingsNotCurrent", Financial_Quotes_HaltFilingsNotCurrent),
+		Entry("HaltSECTradingSuspension - Works", "HaltSECTradingSuspension", Financial_Quotes_HaltSECTradingSuspension),
+		Entry("HaltRegulatoryConcern - Works", "HaltRegulatoryConcern", Financial_Quotes_HaltRegulatoryConcern),
+		Entry("HaltMarketOperations - Works", "HaltMarketOperations", Financial_Quotes_HaltMarketOperations),
+		Entry("IPOSecurityNotYetTrading - Works", "IPOSecurityNotYetTrading", Financial_Quotes_IPOSecurityNotYetTrading),
+		Entry("HaltCorporateAction - Works", "HaltCorporateAction", Financial_Quotes_HaltCorporateAction),
+		Entry("QuotationNotAvailable - Works", "QuotationNotAvailable", Financial_Quotes_QuotationNotAvailable),
+		Entry("HaltVolatilityTradingPause - Works", "HaltVolatilityTradingPause", Financial_Quotes_HaltVolatilityTradingPause),
+		Entry("HaltVolatilityTradingPauseStraddleCondition - Works",
+			"HaltVolatilityTradingPauseStraddleCondition", Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition),
+		Entry("UpdateNewsAndResumptionTimes - Works",
+			"UpdateNewsAndResumptionTimes", Financial_Quotes_UpdateNewsAndResumptionTimes),
+		Entry("HaltSingleStockTradingPauseQuotesOnly - Works",
+			"HaltSingleStockTradingPauseQuotesOnly", Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly),
+		Entry("ResumeQualificationIssuesReviewedResolved - Works",
+			"ResumeQualificationIssuesReviewedResolved", Financial_Quotes_ResumeQualificationIssuesReviewedResolved),
+		Entry("ResumeFilingRequirementsSatisfiedResolved - Works",
+			"ResumeFilingRequirementsSatisfiedResolved", Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved),
+		Entry("ResumeNewsNotForthcoming - Works", "ResumeNewsNotForthcoming", Financial_Quotes_ResumeNewsNotForthcoming),
+		Entry("ResumeQualificationsMaintRequirementsMet - Works",
+			"ResumeQualificationsMaintRequirementsMet", Financial_Quotes_ResumeQualificationsMaintRequirementsMet),
+		Entry("ResumeQualificationsFilingsMet - Works",
+			"ResumeQualificationsFilingsMet", Financial_Quotes_ResumeQualificationsFilingsMet),
+		Entry("ResumeRegulatoryAuth - Works", "ResumeRegulatoryAuth", Financial_Quotes_ResumeRegulatoryAuth),
+		Entry("NewIssueAvailable - Works", "NewIssueAvailable", Financial_Quotes_NewIssueAvailable),
+		Entry("IssueAvailable - Works", "IssueAvailable", Financial_Quotes_IssueAvailable),
+		Entry("MWCBCarryFromPreviousDay - Works", "MWCBCarryFromPreviousDay", Financial_Quotes_MWCBCarryFromPreviousDay),
+		Entry("MWCBResume - Works", "MWCBResume", Financial_Quotes_MWCBResume),
+		Entry("IPOSecurityReleasedForQuotation - Works",
+			"IPOSecurityReleasedForQuotation", Financial_Quotes_IPOSecurityReleasedForQuotation),
+		Entry("IPOSecurityPositioningWindowExtension - Works",
+			"IPOSecurityPositioningWindowExtension", Financial_Quotes_IPOSecurityPositioningWindowExtension),
+		Entry("MWCBLevel1 - Works", "MWCBLevel1", Financial_Quotes_MWCBLevel1),
+		Entry("MWCBLevel2 - Works", "MWCBLevel2", Financial_Quotes_MWCBLevel2),
+		Entry("MWCBLevel3 - Works", "MWCBLevel3", Financial_Quotes_MWCBLevel3),
+		Entry("HaltSubPennyTrading - Works", "HaltSubPennyTrading", Financial_Quotes_HaltSubPennyTrading),
+		Entry("OrderImbalanceInd - Works", "OrderImbalanceInd", Financial_Quotes_OrderImbalanceInd),
+		Entry("LULDTradingPaused - Works", "LULDTradingPaused", Financial_Quotes_LULDTradingPaused),
+		Entry("NONE - Works", "NONE", Financial_Quotes_NONE),
+		Entry("ShortSalesRestrictionActivated - Works",
+			"ShortSalesRestrictionActivated", Financial_Quotes_ShortSalesRestrictionActivated),
+		Entry("ShortSalesRestrictionContinued - Works",
+			"ShortSalesRestrictionContinued", Financial_Quotes_ShortSalesRestrictionContinued),
+		Entry("ShortSalesRestrictionDeactivated - Works",
+			"ShortSalesRestrictionDeactivated", Financial_Quotes_ShortSalesRestrictionDeactivated),
+		Entry("ShortSalesRestrictionInEffect - Works",
+			"ShortSalesRestrictionInEffect", Financial_Quotes_ShortSalesRestrictionInEffect),
+		Entry("ShortSalesRestrictionMax - Works", "ShortSalesRestrictionMax", Financial_Quotes_ShortSalesRestrictionMax),
+		Entry("RetailInterestOnBid - Works", "RetailInterestOnBid", Financial_Quotes_RetailInterestOnBid),
+		Entry("RetailInterestOnAsk - Works", "RetailInterestOnAsk", Financial_Quotes_RetailInterestOnAsk),
+		Entry("RetailInterestOnBidAndAsk - Works",
+			"RetailInterestOnBidAndAsk", Financial_Quotes_RetailInterestOnBidAndAsk),
+		Entry("FinraBBONoChange - Works", "FinraBBONoChange", Financial_Quotes_FinraBBONoChange),
+		Entry("FinraBBODoesNotExist - Works", "FinraBBODoesNotExist", Financial_Quotes_FinraBBODoesNotExist),
+		Entry("FinraBBBOExecutable - Works", "FinraBBBOExecutable", Financial_Quotes_FinraBBBOExecutable),
+		Entry("FinraBBBelowLowerBand - Works", "FinraBBBelowLowerBand", Financial_Quotes_FinraBBBelowLowerBand),
+		Entry("FinraBOAboveUpperBand - Works", "FinraBOAboveUpperBand", Financial_Quotes_FinraBOAboveUpperBand),
+		Entry("FinraBBBelowLowerBandBOAbboveUpperBand - Works",
+			"FinraBBBelowLowerBandBOAbboveUpperBand", Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand),
+		Entry("NBBONoChange - Works", "NBBONoChange", Financial_Quotes_NBBONoChange),
+		Entry("NBBOQuoteIsNBBO - Works", "NBBOQuoteIsNBBO", Financial_Quotes_NBBOQuoteIsNBBO),
+		Entry("NBBONoBBNoBO - Works", "NBBONoBBNoBO", Financial_Quotes_NBBONoBBNoBO),
+		Entry("NBBOBBBOShortAppendage - Works", "NBBOBBBOShortAppendage", Financial_Quotes_NBBOBBBOShortAppendage),
+		Entry("NBBOBBBOLongAppendage - Works", "NBBOBBBOLongAppendage", Financial_Quotes_NBBOBBBOLongAppendage),
+		Entry("HeldTradeNotLastSaleNotConsolidated - Works",
+			"HeldTradeNotLastSaleNotConsolidated", Financial_Quotes_HeldTradeNotLastSaleNotConsolidated),
+		Entry("HeldTradeLastSaleButNotConsolidated - Works",
+			"HeldTradeLastSaleButNotConsolidated", Financial_Quotes_HeldTradeLastSaleButNotConsolidated),
+		Entry("HeldTradeLastSaleAndConsolidated - Works",
+			"HeldTradeLastSaleAndConsolidated", Financial_Quotes_HeldTradeLastSaleAndConsolidated),
+		Entry("CTANotDueToRelatedSecurity - Works", "CTANotDueToRelatedSecurity", Financial_Quotes_CTANotDueToRelatedSecurity),
+		Entry("CTADueToRelatedSecurity - Works", "CTADueToRelatedSecurity", Financial_Quotes_CTADueToRelatedSecurity),
+		Entry("CTANotInViewOfCommon - Works", "CTANotInViewOfCommon", Financial_Quotes_CTANotInViewOfCommon),
+		Entry("CTAInViewOfCommon - Works", "CTAInViewOfCommon", Financial_Quotes_CTAInViewOfCommon),
+		Entry("CTAPriceIndicator - Works", "CTAPriceIndicator", Financial_Quotes_CTAPriceIndicator),
+		Entry("CTANewPriceIndicator - Works", "CTANewPriceIndicator", Financial_Quotes_CTANewPriceIndicator),
+		Entry("CTACorrectedPriceIndication - Works",
+			"CTACorrectedPriceIndication", Financial_Quotes_CTACorrectedPriceIndication),
+		Entry("CTACancelledMarketImbalance - Works",
+			"CTACancelledMarketImbalance", Financial_Quotes_CTACancelledMarketImbalance),
+		Entry("0 - Works", "0", Financial_Quotes_NBBNBOExecutable),
+		Entry("1 - Works", "1", Financial_Quotes_NBBBelowLowerBand),
+		Entry("2 - Works", "2", Financial_Quotes_NBOAboveUpperBand),
+		Entry("3 - Works", "3", Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand),
+		Entry("4 - Works", "4", Financial_Quotes_NBBEqualsUpperBand),
+		Entry("5 - Works", "5", Financial_Quotes_NBOEqualsLowerBand),
+		Entry("6 - Works", "6", Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand),
+		Entry("7 - Works", "7", Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand),
+		Entry("8 - Works", "8", Financial_Quotes_BidPriceAboveUpperLimitPriceBand),
+		Entry("9 - Works", "9", Financial_Quotes_OfferPriceBelowLowerLimitPriceBand),
+		Entry("10 - Works", "10", Financial_Quotes_BidAndOfferOutsidePriceBand),
+		Entry("11 - Works", "11", Financial_Quotes_OpeningUpdate),
+		Entry("12 - Works", "12", Financial_Quotes_IntraDayUpdate),
+		Entry("13 - Works", "13", Financial_Quotes_RestatedValue),
+		Entry("14 - Works", "14", Financial_Quotes_SuspendedDuringTradingHalt),
+		Entry("15 - Works", "15", Financial_Quotes_ReOpeningUpdate),
+		Entry("16 - Works", "16", Financial_Quotes_OutsidePriceBandRuleHours),
+		Entry("17 - Works", "17", Financial_Quotes_AuctionExtension),
+		Entry("18 - Works", "18", Financial_Quotes_LULDPriceBand),
+		Entry("19 - Works", "19", Financial_Quotes_RepublishedLULDPriceBandInd),
+		Entry("20 - Works", "20", Financial_Quotes_NBBLimitStateEntered),
+		Entry("21 - Works", "21", Financial_Quotes_NBBLimitStateExited),
+		Entry("22 - Works", "22", Financial_Quotes_NBOLimitStateEntered),
+		Entry("23 - Works", "23", Financial_Quotes_NBOLimitStateExited),
+		Entry("24 - Works", "24", Financial_Quotes_NBBAndNBOLimitStateEntered),
+		Entry("25 - Works", "25", Financial_Quotes_NBBAndNBOLimitStateExited),
+		Entry("26 - Works", "26", Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited),
+		Entry("27 - Works", "27", Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered),
+		Entry("28 - Works", "28", Financial_Quotes_Normal),
+		Entry("29 - Works", "29", Financial_Quotes_Bankrupt),
+		Entry("30 - Works", "30", Financial_Quotes_Deficient),
+		Entry("31 - Works", "31", Financial_Quotes_Delinquent),
+		Entry("32 - Works", "32", Financial_Quotes_BankruptAndDeficient),
+		Entry("33 - Works", "33", Financial_Quotes_BankruptAndDelinquent),
+		Entry("34 - Works", "34", Financial_Quotes_DeficientAndDelinquent),
+		Entry("35 - Works", "35", Financial_Quotes_DeficientDeliquentBankrupt),
+		Entry("36 - Works", "36", Financial_Quotes_Liquidation),
+		Entry("37 - Works", "37", Financial_Quotes_CreationsSuspended),
+		Entry("38 - Works", "38", Financial_Quotes_RedemptionsSuspended),
+		Entry("39 - Works", "39", Financial_Quotes_CreationsRedemptionsSuspended),
+		Entry("40 - Works", "40", Financial_Quotes_NormalTrading),
+		Entry("41 - Works", "41", Financial_Quotes_OpeningDelay),
+		Entry("42 - Works", "42", Financial_Quotes_TradingHalt),
+		Entry("43 - Works", "43", Financial_Quotes_TradingResume),
+		Entry("44 - Works", "44", Financial_Quotes_NoOpenNoResume),
+		Entry("45 - Works", "45", Financial_Quotes_PriceIndication),
+		Entry("46 - Works", "46", Financial_Quotes_TradingRangeIndication),
+		Entry("47 - Works", "47", Financial_Quotes_MarketImbalanceBuy),
+		Entry("48 - Works", "48", Financial_Quotes_MarketImbalanceSell),
+		Entry("49 - Works", "49", Financial_Quotes_MarketOnCloseImbalanceBuy),
+		Entry("50 - Works", "50", Financial_Quotes_MarketOnCloseImbalanceSell),
+		Entry("51 - Works", "51", Financial_Quotes_NoMarketImbalance),
+		Entry("52 - Works", "52", Financial_Quotes_NoMarketOnCloseImbalance),
+		Entry("53 - Works", "53", Financial_Quotes_ShortSaleRestriction),
+		Entry("54 - Works", "54", Financial_Quotes_LimitUpLimitDown),
+		Entry("55 - Works", "55", Financial_Quotes_QuotationResumption),
+		Entry("56 - Works", "56", Financial_Quotes_TradingResumption),
+		Entry("57 - Works", "57", Financial_Quotes_VolatilityTradingPause),
+		Entry("58 - Works", "58", Financial_Quotes_PolygonReserved),
+		Entry("59 - Works", "59", Financial_Quotes_HaltNewsPending),
+		Entry("60 - Works", "60", Financial_Quotes_UpdateNewsDissemination),
+		Entry("61 - Works", "61", Financial_Quotes_HaltSingleStockTradingPause),
+		Entry("62 - Works", "62", Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity),
+		Entry("63 - Works", "63", Financial_Quotes_HaltETF),
+		Entry("64 - Works", "64", Financial_Quotes_HaltInformationRequested),
+		Entry("65 - Works", "65", Financial_Quotes_HaltExchangeNonCompliance),
+		Entry("66 - Works", "66", Financial_Quotes_HaltFilingsNotCurrent),
+		Entry("67 - Works", "67", Financial_Quotes_HaltSECTradingSuspension),
+		Entry("68 - Works", "68", Financial_Quotes_HaltRegulatoryConcern),
+		Entry("69 - Works", "69", Financial_Quotes_HaltMarketOperations),
+		Entry("70 - Works", "70", Financial_Quotes_IPOSecurityNotYetTrading),
+		Entry("71 - Works", "71", Financial_Quotes_HaltCorporateAction),
+		Entry("72 - Works", "72", Financial_Quotes_QuotationNotAvailable),
+		Entry("73 - Works", "73", Financial_Quotes_HaltVolatilityTradingPause),
+		Entry("74 - Works", "74", Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition),
+		Entry("75 - Works", "75", Financial_Quotes_UpdateNewsAndResumptionTimes),
+		Entry("76 - Works", "76", Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly),
+		Entry("77 - Works", "77", Financial_Quotes_ResumeQualificationIssuesReviewedResolved),
+		Entry("78 - Works", "78", Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved),
+		Entry("79 - Works", "79", Financial_Quotes_ResumeNewsNotForthcoming),
+		Entry("80 - Works", "80", Financial_Quotes_ResumeQualificationsMaintRequirementsMet),
+		Entry("81 - Works", "81", Financial_Quotes_ResumeQualificationsFilingsMet),
+		Entry("82 - Works", "82", Financial_Quotes_ResumeRegulatoryAuth),
+		Entry("83 - Works", "83", Financial_Quotes_NewIssueAvailable),
+		Entry("84 - Works", "84", Financial_Quotes_IssueAvailable),
+		Entry("85 - Works", "85", Financial_Quotes_MWCBCarryFromPreviousDay),
+		Entry("86 - Works", "86", Financial_Quotes_MWCBResume),
+		Entry("87 - Works", "87", Financial_Quotes_IPOSecurityReleasedForQuotation),
+		Entry("88 - Works", "88", Financial_Quotes_IPOSecurityPositioningWindowExtension),
+		Entry("89 - Works", "89", Financial_Quotes_MWCBLevel1),
+		Entry("90 - Works", "90", Financial_Quotes_MWCBLevel2),
+		Entry("91 - Works", "91", Financial_Quotes_MWCBLevel3),
+		Entry("92 - Works", "92", Financial_Quotes_HaltSubPennyTrading),
+		Entry("93 - Works", "93", Financial_Quotes_OrderImbalanceInd),
+		Entry("94 - Works", "94", Financial_Quotes_LULDTradingPaused),
+		Entry("95 - Works", "95", Financial_Quotes_NONE),
+		Entry("96 - Works", "96", Financial_Quotes_ShortSalesRestrictionActivated),
+		Entry("97 - Works", "97", Financial_Quotes_ShortSalesRestrictionContinued),
+		Entry("98 - Works", "98", Financial_Quotes_ShortSalesRestrictionDeactivated),
+		Entry("99 - Works", "99", Financial_Quotes_ShortSalesRestrictionInEffect),
+		Entry("100 - Works", "100", Financial_Quotes_ShortSalesRestrictionMax),
+		Entry("101 - Works", "101", Financial_Quotes_NBBONoChange),
+		Entry("102 - Works", "102", Financial_Quotes_NBBOQuoteIsNBBO),
+		Entry("103 - Works", "103", Financial_Quotes_NBBONoBBNoBO),
+		Entry("104 - Works", "104", Financial_Quotes_NBBOBBBOShortAppendage),
+		Entry("105 - Works", "105", Financial_Quotes_NBBOBBBOLongAppendage),
+		Entry("106 - Works", "106", Financial_Quotes_HeldTradeNotLastSaleNotConsolidated),
+		Entry("107 - Works", "107", Financial_Quotes_HeldTradeLastSaleButNotConsolidated),
+		Entry("108 - Works", "108", Financial_Quotes_HeldTradeLastSaleAndConsolidated),
+		Entry("109 - Works", "109", Financial_Quotes_RetailInterestOnBid),
+		Entry("110 - Works", "110", Financial_Quotes_RetailInterestOnAsk),
+		Entry("111 - Works", "111", Financial_Quotes_RetailInterestOnBidAndAsk),
+		Entry("112 - Works", "112", Financial_Quotes_FinraBBONoChange),
+		Entry("113 - Works", "113", Financial_Quotes_FinraBBODoesNotExist),
+		Entry("114 - Works", "114", Financial_Quotes_FinraBBBOExecutable),
+		Entry("115 - Works", "115", Financial_Quotes_FinraBBBelowLowerBand),
+		Entry("116 - Works", "116", Financial_Quotes_FinraBOAboveUpperBand),
+		Entry("117 - Works", "117", Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand),
+		Entry("118 - Works", "118", Financial_Quotes_CTANotDueToRelatedSecurity),
+		Entry("119 - Works", "119", Financial_Quotes_CTADueToRelatedSecurity),
+		Entry("120 - Works", "120", Financial_Quotes_CTANotInViewOfCommon),
+		Entry("121 - Works", "121", Financial_Quotes_CTAInViewOfCommon),
+		Entry("122 - Works", "122", Financial_Quotes_CTAPriceIndicator),
+		Entry("123 - Works", "123", Financial_Quotes_CTANewPriceIndicator),
+		Entry("124 - Works", "124", Financial_Quotes_CTACorrectedPriceIndication),
+		Entry("125 - Works", "125", Financial_Quotes_CTACancelledMarketImbalance))
+
+	// Test that attempting to deserialize a Financial.Quotes.Indicator will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Quotes.Indicator
+		// This should return an error
+		var enum *Financial_Quotes_Indicator
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Quotes.Indicator
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Quotes_Indicator) {
+
+			// Attempt to convert the value into a Financial.Quotes.Indicator
+			// This should not fail
+			var enum Financial_Quotes_Indicator
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NBBNBOExecutable - Works", "NBBNBOExecutable", Financial_Quotes_NBBNBOExecutable),
+		Entry("NBBBelowLowerBand - Works", "NBBBelowLowerBand", Financial_Quotes_NBBBelowLowerBand),
+		Entry("NBOAboveUpperBand - Works", "NBOAboveUpperBand", Financial_Quotes_NBOAboveUpperBand),
+		Entry("NBBBelowLowerBandAndNBOAboveUpperBand - Works",
+			"NBBBelowLowerBandAndNBOAboveUpperBand", Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand),
+		Entry("NBBEqualsUpperBand - Works", "NBBEqualsUpperBand", Financial_Quotes_NBBEqualsUpperBand),
+		Entry("NBOEqualsLowerBand - Works", "NBOEqualsLowerBand", Financial_Quotes_NBOEqualsLowerBand),
+		Entry("NBBEqualsUpperBandAndNBOAboveUpperBand - Works",
+			"NBBEqualsUpperBandAndNBOAboveUpperBand", Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand),
+		Entry("NBBBelowLowerBandAndNBOEqualsLowerBand - Works",
+			"NBBBelowLowerBandAndNBOEqualsLowerBand", Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand),
+		Entry("BidPriceAboveUpperLimitPriceBand - Works",
+			"BidPriceAboveUpperLimitPriceBand", Financial_Quotes_BidPriceAboveUpperLimitPriceBand),
+		Entry("OfferPriceBelowLowerLimitPriceBand - Works",
+			"OfferPriceBelowLowerLimitPriceBand", Financial_Quotes_OfferPriceBelowLowerLimitPriceBand),
+		Entry("BidAndOfferOutsidePriceBand - Works",
+			"BidAndOfferOutsidePriceBand", Financial_Quotes_BidAndOfferOutsidePriceBand),
+		Entry("OpeningUpdate - Works", "OpeningUpdate", Financial_Quotes_OpeningUpdate),
+		Entry("IntraDayUpdate - Works", "IntraDayUpdate", Financial_Quotes_IntraDayUpdate),
+		Entry("RestatedValue - Works", "RestatedValue", Financial_Quotes_RestatedValue),
+		Entry("SuspendedDuringTradingHalt - Works", "SuspendedDuringTradingHalt", Financial_Quotes_SuspendedDuringTradingHalt),
+		Entry("ReOpeningUpdate - Works", "ReOpeningUpdate", Financial_Quotes_ReOpeningUpdate),
+		Entry("OutsidePriceBandRuleHours - Works", "OutsidePriceBandRuleHours", Financial_Quotes_OutsidePriceBandRuleHours),
+		Entry("AuctionExtension - Works", "AuctionExtension", Financial_Quotes_AuctionExtension),
+		Entry("LULDPriceBand - Works", "LULDPriceBand", Financial_Quotes_LULDPriceBand),
+		Entry("RepublishedLULDPriceBandInd - Works",
+			"RepublishedLULDPriceBandInd", Financial_Quotes_RepublishedLULDPriceBandInd),
+		Entry("NBBLimitStateEntered - Works", "NBBLimitStateEntered", Financial_Quotes_NBBLimitStateEntered),
+		Entry("NBBLimitStateExited - Works", "NBBLimitStateExited", Financial_Quotes_NBBLimitStateExited),
+		Entry("NBOLimitStateEntered - Works", "NBOLimitStateEntered", Financial_Quotes_NBOLimitStateEntered),
+		Entry("NBOLimitStateExited - Works", "NBOLimitStateExited", Financial_Quotes_NBOLimitStateExited),
+		Entry("NBBAndNBOLimitStateEntered - Works", "NBBAndNBOLimitStateEntered", Financial_Quotes_NBBAndNBOLimitStateEntered),
+		Entry("NBBAndNBOLimitStateExited - Works", "NBBAndNBOLimitStateExited", Financial_Quotes_NBBAndNBOLimitStateExited),
+		Entry("NBBLimitStateEnteredNBOLimitStateExited - Works",
+			"NBBLimitStateEnteredNBOLimitStateExited", Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited),
+		Entry("NBBLimitStateExitedNBOLimitStateEntered - Works",
+			"NBBLimitStateExitedNBOLimitStateEntered", Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered),
+		Entry("Normal - Works", "Normal", Financial_Quotes_Normal),
+		Entry("Bankrupt - Works", "Bankrupt", Financial_Quotes_Bankrupt),
+		Entry("Deficient - Works", "Deficient", Financial_Quotes_Deficient),
+		Entry("Delinquent - Works", "Delinquent", Financial_Quotes_Delinquent),
+		Entry("BankruptAndDeficient - Works", "BankruptAndDeficient", Financial_Quotes_BankruptAndDeficient),
+		Entry("BankruptAndDelinquent - Works", "BankruptAndDelinquent", Financial_Quotes_BankruptAndDelinquent),
+		Entry("DeficientAndDelinquent - Works", "DeficientAndDelinquent", Financial_Quotes_DeficientAndDelinquent),
+		Entry("DeficientDeliquentBankrupt - Works", "DeficientDeliquentBankrupt", Financial_Quotes_DeficientDeliquentBankrupt),
+		Entry("Liquidation - Works", "Liquidation", Financial_Quotes_Liquidation),
+		Entry("CreationsSuspended - Works", "CreationsSuspended", Financial_Quotes_CreationsSuspended),
+		Entry("RedemptionsSuspended - Works", "RedemptionsSuspended", Financial_Quotes_RedemptionsSuspended),
+		Entry("CreationsRedemptionsSuspended - Works",
+			"CreationsRedemptionsSuspended", Financial_Quotes_CreationsRedemptionsSuspended),
+		Entry("NormalTrading - Works", "NormalTrading", Financial_Quotes_NormalTrading),
+		Entry("OpeningDelay - Works", "OpeningDelay", Financial_Quotes_OpeningDelay),
+		Entry("TradingHalt - Works", "TradingHalt", Financial_Quotes_TradingHalt),
+		Entry("TradingResume - Works", "TradingResume", Financial_Quotes_TradingResume),
+		Entry("NoOpenNoResume - Works", "NoOpenNoResume", Financial_Quotes_NoOpenNoResume),
+		Entry("PriceIndication - Works", "PriceIndication", Financial_Quotes_PriceIndication),
+		Entry("TradingRangeIndication - Works", "TradingRangeIndication", Financial_Quotes_TradingRangeIndication),
+		Entry("MarketImbalanceBuy - Works", "MarketImbalanceBuy", Financial_Quotes_MarketImbalanceBuy),
+		Entry("MarketImbalanceSell - Works", "MarketImbalanceSell", Financial_Quotes_MarketImbalanceSell),
+		Entry("MarketOnCloseImbalanceBuy - Works", "MarketOnCloseImbalanceBuy", Financial_Quotes_MarketOnCloseImbalanceBuy),
+		Entry("MarketOnCloseImbalanceSell - Works", "MarketOnCloseImbalanceSell", Financial_Quotes_MarketOnCloseImbalanceSell),
+		Entry("NoMarketImbalance - Works", "NoMarketImbalance", Financial_Quotes_NoMarketImbalance),
+		Entry("NoMarketOnCloseImbalance - Works", "NoMarketOnCloseImbalance", Financial_Quotes_NoMarketOnCloseImbalance),
+		Entry("ShortSaleRestriction - Works", "ShortSaleRestriction", Financial_Quotes_ShortSaleRestriction),
+		Entry("LimitUpLimitDown - Works", "LimitUpLimitDown", Financial_Quotes_LimitUpLimitDown),
+		Entry("QuotationResumption - Works", "QuotationResumption", Financial_Quotes_QuotationResumption),
+		Entry("TradingResumption - Works", "TradingResumption", Financial_Quotes_TradingResumption),
+		Entry("VolatilityTradingPause - Works", "VolatilityTradingPause", Financial_Quotes_VolatilityTradingPause),
+		Entry("PolygonReserved - Works", "PolygonReserved", Financial_Quotes_PolygonReserved),
+		Entry("HaltNewsPending - Works", "HaltNewsPending", Financial_Quotes_HaltNewsPending),
+		Entry("UpdateNewsDissemination - Works", "UpdateNewsDissemination", Financial_Quotes_UpdateNewsDissemination),
+		Entry("HaltSingleStockTradingPause - Works",
+			"HaltSingleStockTradingPause", Financial_Quotes_HaltSingleStockTradingPause),
+		Entry("HaltRegulatoryExtraordinaryMarketActivity - Works",
+			"HaltRegulatoryExtraordinaryMarketActivity", Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity),
+		Entry("HaltETF - Works", "HaltETF", Financial_Quotes_HaltETF),
+		Entry("HaltInformationRequested - Works", "HaltInformationRequested", Financial_Quotes_HaltInformationRequested),
+		Entry("HaltExchangeNonCompliance - Works", "HaltExchangeNonCompliance", Financial_Quotes_HaltExchangeNonCompliance),
+		Entry("HaltFilingsNotCurrent - Works", "HaltFilingsNotCurrent", Financial_Quotes_HaltFilingsNotCurrent),
+		Entry("HaltSECTradingSuspension - Works", "HaltSECTradingSuspension", Financial_Quotes_HaltSECTradingSuspension),
+		Entry("HaltRegulatoryConcern - Works", "HaltRegulatoryConcern", Financial_Quotes_HaltRegulatoryConcern),
+		Entry("HaltMarketOperations - Works", "HaltMarketOperations", Financial_Quotes_HaltMarketOperations),
+		Entry("IPOSecurityNotYetTrading - Works", "IPOSecurityNotYetTrading", Financial_Quotes_IPOSecurityNotYetTrading),
+		Entry("HaltCorporateAction - Works", "HaltCorporateAction", Financial_Quotes_HaltCorporateAction),
+		Entry("QuotationNotAvailable - Works", "QuotationNotAvailable", Financial_Quotes_QuotationNotAvailable),
+		Entry("HaltVolatilityTradingPause - Works", "HaltVolatilityTradingPause", Financial_Quotes_HaltVolatilityTradingPause),
+		Entry("HaltVolatilityTradingPauseStraddleCondition - Works",
+			"HaltVolatilityTradingPauseStraddleCondition", Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition),
+		Entry("UpdateNewsAndResumptionTimes - Works",
+			"UpdateNewsAndResumptionTimes", Financial_Quotes_UpdateNewsAndResumptionTimes),
+		Entry("HaltSingleStockTradingPauseQuotesOnly - Works",
+			"HaltSingleStockTradingPauseQuotesOnly", Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly),
+		Entry("ResumeQualificationIssuesReviewedResolved - Works",
+			"ResumeQualificationIssuesReviewedResolved", Financial_Quotes_ResumeQualificationIssuesReviewedResolved),
+		Entry("ResumeFilingRequirementsSatisfiedResolved - Works",
+			"ResumeFilingRequirementsSatisfiedResolved", Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved),
+		Entry("ResumeNewsNotForthcoming - Works", "ResumeNewsNotForthcoming", Financial_Quotes_ResumeNewsNotForthcoming),
+		Entry("ResumeQualificationsMaintRequirementsMet - Works",
+			"ResumeQualificationsMaintRequirementsMet", Financial_Quotes_ResumeQualificationsMaintRequirementsMet),
+		Entry("ResumeQualificationsFilingsMet - Works",
+			"ResumeQualificationsFilingsMet", Financial_Quotes_ResumeQualificationsFilingsMet),
+		Entry("ResumeRegulatoryAuth - Works", "ResumeRegulatoryAuth", Financial_Quotes_ResumeRegulatoryAuth),
+		Entry("NewIssueAvailable - Works", "NewIssueAvailable", Financial_Quotes_NewIssueAvailable),
+		Entry("IssueAvailable - Works", "IssueAvailable", Financial_Quotes_IssueAvailable),
+		Entry("MWCBCarryFromPreviousDay - Works", "MWCBCarryFromPreviousDay", Financial_Quotes_MWCBCarryFromPreviousDay),
+		Entry("MWCBResume - Works", "MWCBResume", Financial_Quotes_MWCBResume),
+		Entry("IPOSecurityReleasedForQuotation - Works",
+			"IPOSecurityReleasedForQuotation", Financial_Quotes_IPOSecurityReleasedForQuotation),
+		Entry("IPOSecurityPositioningWindowExtension - Works",
+			"IPOSecurityPositioningWindowExtension", Financial_Quotes_IPOSecurityPositioningWindowExtension),
+		Entry("MWCBLevel1 - Works", "MWCBLevel1", Financial_Quotes_MWCBLevel1),
+		Entry("MWCBLevel2 - Works", "MWCBLevel2", Financial_Quotes_MWCBLevel2),
+		Entry("MWCBLevel3 - Works", "MWCBLevel3", Financial_Quotes_MWCBLevel3),
+		Entry("HaltSubPennyTrading - Works", "HaltSubPennyTrading", Financial_Quotes_HaltSubPennyTrading),
+		Entry("OrderImbalanceInd - Works", "OrderImbalanceInd", Financial_Quotes_OrderImbalanceInd),
+		Entry("LULDTradingPaused - Works", "LULDTradingPaused", Financial_Quotes_LULDTradingPaused),
+		Entry("NONE - Works", "NONE", Financial_Quotes_NONE),
+		Entry("ShortSalesRestrictionActivated - Works",
+			"ShortSalesRestrictionActivated", Financial_Quotes_ShortSalesRestrictionActivated),
+		Entry("ShortSalesRestrictionContinued - Works",
+			"ShortSalesRestrictionContinued", Financial_Quotes_ShortSalesRestrictionContinued),
+		Entry("ShortSalesRestrictionDeactivated - Works",
+			"ShortSalesRestrictionDeactivated", Financial_Quotes_ShortSalesRestrictionDeactivated),
+		Entry("ShortSalesRestrictionInEffect - Works",
+			"ShortSalesRestrictionInEffect", Financial_Quotes_ShortSalesRestrictionInEffect),
+		Entry("ShortSalesRestrictionMax - Works", "ShortSalesRestrictionMax", Financial_Quotes_ShortSalesRestrictionMax),
+		Entry("RetailInterestOnBid - Works", "RetailInterestOnBid", Financial_Quotes_RetailInterestOnBid),
+		Entry("RetailInterestOnAsk - Works", "RetailInterestOnAsk", Financial_Quotes_RetailInterestOnAsk),
+		Entry("RetailInterestOnBidAndAsk - Works",
+			"RetailInterestOnBidAndAsk", Financial_Quotes_RetailInterestOnBidAndAsk),
+		Entry("FinraBBONoChange - Works", "FinraBBONoChange", Financial_Quotes_FinraBBONoChange),
+		Entry("FinraBBODoesNotExist - Works", "FinraBBODoesNotExist", Financial_Quotes_FinraBBODoesNotExist),
+		Entry("FinraBBBOExecutable - Works", "FinraBBBOExecutable", Financial_Quotes_FinraBBBOExecutable),
+		Entry("FinraBBBelowLowerBand - Works", "FinraBBBelowLowerBand", Financial_Quotes_FinraBBBelowLowerBand),
+		Entry("FinraBOAboveUpperBand - Works", "FinraBOAboveUpperBand", Financial_Quotes_FinraBOAboveUpperBand),
+		Entry("FinraBBBelowLowerBandBOAbboveUpperBand - Works",
+			"FinraBBBelowLowerBandBOAbboveUpperBand", Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand),
+		Entry("NBBONoChange - Works", "NBBONoChange", Financial_Quotes_NBBONoChange),
+		Entry("NBBOQuoteIsNBBO - Works", "NBBOQuoteIsNBBO", Financial_Quotes_NBBOQuoteIsNBBO),
+		Entry("NBBONoBBNoBO - Works", "NBBONoBBNoBO", Financial_Quotes_NBBONoBBNoBO),
+		Entry("NBBOBBBOShortAppendage - Works", "NBBOBBBOShortAppendage", Financial_Quotes_NBBOBBBOShortAppendage),
+		Entry("NBBOBBBOLongAppendage - Works", "NBBOBBBOLongAppendage", Financial_Quotes_NBBOBBBOLongAppendage),
+		Entry("HeldTradeNotLastSaleNotConsolidated - Works",
+			"HeldTradeNotLastSaleNotConsolidated", Financial_Quotes_HeldTradeNotLastSaleNotConsolidated),
+		Entry("HeldTradeLastSaleButNotConsolidated - Works",
+			"HeldTradeLastSaleButNotConsolidated", Financial_Quotes_HeldTradeLastSaleButNotConsolidated),
+		Entry("HeldTradeLastSaleAndConsolidated - Works",
+			"HeldTradeLastSaleAndConsolidated", Financial_Quotes_HeldTradeLastSaleAndConsolidated),
+		Entry("CTANotDueToRelatedSecurity - Works", "CTANotDueToRelatedSecurity", Financial_Quotes_CTANotDueToRelatedSecurity),
+		Entry("CTADueToRelatedSecurity - Works", "CTADueToRelatedSecurity", Financial_Quotes_CTADueToRelatedSecurity),
+		Entry("CTANotInViewOfCommon - Works", "CTANotInViewOfCommon", Financial_Quotes_CTANotInViewOfCommon),
+		Entry("CTAInViewOfCommon - Works", "CTAInViewOfCommon", Financial_Quotes_CTAInViewOfCommon),
+		Entry("CTAPriceIndicator - Works", "CTAPriceIndicator", Financial_Quotes_CTAPriceIndicator),
+		Entry("CTANewPriceIndicator - Works", "CTANewPriceIndicator", Financial_Quotes_CTANewPriceIndicator),
+		Entry("CTACorrectedPriceIndication - Works",
+			"CTACorrectedPriceIndication", Financial_Quotes_CTACorrectedPriceIndication),
+		Entry("CTACancelledMarketImbalance - Works",
+			"CTACancelledMarketImbalance", Financial_Quotes_CTACancelledMarketImbalance),
+		Entry("0 - Works", 0, Financial_Quotes_NBBNBOExecutable),
+		Entry("1 - Works", 1, Financial_Quotes_NBBBelowLowerBand),
+		Entry("2 - Works", 2, Financial_Quotes_NBOAboveUpperBand),
+		Entry("3 - Works", 3, Financial_Quotes_NBBBelowLowerBandAndNBOAboveUpperBand),
+		Entry("4 - Works", 4, Financial_Quotes_NBBEqualsUpperBand),
+		Entry("5 - Works", 5, Financial_Quotes_NBOEqualsLowerBand),
+		Entry("6 - Works", 6, Financial_Quotes_NBBEqualsUpperBandAndNBOAboveUpperBand),
+		Entry("7 - Works", 7, Financial_Quotes_NBBBelowLowerBandAndNBOEqualsLowerBand),
+		Entry("8 - Works", 8, Financial_Quotes_BidPriceAboveUpperLimitPriceBand),
+		Entry("9 - Works", 9, Financial_Quotes_OfferPriceBelowLowerLimitPriceBand),
+		Entry("10 - Works", 10, Financial_Quotes_BidAndOfferOutsidePriceBand),
+		Entry("11 - Works", 11, Financial_Quotes_OpeningUpdate),
+		Entry("12 - Works", 12, Financial_Quotes_IntraDayUpdate),
+		Entry("13 - Works", 13, Financial_Quotes_RestatedValue),
+		Entry("14 - Works", 14, Financial_Quotes_SuspendedDuringTradingHalt),
+		Entry("15 - Works", 15, Financial_Quotes_ReOpeningUpdate),
+		Entry("16 - Works", 16, Financial_Quotes_OutsidePriceBandRuleHours),
+		Entry("17 - Works", 17, Financial_Quotes_AuctionExtension),
+		Entry("18 - Works", 18, Financial_Quotes_LULDPriceBand),
+		Entry("19 - Works", 19, Financial_Quotes_RepublishedLULDPriceBandInd),
+		Entry("20 - Works", 20, Financial_Quotes_NBBLimitStateEntered),
+		Entry("21 - Works", 21, Financial_Quotes_NBBLimitStateExited),
+		Entry("22 - Works", 22, Financial_Quotes_NBOLimitStateEntered),
+		Entry("23 - Works", 23, Financial_Quotes_NBOLimitStateExited),
+		Entry("24 - Works", 24, Financial_Quotes_NBBAndNBOLimitStateEntered),
+		Entry("25 - Works", 25, Financial_Quotes_NBBAndNBOLimitStateExited),
+		Entry("26 - Works", 26, Financial_Quotes_NBBLimitStateEnteredNBOLimitStateExited),
+		Entry("27 - Works", 27, Financial_Quotes_NBBLimitStateExitedNBOLimitStateEntered),
+		Entry("28 - Works", 28, Financial_Quotes_Normal),
+		Entry("29 - Works", 29, Financial_Quotes_Bankrupt),
+		Entry("30 - Works", 30, Financial_Quotes_Deficient),
+		Entry("31 - Works", 31, Financial_Quotes_Delinquent),
+		Entry("32 - Works", 32, Financial_Quotes_BankruptAndDeficient),
+		Entry("33 - Works", 33, Financial_Quotes_BankruptAndDelinquent),
+		Entry("34 - Works", 34, Financial_Quotes_DeficientAndDelinquent),
+		Entry("35 - Works", 35, Financial_Quotes_DeficientDeliquentBankrupt),
+		Entry("36 - Works", 36, Financial_Quotes_Liquidation),
+		Entry("37 - Works", 37, Financial_Quotes_CreationsSuspended),
+		Entry("38 - Works", 38, Financial_Quotes_RedemptionsSuspended),
+		Entry("39 - Works", 39, Financial_Quotes_CreationsRedemptionsSuspended),
+		Entry("40 - Works", 40, Financial_Quotes_NormalTrading),
+		Entry("41 - Works", 41, Financial_Quotes_OpeningDelay),
+		Entry("42 - Works", 42, Financial_Quotes_TradingHalt),
+		Entry("43 - Works", 43, Financial_Quotes_TradingResume),
+		Entry("44 - Works", 44, Financial_Quotes_NoOpenNoResume),
+		Entry("45 - Works", 45, Financial_Quotes_PriceIndication),
+		Entry("46 - Works", 46, Financial_Quotes_TradingRangeIndication),
+		Entry("47 - Works", 47, Financial_Quotes_MarketImbalanceBuy),
+		Entry("48 - Works", 48, Financial_Quotes_MarketImbalanceSell),
+		Entry("49 - Works", 49, Financial_Quotes_MarketOnCloseImbalanceBuy),
+		Entry("50 - Works", 50, Financial_Quotes_MarketOnCloseImbalanceSell),
+		Entry("51 - Works", 51, Financial_Quotes_NoMarketImbalance),
+		Entry("52 - Works", 52, Financial_Quotes_NoMarketOnCloseImbalance),
+		Entry("53 - Works", 53, Financial_Quotes_ShortSaleRestriction),
+		Entry("54 - Works", 54, Financial_Quotes_LimitUpLimitDown),
+		Entry("55 - Works", 55, Financial_Quotes_QuotationResumption),
+		Entry("56 - Works", 56, Financial_Quotes_TradingResumption),
+		Entry("57 - Works", 57, Financial_Quotes_VolatilityTradingPause),
+		Entry("58 - Works", 58, Financial_Quotes_PolygonReserved),
+		Entry("59 - Works", 59, Financial_Quotes_HaltNewsPending),
+		Entry("60 - Works", 60, Financial_Quotes_UpdateNewsDissemination),
+		Entry("61 - Works", 61, Financial_Quotes_HaltSingleStockTradingPause),
+		Entry("62 - Works", 62, Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity),
+		Entry("63 - Works", 63, Financial_Quotes_HaltETF),
+		Entry("64 - Works", 64, Financial_Quotes_HaltInformationRequested),
+		Entry("65 - Works", 65, Financial_Quotes_HaltExchangeNonCompliance),
+		Entry("66 - Works", 66, Financial_Quotes_HaltFilingsNotCurrent),
+		Entry("67 - Works", 67, Financial_Quotes_HaltSECTradingSuspension),
+		Entry("68 - Works", 68, Financial_Quotes_HaltRegulatoryConcern),
+		Entry("69 - Works", 69, Financial_Quotes_HaltMarketOperations),
+		Entry("70 - Works", 70, Financial_Quotes_IPOSecurityNotYetTrading),
+		Entry("71 - Works", 71, Financial_Quotes_HaltCorporateAction),
+		Entry("72 - Works", 72, Financial_Quotes_QuotationNotAvailable),
+		Entry("73 - Works", 73, Financial_Quotes_HaltVolatilityTradingPause),
+		Entry("74 - Works", 74, Financial_Quotes_HaltVolatilityTradingPauseStraddleCondition),
+		Entry("75 - Works", 75, Financial_Quotes_UpdateNewsAndResumptionTimes),
+		Entry("76 - Works", 76, Financial_Quotes_HaltSingleStockTradingPauseQuotesOnly),
+		Entry("77 - Works", 77, Financial_Quotes_ResumeQualificationIssuesReviewedResolved),
+		Entry("78 - Works", 78, Financial_Quotes_ResumeFilingRequirementsSatisfiedResolved),
+		Entry("79 - Works", 79, Financial_Quotes_ResumeNewsNotForthcoming),
+		Entry("80 - Works", 80, Financial_Quotes_ResumeQualificationsMaintRequirementsMet),
+		Entry("81 - Works", 81, Financial_Quotes_ResumeQualificationsFilingsMet),
+		Entry("82 - Works", 82, Financial_Quotes_ResumeRegulatoryAuth),
+		Entry("83 - Works", 83, Financial_Quotes_NewIssueAvailable),
+		Entry("84 - Works", 84, Financial_Quotes_IssueAvailable),
+		Entry("85 - Works", 85, Financial_Quotes_MWCBCarryFromPreviousDay),
+		Entry("86 - Works", 86, Financial_Quotes_MWCBResume),
+		Entry("87 - Works", 87, Financial_Quotes_IPOSecurityReleasedForQuotation),
+		Entry("88 - Works", 88, Financial_Quotes_IPOSecurityPositioningWindowExtension),
+		Entry("89 - Works", 89, Financial_Quotes_MWCBLevel1),
+		Entry("90 - Works", 90, Financial_Quotes_MWCBLevel2),
+		Entry("91 - Works", 91, Financial_Quotes_MWCBLevel3),
+		Entry("92 - Works", 92, Financial_Quotes_HaltSubPennyTrading),
+		Entry("93 - Works", 93, Financial_Quotes_OrderImbalanceInd),
+		Entry("94 - Works", 94, Financial_Quotes_LULDTradingPaused),
+		Entry("95 - Works", 95, Financial_Quotes_NONE),
+		Entry("96 - Works", 96, Financial_Quotes_ShortSalesRestrictionActivated),
+		Entry("97 - Works", 97, Financial_Quotes_ShortSalesRestrictionContinued),
+		Entry("98 - Works", 98, Financial_Quotes_ShortSalesRestrictionDeactivated),
+		Entry("99 - Works", 99, Financial_Quotes_ShortSalesRestrictionInEffect),
+		Entry("100 - Works", 100, Financial_Quotes_ShortSalesRestrictionMax),
+		Entry("101 - Works", 101, Financial_Quotes_NBBONoChange),
+		Entry("102 - Works", 102, Financial_Quotes_NBBOQuoteIsNBBO),
+		Entry("103 - Works", 103, Financial_Quotes_NBBONoBBNoBO),
+		Entry("104 - Works", 104, Financial_Quotes_NBBOBBBOShortAppendage),
+		Entry("105 - Works", 105, Financial_Quotes_NBBOBBBOLongAppendage),
+		Entry("106 - Works", 106, Financial_Quotes_HeldTradeNotLastSaleNotConsolidated),
+		Entry("107 - Works", 107, Financial_Quotes_HeldTradeLastSaleButNotConsolidated),
+		Entry("108 - Works", 108, Financial_Quotes_HeldTradeLastSaleAndConsolidated),
+		Entry("109 - Works", 109, Financial_Quotes_RetailInterestOnBid),
+		Entry("110 - Works", 110, Financial_Quotes_RetailInterestOnAsk),
+		Entry("111 - Works", 111, Financial_Quotes_RetailInterestOnBidAndAsk),
+		Entry("112 - Works", 112, Financial_Quotes_FinraBBONoChange),
+		Entry("113 - Works", 113, Financial_Quotes_FinraBBODoesNotExist),
+		Entry("114 - Works", 114, Financial_Quotes_FinraBBBOExecutable),
+		Entry("115 - Works", 115, Financial_Quotes_FinraBBBelowLowerBand),
+		Entry("116 - Works", 116, Financial_Quotes_FinraBOAboveUpperBand),
+		Entry("117 - Works", 117, Financial_Quotes_FinraBBBelowLowerBandBOAbboveUpperBand),
+		Entry("118 - Works", 118, Financial_Quotes_CTANotDueToRelatedSecurity),
+		Entry("119 - Works", 119, Financial_Quotes_CTADueToRelatedSecurity),
+		Entry("120 - Works", 120, Financial_Quotes_CTANotInViewOfCommon),
+		Entry("121 - Works", 121, Financial_Quotes_CTAInViewOfCommon),
+		Entry("122 - Works", 122, Financial_Quotes_CTAPriceIndicator),
+		Entry("123 - Works", 123, Financial_Quotes_CTANewPriceIndicator),
+		Entry("124 - Works", 124, Financial_Quotes_CTACorrectedPriceIndication),
+		Entry("125 - Works", 125, Financial_Quotes_CTACancelledMarketImbalance))
+})
+
+var _ = Describe("Financial.Trades.Condition Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Trades.Condition enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Trades_Condition, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("RegularSale - Works", Financial_Trades_RegularSale, "\"RegularSale\""),
+		Entry("Acquisition - Works", Financial_Trades_Acquisition, "\"Acquisition\""),
+		Entry("AveragePriceTrade - Works", Financial_Trades_AveragePriceTrade, "\"AveragePriceTrade\""),
+		Entry("AutomaticExecution - Works", Financial_Trades_AutomaticExecution, "\"AutomaticExecution\""),
+		Entry("BunchedTrade - Works", Financial_Trades_BunchedTrade, "\"BunchedTrade\""),
+		Entry("BunchedSoldTrade - Works", Financial_Trades_BunchedSoldTrade, "\"BunchedSoldTrade\""),
+		Entry("CAPElection - Works", Financial_Trades_CAPElection, "\"CAPElection\""),
+		Entry("CashSale - Works", Financial_Trades_CashSale, "\"CashSale\""),
+		Entry("ClosingPrints - Works", Financial_Trades_ClosingPrints, "\"ClosingPrints\""),
+		Entry("CrossTrade - Works", Financial_Trades_CrossTrade, "\"CrossTrade\""),
+		Entry("DerivativelyPriced - Works", Financial_Trades_DerivativelyPriced, "\"DerivativelyPriced\""),
+		Entry("Distribution - Works", Financial_Trades_Distribution, "\"Distribution\""),
+		Entry("FormT - Works", Financial_Trades_FormT, "\"FormT\""),
+		Entry("ExtendedTradingHours - Works", Financial_Trades_ExtendedTradingHours, "\"ExtendedTradingHours\""),
+		Entry("IntermarketSweep - Works", Financial_Trades_IntermarketSweep, "\"IntermarketSweep\""),
+		Entry("MarketCenterOfficialClose - Works", Financial_Trades_MarketCenterOfficialClose, "\"MarketCenterOfficialClose\""),
+		Entry("MarketCenterOfficialOpen - Works", Financial_Trades_MarketCenterOfficialOpen, "\"MarketCenterOfficialOpen\""),
+		Entry("MarketCenterOpeningTrade - Works", Financial_Trades_MarketCenterOpeningTrade, "\"MarketCenterOpeningTrade\""),
+		Entry("MarketCenterReopeningTrade - Works",
+			Financial_Trades_MarketCenterReopeningTrade, "\"MarketCenterReopeningTrade\""),
+		Entry("MarketCenterClosingTrade - Works", Financial_Trades_MarketCenterClosingTrade, "\"MarketCenterClosingTrade\""),
+		Entry("NextDay - Works", Financial_Trades_NextDay, "\"NextDay\""),
+		Entry("PriceVariationTrade - Works", Financial_Trades_PriceVariationTrade, "\"PriceVariationTrade\""),
+		Entry("PriorReferencePrice - Works", Financial_Trades_PriorReferencePrice, "\"PriorReferencePrice\""),
+		Entry("Rule155Trade - Works", Financial_Trades_Rule155Trade, "\"Rule155Trade\""),
+		Entry("Rule127NYSE - Works", Financial_Trades_Rule127NYSE, "\"Rule127NYSE\""),
+		Entry("OpeningPrints - Works", Financial_Trades_OpeningPrints, "\"OpeningPrints\""),
+		Entry("Opened - Works", Financial_Trades_Opened, "\"Opened\""),
+		Entry("StoppedStock - Works", Financial_Trades_StoppedStock, "\"StoppedStock\""),
+		Entry("ReOpeningPrints - Works", Financial_Trades_ReOpeningPrints, "\"ReOpeningPrints\""),
+		Entry("Seller - Works", Financial_Trades_Seller, "\"Seller\""),
+		Entry("SoldLast - Works", Financial_Trades_SoldLast, "\"SoldLast\""),
+		Entry("SoldLastAndStoppedStock - Works", Financial_Trades_SoldLastAndStoppedStock, "\"SoldLastAndStoppedStock\""),
+		Entry("SoldOut - Works", Financial_Trades_SoldOut, "\"SoldOut\""),
+		Entry("SoldOutOfSequence - Works", Financial_Trades_SoldOutOfSequence, "\"SoldOutOfSequence\""),
+		Entry("SplitTrade - Works", Financial_Trades_SplitTrade, "\"SplitTrade\""),
+		Entry("StockOption - Works", Financial_Trades_StockOption, "\"StockOption\""),
+		Entry("YellowFlagRegularTrade - Works", Financial_Trades_YellowFlagRegularTrade, "\"YellowFlagRegularTrade\""),
+		Entry("OddLotTrade - Works", Financial_Trades_OddLotTrade, "\"OddLotTrade\""),
+		Entry("CorrectedConsolidatedClose - Works",
+			Financial_Trades_CorrectedConsolidatedClose, "\"CorrectedConsolidatedClose\""),
+		Entry("Unknown - Works", Financial_Trades_Unknown, "\"Unknown\""),
+		Entry("Held - Works", Financial_Trades_Held, "\"Held\""),
+		Entry("TradeThruExempt - Works", Financial_Trades_TradeThruExempt, "\"TradeThruExempt\""),
+		Entry("NonEligible - Works", Financial_Trades_NonEligible, "\"NonEligible\""),
+		Entry("NonEligibleExtended - Works", Financial_Trades_NonEligibleExtended, "\"NonEligibleExtended\""),
+		Entry("Cancelled - Works", Financial_Trades_Cancelled, "\"Cancelled\""),
+		Entry("Recovery - Works", Financial_Trades_Recovery, "\"Recovery\""),
+		Entry("Correction - Works", Financial_Trades_Correction, "\"Correction\""),
+		Entry("AsOf - Works", Financial_Trades_AsOf, "\"AsOf\""),
+		Entry("AsOfCorrection - Works", Financial_Trades_AsOfCorrection, "\"AsOfCorrection\""),
+		Entry("AsOfCancel - Works", Financial_Trades_AsOfCancel, "\"AsOfCancel\""),
+		Entry("OOB - Works", Financial_Trades_OOB, "\"OOB\""),
+		Entry("Summary - Works", Financial_Trades_Summary, "\"Summary\""),
+		Entry("ContingentTrade - Works", Financial_Trades_ContingentTrade, "\"ContingentTrade\""),
+		Entry("QualifiedContingentTrade - Works", Financial_Trades_QualifiedContingentTrade, "\"QualifiedContingentTrade\""),
+		Entry("Errored - Works", Financial_Trades_Errored, "\"Errored\""),
+		Entry("OpeningReopeningTradeDetail - Works",
+			Financial_Trades_OpeningReopeningTradeDetail, "\"OpeningReopeningTradeDetail\""),
+		Entry("Placeholder - Works", Financial_Trades_Placeholder, "\"Placeholder\""),
+		Entry("ShortSaleRestrictionActivated - Works",
+			Financial_Trades_ShortSaleRestrictionActivated, "\"ShortSaleRestrictionActivated\""),
+		Entry("ShortSaleRestrictionContinued - Works",
+			Financial_Trades_ShortSaleRestrictionContinued, "\"ShortSaleRestrictionContinued\""),
+		Entry("ShortSaleRestrictionDeactivated - Works",
+			Financial_Trades_ShortSaleRestrictionDeactivated, "\"ShortSaleRestrictionDeactivated\""),
+		Entry("ShortSaleRestrictionInEffect - Works",
+			Financial_Trades_ShortSaleRestrictionInEffect, "\"ShortSaleRestrictionInEffect\""),
+		Entry("FinancialStatusBankrupt - Works", Financial_Trades_FinancialStatusBankrupt, "\"FinancialStatusBankrupt\""),
+		Entry("FinancialStatusDeficient - Works", Financial_Trades_FinancialStatusDeficient, "\"FinancialStatusDeficient\""),
+		Entry("FinancialStatusDelinquent - Works", Financial_Trades_FinancialStatusDelinquent, "\"FinancialStatusDelinquent\""),
+		Entry("FinancialStatusBankruptAndDeficient - Works",
+			Financial_Trades_FinancialStatusBankruptAndDeficient, "\"FinancialStatusBankruptAndDeficient\""),
+		Entry("FinancialStatusBankruptAndDelinquent - Works",
+			Financial_Trades_FinancialStatusBankruptAndDelinquent, "\"FinancialStatusBankruptAndDelinquent\""),
+		Entry("FinancialStatusDeficientAndDelinquent - Works",
+			Financial_Trades_FinancialStatusDeficientAndDelinquent, "\"FinancialStatusDeficientAndDelinquent\""),
+		Entry("FinancialStatusDeficientDelinquentBankrupt - Works",
+			Financial_Trades_FinancialStatusDeficientDelinquentBankrupt, "\"FinancialStatusDeficientDelinquentBankrupt\""),
+		Entry("FinancialStatusLiquidation - Works",
+			Financial_Trades_FinancialStatusLiquidation, "\"FinancialStatusLiquidation\""),
+		Entry("FinancialStatusCreationsSuspended - Works",
+			Financial_Trades_FinancialStatusCreationsSuspended, "\"FinancialStatusCreationsSuspended\""),
+		Entry("FinancialStatusRedemptionsSuspended - Works",
+			Financial_Trades_FinancialStatusRedemptionsSuspended, "\"FinancialStatusRedemptionsSuspended\""),
+		Entry("Canceled - Works", Financial_Trades_Canceled, "\"Canceled\""),
+		Entry("LateAndOutOfSequence - Works", Financial_Trades_LateAndOutOfSequence, "\"LateAndOutOfSequence\""),
+		Entry("LastAndCanceled - Works", Financial_Trades_LastAndCanceled, "\"LastAndCanceled\""),
+		Entry("Late - Works", Financial_Trades_Late, "\"Late\""),
+		Entry("OpeningTradeAndCanceled - Works", Financial_Trades_OpeningTradeAndCanceled, "\"OpeningTradeAndCanceled\""),
+		Entry("OpeningTradeLateAndOutOfSequence - Works",
+			Financial_Trades_OpeningTradeLateAndOutOfSequence, "\"OpeningTradeLateAndOutOfSequence\""),
+		Entry("OnlyTradeAndCanceled - Works", Financial_Trades_OnlyTradeAndCanceled, "\"OnlyTradeAndCanceled\""),
+		Entry("OpeningTradeAndLate - Works", Financial_Trades_OpeningTradeAndLate, "\"OpeningTradeAndLate\""),
+		Entry("AutomaticExecutionOption - Works", Financial_Trades_AutomaticExecutionOption, "\"AutomaticExecutionOption\""),
+		Entry("ReopeningTrade - Works", Financial_Trades_ReopeningTrade, "\"ReopeningTrade\""),
+		Entry("IntermarketSweepOrder - Works", Financial_Trades_IntermarketSweepOrder, "\"IntermarketSweepOrder\""),
+		Entry("SingleLegAuctionNonISO - Works", Financial_Trades_SingleLegAuctionNonISO, "\"SingleLegAuctionNonISO\""),
+		Entry("SingleLegAuctionISO - Works", Financial_Trades_SingleLegAuctionISO, "\"SingleLegAuctionISO\""),
+		Entry("SingleLegCrossNonISO - Works", Financial_Trades_SingleLegCrossNonISO, "\"SingleLegCrossNonISO\""),
+		Entry("SingleLegCrossISO - Works", Financial_Trades_SingleLegCrossISO, "\"SingleLegCrossISO\""),
+		Entry("SingleLegFloorTrade - Works", Financial_Trades_SingleLegFloorTrade, "\"SingleLegFloorTrade\""),
+		Entry("MultiLegAutoElectronicTrade - Works",
+			Financial_Trades_MultiLegAutoElectronicTrade, "\"MultiLegAutoElectronicTrade\""),
+		Entry("MultiLegAuction - Works", Financial_Trades_MultiLegAuction, "\"MultiLegAuction\""),
+		Entry("MultiLegCross - Works", Financial_Trades_MultiLegCross, "\"MultiLegCross\""),
+		Entry("MultiLegFloorTrade - Works", Financial_Trades_MultiLegFloorTrade, "\"MultiLegFloorTrade\""),
+		Entry("MultiLegAutoElectronicTradeAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg, "\"MultiLegAutoElectronicTradeAgainstSingleLeg\""),
+		Entry("StockOptionsAuction - Works", Financial_Trades_StockOptionsAuction, "\"StockOptionsAuction\""),
+		Entry("MultiLegAuctionAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegAuctionAgainstSingleLeg, "\"MultiLegAuctionAgainstSingleLeg\""),
+		Entry("MultiLegFloorTradeAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegFloorTradeAgainstSingleLeg, "\"MultiLegFloorTradeAgainstSingleLeg\""),
+		Entry("StockOptionsAutoElectronicTrade - Works",
+			Financial_Trades_StockOptionsAutoElectronicTrade, "\"StockOptionsAutoElectronicTrade\""),
+		Entry("StockOptionsCross - Works", Financial_Trades_StockOptionsCross, "\"StockOptionsCross\""),
+		Entry("StockOptionsFloorTrade - Works", Financial_Trades_StockOptionsFloorTrade, "\"StockOptionsFloorTrade\""),
+		Entry("StockOptionsAutoElectronicTradeAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg, "\"StockOptionsAutoElectronicTradeAgainstSingleLeg\""),
+		Entry("StockOptionsAuctionAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsAuctionAgainstSingleLeg, "\"StockOptionsAuctionAgainstSingleLeg\""),
+		Entry("StockOptionsFloorTradeAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg, "\"StockOptionsFloorTradeAgainstSingleLeg\""),
+		Entry("MultiLegFloorTradeOfProprietaryProducts - Works",
+			Financial_Trades_MultiLegFloorTradeOfProprietaryProducts, "\"MultiLegFloorTradeOfProprietaryProducts\""),
+		Entry("MultilateralCompressionTradeOfProprietaryProducts - Works",
+			Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts, "\"MultilateralCompressionTradeOfProprietaryProducts\""),
+		Entry("ExtendedHoursTrade - Works", Financial_Trades_ExtendedHoursTrade, "\"ExtendedHoursTrade\""))
+
+	// Test that converting the Financial.Trades.Condition enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Trades_Condition, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("RegularSale - Works", Financial_Trades_RegularSale, "0"),
+		Entry("Acquisition - Works", Financial_Trades_Acquisition, "1"),
+		Entry("AveragePriceTrade - Works", Financial_Trades_AveragePriceTrade, "2"),
+		Entry("AutomaticExecution - Works", Financial_Trades_AutomaticExecution, "3"),
+		Entry("BunchedTrade - Works", Financial_Trades_BunchedTrade, "4"),
+		Entry("BunchedSoldTrade - Works", Financial_Trades_BunchedSoldTrade, "5"),
+		Entry("CAPElection - Works", Financial_Trades_CAPElection, "6"),
+		Entry("CashSale - Works", Financial_Trades_CashSale, "7"),
+		Entry("ClosingPrints - Works", Financial_Trades_ClosingPrints, "8"),
+		Entry("CrossTrade - Works", Financial_Trades_CrossTrade, "9"),
+		Entry("DerivativelyPriced - Works", Financial_Trades_DerivativelyPriced, "10"),
+		Entry("Distribution - Works", Financial_Trades_Distribution, "11"),
+		Entry("FormT - Works", Financial_Trades_FormT, "12"),
+		Entry("ExtendedTradingHours - Works", Financial_Trades_ExtendedTradingHours, "13"),
+		Entry("IntermarketSweep - Works", Financial_Trades_IntermarketSweep, "14"),
+		Entry("MarketCenterOfficialClose - Works", Financial_Trades_MarketCenterOfficialClose, "15"),
+		Entry("MarketCenterOfficialOpen - Works", Financial_Trades_MarketCenterOfficialOpen, "16"),
+		Entry("MarketCenterOpeningTrade - Works", Financial_Trades_MarketCenterOpeningTrade, "17"),
+		Entry("MarketCenterReopeningTrade - Works", Financial_Trades_MarketCenterReopeningTrade, "18"),
+		Entry("MarketCenterClosingTrade - Works", Financial_Trades_MarketCenterClosingTrade, "19"),
+		Entry("NextDay - Works", Financial_Trades_NextDay, "20"),
+		Entry("PriceVariationTrade - Works", Financial_Trades_PriceVariationTrade, "21"),
+		Entry("PriorReferencePrice - Works", Financial_Trades_PriorReferencePrice, "22"),
+		Entry("Rule155Trade - Works", Financial_Trades_Rule155Trade, "23"),
+		Entry("Rule127NYSE - Works", Financial_Trades_Rule127NYSE, "24"),
+		Entry("OpeningPrints - Works", Financial_Trades_OpeningPrints, "25"),
+		Entry("Opened - Works", Financial_Trades_Opened, "26"),
+		Entry("StoppedStock - Works", Financial_Trades_StoppedStock, "27"),
+		Entry("ReOpeningPrints - Works", Financial_Trades_ReOpeningPrints, "28"),
+		Entry("Seller - Works", Financial_Trades_Seller, "29"),
+		Entry("SoldLast - Works", Financial_Trades_SoldLast, "30"),
+		Entry("SoldLastAndStoppedStock - Works", Financial_Trades_SoldLastAndStoppedStock, "31"),
+		Entry("SoldOut - Works", Financial_Trades_SoldOut, "32"),
+		Entry("SoldOutOfSequence - Works", Financial_Trades_SoldOutOfSequence, "33"),
+		Entry("SplitTrade - Works", Financial_Trades_SplitTrade, "34"),
+		Entry("StockOption - Works", Financial_Trades_StockOption, "35"),
+		Entry("YellowFlagRegularTrade - Works", Financial_Trades_YellowFlagRegularTrade, "36"),
+		Entry("OddLotTrade - Works", Financial_Trades_OddLotTrade, "37"),
+		Entry("CorrectedConsolidatedClose - Works", Financial_Trades_CorrectedConsolidatedClose, "38"),
+		Entry("Unknown - Works", Financial_Trades_Unknown, "39"),
+		Entry("Held - Works", Financial_Trades_Held, "40"),
+		Entry("TradeThruExempt - Works", Financial_Trades_TradeThruExempt, "41"),
+		Entry("NonEligible - Works", Financial_Trades_NonEligible, "42"),
+		Entry("NonEligibleExtended - Works", Financial_Trades_NonEligibleExtended, "43"),
+		Entry("Cancelled - Works", Financial_Trades_Cancelled, "44"),
+		Entry("Recovery - Works", Financial_Trades_Recovery, "45"),
+		Entry("Correction - Works", Financial_Trades_Correction, "46"),
+		Entry("AsOf - Works", Financial_Trades_AsOf, "47"),
+		Entry("AsOfCorrection - Works", Financial_Trades_AsOfCorrection, "48"),
+		Entry("AsOfCancel - Works", Financial_Trades_AsOfCancel, "49"),
+		Entry("OOB - Works", Financial_Trades_OOB, "50"),
+		Entry("Summary - Works", Financial_Trades_Summary, "51"),
+		Entry("ContingentTrade - Works", Financial_Trades_ContingentTrade, "52"),
+		Entry("QualifiedContingentTrade - Works", Financial_Trades_QualifiedContingentTrade, "53"),
+		Entry("Errored - Works", Financial_Trades_Errored, "54"),
+		Entry("OpeningReopeningTradeDetail - Works",
+			Financial_Trades_OpeningReopeningTradeDetail, "55"),
+		Entry("Placeholder - Works", Financial_Trades_Placeholder, "56"),
+		Entry("ShortSaleRestrictionActivated - Works",
+			Financial_Trades_ShortSaleRestrictionActivated, "57"),
+		Entry("ShortSaleRestrictionContinued - Works",
+			Financial_Trades_ShortSaleRestrictionContinued, "58"),
+		Entry("ShortSaleRestrictionDeactivated - Works",
+			Financial_Trades_ShortSaleRestrictionDeactivated, "59"),
+		Entry("ShortSaleRestrictionInEffect - Works",
+			Financial_Trades_ShortSaleRestrictionInEffect, "60"),
+		Entry("FinancialStatusBankrupt - Works", Financial_Trades_FinancialStatusBankrupt, "62"),
+		Entry("FinancialStatusDeficient - Works", Financial_Trades_FinancialStatusDeficient, "63"),
+		Entry("FinancialStatusDelinquent - Works", Financial_Trades_FinancialStatusDelinquent, "64"),
+		Entry("FinancialStatusBankruptAndDeficient - Works",
+			Financial_Trades_FinancialStatusBankruptAndDeficient, "65"),
+		Entry("FinancialStatusBankruptAndDelinquent - Works",
+			Financial_Trades_FinancialStatusBankruptAndDelinquent, "66"),
+		Entry("FinancialStatusDeficientAndDelinquent - Works",
+			Financial_Trades_FinancialStatusDeficientAndDelinquent, "67"),
+		Entry("FinancialStatusDeficientDelinquentBankrupt - Works",
+			Financial_Trades_FinancialStatusDeficientDelinquentBankrupt, "68"),
+		Entry("FinancialStatusLiquidation - Works", Financial_Trades_FinancialStatusLiquidation, "69"),
+		Entry("FinancialStatusCreationsSuspended - Works",
+			Financial_Trades_FinancialStatusCreationsSuspended, "70"),
+		Entry("FinancialStatusRedemptionsSuspended - Works",
+			Financial_Trades_FinancialStatusRedemptionsSuspended, "71"),
+		Entry("Canceled - Works", Financial_Trades_Canceled, "201"),
+		Entry("LateAndOutOfSequence - Works", Financial_Trades_LateAndOutOfSequence, "202"),
+		Entry("LastAndCanceled - Works", Financial_Trades_LastAndCanceled, "203"),
+		Entry("Late - Works", Financial_Trades_Late, "204"),
+		Entry("OpeningTradeAndCanceled - Works", Financial_Trades_OpeningTradeAndCanceled, "205"),
+		Entry("OpeningTradeLateAndOutOfSequence - Works",
+			Financial_Trades_OpeningTradeLateAndOutOfSequence, "206"),
+		Entry("OnlyTradeAndCanceled - Works", Financial_Trades_OnlyTradeAndCanceled, "207"),
+		Entry("OpeningTradeAndLate - Works", Financial_Trades_OpeningTradeAndLate, "208"),
+		Entry("AutomaticExecutionOption - Works", Financial_Trades_AutomaticExecutionOption, "209"),
+		Entry("ReopeningTrade - Works", Financial_Trades_ReopeningTrade, "210"),
+		Entry("IntermarketSweepOrder - Works", Financial_Trades_IntermarketSweepOrder, "219"),
+		Entry("SingleLegAuctionNonISO - Works", Financial_Trades_SingleLegAuctionNonISO, "227"),
+		Entry("SingleLegAuctionISO - Works", Financial_Trades_SingleLegAuctionISO, "228"),
+		Entry("SingleLegCrossNonISO - Works", Financial_Trades_SingleLegCrossNonISO, "229"),
+		Entry("SingleLegCrossISO - Works", Financial_Trades_SingleLegCrossISO, "230"),
+		Entry("SingleLegFloorTrade - Works", Financial_Trades_SingleLegFloorTrade, "231"),
+		Entry("MultiLegAutoElectronicTrade - Works",
+			Financial_Trades_MultiLegAutoElectronicTrade, "232"),
+		Entry("MultiLegAuction - Works", Financial_Trades_MultiLegAuction, "233"),
+		Entry("MultiLegCross - Works", Financial_Trades_MultiLegCross, "234"),
+		Entry("MultiLegFloorTrade - Works", Financial_Trades_MultiLegFloorTrade, "235"),
+		Entry("MultiLegAutoElectronicTradeAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg, "236"),
+		Entry("StockOptionsAuction - Works", Financial_Trades_StockOptionsAuction, "237"),
+		Entry("MultiLegAuctionAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegAuctionAgainstSingleLeg, "238"),
+		Entry("MultiLegFloorTradeAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegFloorTradeAgainstSingleLeg, "239"),
+		Entry("StockOptionsAutoElectronicTrade - Works",
+			Financial_Trades_StockOptionsAutoElectronicTrade, "240"),
+		Entry("StockOptionsCross - Works", Financial_Trades_StockOptionsCross, "241"),
+		Entry("StockOptionsFloorTrade - Works", Financial_Trades_StockOptionsFloorTrade, "242"),
+		Entry("StockOptionsAutoElectronicTradeAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg, "243"),
+		Entry("StockOptionsAuctionAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsAuctionAgainstSingleLeg, "244"),
+		Entry("StockOptionsFloorTradeAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg, "245"),
+		Entry("MultiLegFloorTradeOfProprietaryProducts - Works",
+			Financial_Trades_MultiLegFloorTradeOfProprietaryProducts, "246"),
+		Entry("MultilateralCompressionTradeOfProprietaryProducts - Works",
+			Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts, "247"),
+		Entry("ExtendedHoursTrade - Works", Financial_Trades_ExtendedHoursTrade, "248"))
+
+	// Test that converting the Financial.Trades.Condition enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Trades_Condition, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("RegularSale - Works", Financial_Trades_RegularSale, "RegularSale"),
+		Entry("Acquisition - Works", Financial_Trades_Acquisition, "Acquisition"),
+		Entry("AveragePriceTrade - Works", Financial_Trades_AveragePriceTrade, "AveragePriceTrade"),
+		Entry("AutomaticExecution - Works", Financial_Trades_AutomaticExecution, "AutomaticExecution"),
+		Entry("BunchedTrade - Works", Financial_Trades_BunchedTrade, "BunchedTrade"),
+		Entry("BunchedSoldTrade - Works", Financial_Trades_BunchedSoldTrade, "BunchedSoldTrade"),
+		Entry("CAPElection - Works", Financial_Trades_CAPElection, "CAPElection"),
+		Entry("CashSale - Works", Financial_Trades_CashSale, "CashSale"),
+		Entry("ClosingPrints - Works", Financial_Trades_ClosingPrints, "ClosingPrints"),
+		Entry("CrossTrade - Works", Financial_Trades_CrossTrade, "CrossTrade"),
+		Entry("DerivativelyPriced - Works", Financial_Trades_DerivativelyPriced, "DerivativelyPriced"),
+		Entry("Distribution - Works", Financial_Trades_Distribution, "Distribution"),
+		Entry("FormT - Works", Financial_Trades_FormT, "FormT"),
+		Entry("ExtendedTradingHours - Works", Financial_Trades_ExtendedTradingHours, "ExtendedTradingHours"),
+		Entry("IntermarketSweep - Works", Financial_Trades_IntermarketSweep, "IntermarketSweep"),
+		Entry("MarketCenterOfficialClose - Works", Financial_Trades_MarketCenterOfficialClose, "MarketCenterOfficialClose"),
+		Entry("MarketCenterOfficialOpen - Works", Financial_Trades_MarketCenterOfficialOpen, "MarketCenterOfficialOpen"),
+		Entry("MarketCenterOpeningTrade - Works", Financial_Trades_MarketCenterOpeningTrade, "MarketCenterOpeningTrade"),
+		Entry("MarketCenterReopeningTrade - Works",
+			Financial_Trades_MarketCenterReopeningTrade, "MarketCenterReopeningTrade"),
+		Entry("MarketCenterClosingTrade - Works", Financial_Trades_MarketCenterClosingTrade, "MarketCenterClosingTrade"),
+		Entry("NextDay - Works", Financial_Trades_NextDay, "NextDay"),
+		Entry("PriceVariationTrade - Works", Financial_Trades_PriceVariationTrade, "PriceVariationTrade"),
+		Entry("PriorReferencePrice - Works", Financial_Trades_PriorReferencePrice, "PriorReferencePrice"),
+		Entry("Rule155Trade - Works", Financial_Trades_Rule155Trade, "Rule155Trade"),
+		Entry("Rule127NYSE - Works", Financial_Trades_Rule127NYSE, "Rule127NYSE"),
+		Entry("OpeningPrints - Works", Financial_Trades_OpeningPrints, "OpeningPrints"),
+		Entry("Opened - Works", Financial_Trades_Opened, "Opened"),
+		Entry("StoppedStock - Works", Financial_Trades_StoppedStock, "StoppedStock"),
+		Entry("ReOpeningPrints - Works", Financial_Trades_ReOpeningPrints, "ReOpeningPrints"),
+		Entry("Seller - Works", Financial_Trades_Seller, "Seller"),
+		Entry("SoldLast - Works", Financial_Trades_SoldLast, "SoldLast"),
+		Entry("SoldLastAndStoppedStock - Works", Financial_Trades_SoldLastAndStoppedStock, "SoldLastAndStoppedStock"),
+		Entry("SoldOut - Works", Financial_Trades_SoldOut, "SoldOut"),
+		Entry("SoldOutOfSequence - Works", Financial_Trades_SoldOutOfSequence, "SoldOutOfSequence"),
+		Entry("SplitTrade - Works", Financial_Trades_SplitTrade, "SplitTrade"),
+		Entry("StockOption - Works", Financial_Trades_StockOption, "StockOption"),
+		Entry("YellowFlagRegularTrade - Works", Financial_Trades_YellowFlagRegularTrade, "YellowFlagRegularTrade"),
+		Entry("OddLotTrade - Works", Financial_Trades_OddLotTrade, "OddLotTrade"),
+		Entry("CorrectedConsolidatedClose - Works",
+			Financial_Trades_CorrectedConsolidatedClose, "CorrectedConsolidatedClose"),
+		Entry("Unknown - Works", Financial_Trades_Unknown, "Unknown"),
+		Entry("Held - Works", Financial_Trades_Held, "Held"),
+		Entry("TradeThruExempt - Works", Financial_Trades_TradeThruExempt, "TradeThruExempt"),
+		Entry("NonEligible - Works", Financial_Trades_NonEligible, "NonEligible"),
+		Entry("NonEligibleExtended - Works", Financial_Trades_NonEligibleExtended, "NonEligibleExtended"),
+		Entry("Cancelled - Works", Financial_Trades_Cancelled, "Cancelled"),
+		Entry("Recovery - Works", Financial_Trades_Recovery, "Recovery"),
+		Entry("Correction - Works", Financial_Trades_Correction, "Correction"),
+		Entry("AsOf - Works", Financial_Trades_AsOf, "AsOf"),
+		Entry("AsOfCorrection - Works", Financial_Trades_AsOfCorrection, "AsOfCorrection"),
+		Entry("AsOfCancel - Works", Financial_Trades_AsOfCancel, "AsOfCancel"),
+		Entry("OOB - Works", Financial_Trades_OOB, "OOB"),
+		Entry("Summary - Works", Financial_Trades_Summary, "Summary"),
+		Entry("ContingentTrade - Works", Financial_Trades_ContingentTrade, "ContingentTrade"),
+		Entry("QualifiedContingentTrade - Works", Financial_Trades_QualifiedContingentTrade, "QualifiedContingentTrade"),
+		Entry("Errored - Works", Financial_Trades_Errored, "Errored"),
+		Entry("OpeningReopeningTradeDetail - Works",
+			Financial_Trades_OpeningReopeningTradeDetail, "OpeningReopeningTradeDetail"),
+		Entry("Placeholder - Works", Financial_Trades_Placeholder, "Placeholder"),
+		Entry("ShortSaleRestrictionActivated - Works",
+			Financial_Trades_ShortSaleRestrictionActivated, "ShortSaleRestrictionActivated"),
+		Entry("ShortSaleRestrictionContinued - Works",
+			Financial_Trades_ShortSaleRestrictionContinued, "ShortSaleRestrictionContinued"),
+		Entry("ShortSaleRestrictionDeactivated - Works",
+			Financial_Trades_ShortSaleRestrictionDeactivated, "ShortSaleRestrictionDeactivated"),
+		Entry("ShortSaleRestrictionInEffect - Works",
+			Financial_Trades_ShortSaleRestrictionInEffect, "ShortSaleRestrictionInEffect"),
+		Entry("FinancialStatusBankrupt - Works", Financial_Trades_FinancialStatusBankrupt, "FinancialStatusBankrupt"),
+		Entry("FinancialStatusDeficient - Works", Financial_Trades_FinancialStatusDeficient, "FinancialStatusDeficient"),
+		Entry("FinancialStatusDelinquent - Works", Financial_Trades_FinancialStatusDelinquent, "FinancialStatusDelinquent"),
+		Entry("FinancialStatusBankruptAndDeficient - Works",
+			Financial_Trades_FinancialStatusBankruptAndDeficient, "FinancialStatusBankruptAndDeficient"),
+		Entry("FinancialStatusBankruptAndDelinquent - Works",
+			Financial_Trades_FinancialStatusBankruptAndDelinquent, "FinancialStatusBankruptAndDelinquent"),
+		Entry("FinancialStatusDeficientAndDelinquent - Works",
+			Financial_Trades_FinancialStatusDeficientAndDelinquent, "FinancialStatusDeficientAndDelinquent"),
+		Entry("FinancialStatusDeficientDelinquentBankrupt - Works",
+			Financial_Trades_FinancialStatusDeficientDelinquentBankrupt, "FinancialStatusDeficientDelinquentBankrupt"),
+		Entry("FinancialStatusLiquidation - Works",
+			Financial_Trades_FinancialStatusLiquidation, "FinancialStatusLiquidation"),
+		Entry("FinancialStatusCreationsSuspended - Works",
+			Financial_Trades_FinancialStatusCreationsSuspended, "FinancialStatusCreationsSuspended"),
+		Entry("FinancialStatusRedemptionsSuspended - Works",
+			Financial_Trades_FinancialStatusRedemptionsSuspended, "FinancialStatusRedemptionsSuspended"),
+		Entry("Canceled - Works", Financial_Trades_Canceled, "Canceled"),
+		Entry("LateAndOutOfSequence - Works", Financial_Trades_LateAndOutOfSequence, "LateAndOutOfSequence"),
+		Entry("LastAndCanceled - Works", Financial_Trades_LastAndCanceled, "LastAndCanceled"),
+		Entry("Late - Works", Financial_Trades_Late, "Late"),
+		Entry("OpeningTradeAndCanceled - Works", Financial_Trades_OpeningTradeAndCanceled, "OpeningTradeAndCanceled"),
+		Entry("OpeningTradeLateAndOutOfSequence - Works",
+			Financial_Trades_OpeningTradeLateAndOutOfSequence, "OpeningTradeLateAndOutOfSequence"),
+		Entry("OnlyTradeAndCanceled - Works", Financial_Trades_OnlyTradeAndCanceled, "OnlyTradeAndCanceled"),
+		Entry("OpeningTradeAndLate - Works", Financial_Trades_OpeningTradeAndLate, "OpeningTradeAndLate"),
+		Entry("AutomaticExecutionOption - Works", Financial_Trades_AutomaticExecutionOption, "AutomaticExecutionOption"),
+		Entry("ReopeningTrade - Works", Financial_Trades_ReopeningTrade, "ReopeningTrade"),
+		Entry("IntermarketSweepOrder - Works", Financial_Trades_IntermarketSweepOrder, "IntermarketSweepOrder"),
+		Entry("SingleLegAuctionNonISO - Works", Financial_Trades_SingleLegAuctionNonISO, "SingleLegAuctionNonISO"),
+		Entry("SingleLegAuctionISO - Works", Financial_Trades_SingleLegAuctionISO, "SingleLegAuctionISO"),
+		Entry("SingleLegCrossNonISO - Works", Financial_Trades_SingleLegCrossNonISO, "SingleLegCrossNonISO"),
+		Entry("SingleLegCrossISO - Works", Financial_Trades_SingleLegCrossISO, "SingleLegCrossISO"),
+		Entry("SingleLegFloorTrade - Works", Financial_Trades_SingleLegFloorTrade, "SingleLegFloorTrade"),
+		Entry("MultiLegAutoElectronicTrade - Works",
+			Financial_Trades_MultiLegAutoElectronicTrade, "MultiLegAutoElectronicTrade"),
+		Entry("MultiLegAuction - Works", Financial_Trades_MultiLegAuction, "MultiLegAuction"),
+		Entry("MultiLegCross - Works", Financial_Trades_MultiLegCross, "MultiLegCross"),
+		Entry("MultiLegFloorTrade - Works", Financial_Trades_MultiLegFloorTrade, "MultiLegFloorTrade"),
+		Entry("MultiLegAutoElectronicTradeAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg, "MultiLegAutoElectronicTradeAgainstSingleLeg"),
+		Entry("StockOptionsAuction - Works", Financial_Trades_StockOptionsAuction, "StockOptionsAuction"),
+		Entry("MultiLegAuctionAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegAuctionAgainstSingleLeg, "MultiLegAuctionAgainstSingleLeg"),
+		Entry("MultiLegFloorTradeAgainstSingleLeg - Works",
+			Financial_Trades_MultiLegFloorTradeAgainstSingleLeg, "MultiLegFloorTradeAgainstSingleLeg"),
+		Entry("StockOptionsAutoElectronicTrade - Works",
+			Financial_Trades_StockOptionsAutoElectronicTrade, "StockOptionsAutoElectronicTrade"),
+		Entry("StockOptionsCross - Works", Financial_Trades_StockOptionsCross, "StockOptionsCross"),
+		Entry("StockOptionsFloorTrade - Works", Financial_Trades_StockOptionsFloorTrade, "StockOptionsFloorTrade"),
+		Entry("StockOptionsAutoElectronicTradeAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg, "StockOptionsAutoElectronicTradeAgainstSingleLeg"),
+		Entry("StockOptionsAuctionAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsAuctionAgainstSingleLeg, "StockOptionsAuctionAgainstSingleLeg"),
+		Entry("StockOptionsFloorTradeAgainstSingleLeg - Works",
+			Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg, "StockOptionsFloorTradeAgainstSingleLeg"),
+		Entry("MultiLegFloorTradeOfProprietaryProducts - Works",
+			Financial_Trades_MultiLegFloorTradeOfProprietaryProducts, "MultiLegFloorTradeOfProprietaryProducts"),
+		Entry("MultilateralCompressionTradeOfProprietaryProducts - Works",
+			Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts, "MultilateralCompressionTradeOfProprietaryProducts"),
+		Entry("ExtendedHoursTrade - Works", Financial_Trades_ExtendedHoursTrade, "ExtendedHoursTrade"))
+
+	// Test that attempting to deserialize a Financial.Trades.Condition will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Trades.Condition
+		// This should return an error
+		enum := new(Financial_Trades_Condition)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Trades_Condition"))
+	})
+
+	// Test that attempting to deserialize a Financial.Trades.Condition will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Trades.Condition
+		// This should return an error
+		enum := new(Financial_Trades_Condition)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Trades_Condition"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Trades.Condition
+	DescribeTable("UnmarshalJSON Tests",
+		func(value interface{}, shouldBe Financial_Trades_Condition) {
+
+			// Attempt to convert the string value into a Financial.Trades.Condition
+			// This should not fail
+			var enum Financial_Trades_Condition
+			err := enum.UnmarshalJSON([]byte(fmt.Sprintf("%v", value)))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("RegularSale - Works", "\"RegularSale\"", Financial_Trades_RegularSale),
+		Entry("Acquisition - Works", "\"Acquisition\"", Financial_Trades_Acquisition),
+		Entry("AveragePriceTrade - Works", "\"AveragePriceTrade\"", Financial_Trades_AveragePriceTrade),
+		Entry("AutomaticExecution - Works", "\"AutomaticExecution\"", Financial_Trades_AutomaticExecution),
+		Entry("BunchedTrade - Works", "\"BunchedTrade\"", Financial_Trades_BunchedTrade),
+		Entry("BunchedSoldTrade - Works", "\"BunchedSoldTrade\"", Financial_Trades_BunchedSoldTrade),
+		Entry("CAPElection - Works", "\"CAPElection\"", Financial_Trades_CAPElection),
+		Entry("CashSale - Works", "\"CashSale\"", Financial_Trades_CashSale),
+		Entry("ClosingPrints - Works", "\"ClosingPrints\"", Financial_Trades_ClosingPrints),
+		Entry("CrossTrade - Works", "\"CrossTrade\"", Financial_Trades_CrossTrade),
+		Entry("DerivativelyPriced - Works", "\"DerivativelyPriced\"", Financial_Trades_DerivativelyPriced),
+		Entry("Distribution - Works", "\"Distribution\"", Financial_Trades_Distribution),
+		Entry("FormT - Works", "\"FormT\"", Financial_Trades_FormT),
+		Entry("ExtendedTradingHours - Works", "\"ExtendedTradingHours\"", Financial_Trades_ExtendedTradingHours),
+		Entry("IntermarketSweep - Works", "\"IntermarketSweep\"", Financial_Trades_IntermarketSweep),
+		Entry("MarketCenterOfficialClose - Works", "\"MarketCenterOfficialClose\"", Financial_Trades_MarketCenterOfficialClose),
+		Entry("MarketCenterOfficialOpen - Works", "\"MarketCenterOfficialOpen\"", Financial_Trades_MarketCenterOfficialOpen),
+		Entry("MarketCenterOpeningTrade - Works", "\"MarketCenterOpeningTrade\"", Financial_Trades_MarketCenterOpeningTrade),
+		Entry("MarketCenterReopeningTrade - Works", "\"MarketCenterReopeningTrade\"", Financial_Trades_MarketCenterReopeningTrade),
+		Entry("MarketCenterClosingTrade - Works", "\"MarketCenterClosingTrade\"", Financial_Trades_MarketCenterClosingTrade),
+		Entry("NextDay - Works", "\"NextDay\"", Financial_Trades_NextDay),
+		Entry("PriceVariationTrade - Works", "\"PriceVariationTrade\"", Financial_Trades_PriceVariationTrade),
+		Entry("PriorReferencePrice - Works", "\"PriorReferencePrice\"", Financial_Trades_PriorReferencePrice),
+		Entry("Rule155Trade - Works", "\"Rule155Trade\"", Financial_Trades_Rule155Trade),
+		Entry("Rule127NYSE - Works", "\"Rule127NYSE\"", Financial_Trades_Rule127NYSE),
+		Entry("OpeningPrints - Works", "\"OpeningPrints\"", Financial_Trades_OpeningPrints),
+		Entry("Opened - Works", "\"Opened\"", Financial_Trades_Opened),
+		Entry("StoppedStock - Works", "\"StoppedStock\"", Financial_Trades_StoppedStock),
+		Entry("ReOpeningPrints - Works", "\"ReOpeningPrints\"", Financial_Trades_ReOpeningPrints),
+		Entry("Seller - Works", "\"Seller\"", Financial_Trades_Seller),
+		Entry("SoldLast - Works", "\"SoldLast\"", Financial_Trades_SoldLast),
+		Entry("SoldLastAndStoppedStock - Works", "\"SoldLastAndStoppedStock\"", Financial_Trades_SoldLastAndStoppedStock),
+		Entry("SoldOut - Works", "\"SoldOut\"", Financial_Trades_SoldOut),
+		Entry("SoldOutOfSequence - Works", "\"SoldOutOfSequence\"", Financial_Trades_SoldOutOfSequence),
+		Entry("SplitTrade - Works", "\"SplitTrade\"", Financial_Trades_SplitTrade),
+		Entry("StockOption - Works", "\"StockOption\"", Financial_Trades_StockOption),
+		Entry("YellowFlagRegularTrade - Works", "\"YellowFlagRegularTrade\"", Financial_Trades_YellowFlagRegularTrade),
+		Entry("OddLotTrade - Works", "\"OddLotTrade\"", Financial_Trades_OddLotTrade),
+		Entry("CorrectedConsolidatedClose - Works", "\"CorrectedConsolidatedClose\"", Financial_Trades_CorrectedConsolidatedClose),
+		Entry("Unknown - Works", "\"Unknown\"", Financial_Trades_Unknown),
+		Entry("Held - Works", "\"Held\"", Financial_Trades_Held),
+		Entry("TradeThruExempt - Works", "\"TradeThruExempt\"", Financial_Trades_TradeThruExempt),
+		Entry("NonEligible - Works", "\"NonEligible\"", Financial_Trades_NonEligible),
+		Entry("NonEligibleExtended - Works", "\"NonEligibleExtended\"", Financial_Trades_NonEligibleExtended),
+		Entry("Cancelled - Works", "\"Cancelled\"", Financial_Trades_Cancelled),
+		Entry("Recovery - Works", "\"Recovery\"", Financial_Trades_Recovery),
+		Entry("Correction - Works", "\"Correction\"", Financial_Trades_Correction),
+		Entry("AsOf - Works", "\"AsOf\"", Financial_Trades_AsOf),
+		Entry("AsOfCorrection - Works", "\"AsOfCorrection\"", Financial_Trades_AsOfCorrection),
+		Entry("AsOfCancel - Works", "\"AsOfCancel\"", Financial_Trades_AsOfCancel),
+		Entry("OOB - Works", "\"OOB\"", Financial_Trades_OOB),
+		Entry("Summary - Works", "\"Summary\"", Financial_Trades_Summary),
+		Entry("ContingentTrade - Works", "\"ContingentTrade\"", Financial_Trades_ContingentTrade),
+		Entry("QualifiedContingentTrade - Works", "\"QualifiedContingentTrade\"", Financial_Trades_QualifiedContingentTrade),
+		Entry("Errored - Works", "\"Errored\"", Financial_Trades_Errored),
+		Entry("OpeningReopeningTradeDetail - Works",
+			"\"OpeningReopeningTradeDetail\"", Financial_Trades_OpeningReopeningTradeDetail),
+		Entry("Placeholder - Works", "\"Placeholder\"", Financial_Trades_Placeholder),
+		Entry("ShortSaleRestrictionActivated - Works",
+			"\"ShortSaleRestrictionActivated\"", Financial_Trades_ShortSaleRestrictionActivated),
+		Entry("ShortSaleRestrictionContinued - Works",
+			"\"ShortSaleRestrictionContinued\"", Financial_Trades_ShortSaleRestrictionContinued),
+		Entry("ShortSaleRestrictionDeactivated - Works",
+			"\"ShortSaleRestrictionDeactivated\"", Financial_Trades_ShortSaleRestrictionDeactivated),
+		Entry("ShortSaleRestrictionInEffect - Works",
+			"\"ShortSaleRestrictionInEffect\"", Financial_Trades_ShortSaleRestrictionInEffect),
+		Entry("FinancialStatusBankrupt - Works", "\"FinancialStatusBankrupt\"", Financial_Trades_FinancialStatusBankrupt),
+		Entry("FinancialStatusDeficient - Works", "\"FinancialStatusDeficient\"", Financial_Trades_FinancialStatusDeficient),
+		Entry("FinancialStatusDelinquent - Works", "\"FinancialStatusDelinquent\"", Financial_Trades_FinancialStatusDelinquent),
+		Entry("FinancialStatusBankruptAndDeficient - Works",
+			"\"FinancialStatusBankruptAndDeficient\"", Financial_Trades_FinancialStatusBankruptAndDeficient),
+		Entry("FinancialStatusBankruptAndDelinquent - Works",
+			"\"FinancialStatusBankruptAndDelinquent\"", Financial_Trades_FinancialStatusBankruptAndDelinquent),
+		Entry("FinancialStatusDeficientAndDelinquent - Works",
+			"\"FinancialStatusDeficientAndDelinquent\"", Financial_Trades_FinancialStatusDeficientAndDelinquent),
+		Entry("FinancialStatusDeficientDelinquentBankrupt - Works",
+			"\"FinancialStatusDeficientDelinquentBankrupt\"", Financial_Trades_FinancialStatusDeficientDelinquentBankrupt),
+		Entry("FinancialStatusLiquidation - Works", "\"FinancialStatusLiquidation\"", Financial_Trades_FinancialStatusLiquidation),
+		Entry("FinancialStatusCreationsSuspended - Works",
+			"\"FinancialStatusCreationsSuspended\"", Financial_Trades_FinancialStatusCreationsSuspended),
+		Entry("FinancialStatusRedemptionsSuspended - Works",
+			"\"FinancialStatusRedemptionsSuspended\"", Financial_Trades_FinancialStatusRedemptionsSuspended),
+		Entry("Canceled - Works", "\"Canceled\"", Financial_Trades_Canceled),
+		Entry("LateAndOutOfSequence - Works", "\"LateAndOutOfSequence\"", Financial_Trades_LateAndOutOfSequence),
+		Entry("LastAndCanceled - Works", "\"LastAndCanceled\"", Financial_Trades_LastAndCanceled),
+		Entry("Late - Works", "\"Late\"", Financial_Trades_Late),
+		Entry("OpeningTradeAndCanceled - Works", "\"OpeningTradeAndCanceled\"", Financial_Trades_OpeningTradeAndCanceled),
+		Entry("OpeningTradeLateAndOutOfSequence - Works",
+			"\"OpeningTradeLateAndOutOfSequence\"", Financial_Trades_OpeningTradeLateAndOutOfSequence),
+		Entry("OnlyTradeAndCanceled - Works", "\"OnlyTradeAndCanceled\"", Financial_Trades_OnlyTradeAndCanceled),
+		Entry("OpeningTradeAndLate - Works", "\"OpeningTradeAndLate\"", Financial_Trades_OpeningTradeAndLate),
+		Entry("AutomaticExecutionOption - Works", "\"AutomaticExecutionOption\"", Financial_Trades_AutomaticExecutionOption),
+		Entry("ReopeningTrade - Works", "\"ReopeningTrade\"", Financial_Trades_ReopeningTrade),
+		Entry("IntermarketSweepOrder - Works", "\"IntermarketSweepOrder\"", Financial_Trades_IntermarketSweepOrder),
+		Entry("SingleLegAuctionNonISO - Works", "\"SingleLegAuctionNonISO\"", Financial_Trades_SingleLegAuctionNonISO),
+		Entry("SingleLegAuctionISO - Works", "\"SingleLegAuctionISO\"", Financial_Trades_SingleLegAuctionISO),
+		Entry("SingleLegCrossNonISO - Works", "\"SingleLegCrossNonISO\"", Financial_Trades_SingleLegCrossNonISO),
+		Entry("SingleLegCrossISO - Works", "\"SingleLegCrossISO\"", Financial_Trades_SingleLegCrossISO),
+		Entry("SingleLegFloorTrade - Works", "\"SingleLegFloorTrade\"", Financial_Trades_SingleLegFloorTrade),
+		Entry("MultiLegAutoElectronicTrade - Works",
+			"\"MultiLegAutoElectronicTrade\"", Financial_Trades_MultiLegAutoElectronicTrade),
+		Entry("MultiLegAuction - Works", "\"MultiLegAuction\"", Financial_Trades_MultiLegAuction),
+		Entry("MultiLegCross - Works", "\"MultiLegCross\"", Financial_Trades_MultiLegCross),
+		Entry("MultiLegFloorTrade - Works", "\"MultiLegFloorTrade\"", Financial_Trades_MultiLegFloorTrade),
+		Entry("MultiLegAutoElectronicTradeAgainstSingleLeg - Works",
+			"\"MultiLegAutoElectronicTradeAgainstSingleLeg\"", Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg),
+		Entry("StockOptionsAuction - Works", "\"StockOptionsAuction\"", Financial_Trades_StockOptionsAuction),
+		Entry("MultiLegAuctionAgainstSingleLeg - Works",
+			"\"MultiLegAuctionAgainstSingleLeg\"", Financial_Trades_MultiLegAuctionAgainstSingleLeg),
+		Entry("MultiLegFloorTradeAgainstSingleLeg - Works",
+			"\"MultiLegFloorTradeAgainstSingleLeg\"", Financial_Trades_MultiLegFloorTradeAgainstSingleLeg),
+		Entry("StockOptionsAutoElectronicTrade - Works",
+			"\"StockOptionsAutoElectronicTrade\"", Financial_Trades_StockOptionsAutoElectronicTrade),
+		Entry("StockOptionsCross - Works", "\"StockOptionsCross\"", Financial_Trades_StockOptionsCross),
+		Entry("StockOptionsFloorTrade - Works", "\"StockOptionsFloorTrade\"", Financial_Trades_StockOptionsFloorTrade),
+		Entry("StockOptionsAutoElectronicTradeAgainstSingleLeg - Works",
+			"\"StockOptionsAutoElectronicTradeAgainstSingleLeg\"", Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg),
+		Entry("StockOptionsAuctionAgainstSingleLeg - Works",
+			"\"StockOptionsAuctionAgainstSingleLeg\"", Financial_Trades_StockOptionsAuctionAgainstSingleLeg),
+		Entry("StockOptionsFloorTradeAgainstSingleLeg - Works",
+			"\"StockOptionsFloorTradeAgainstSingleLeg\"", Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg),
+		Entry("MultiLegFloorTradeOfProprietaryProducts - Works",
+			"\"MultiLegFloorTradeOfProprietaryProducts\"", Financial_Trades_MultiLegFloorTradeOfProprietaryProducts),
+		Entry("MultilateralCompressionTradeOfProprietaryProducts - Works",
+			"\"MultilateralCompressionTradeOfProprietaryProducts\"", Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts),
+		Entry("ExtendedHoursTrade - Works", "\"ExtendedHoursTrade\"", Financial_Trades_ExtendedHoursTrade),
+		Entry("'0' - Works", "\"0\"", Financial_Trades_RegularSale),
+		Entry("'1' - Works", "\"1\"", Financial_Trades_Acquisition),
+		Entry("'2' - Works", "\"2\"", Financial_Trades_AveragePriceTrade),
+		Entry("'3' - Works", "\"3\"", Financial_Trades_AutomaticExecution),
+		Entry("'4' - Works", "\"4\"", Financial_Trades_BunchedTrade),
+		Entry("'5' - Works", "\"5\"", Financial_Trades_BunchedSoldTrade),
+		Entry("'6' - Works", "\"6\"", Financial_Trades_CAPElection),
+		Entry("'7' - Works", "\"7\"", Financial_Trades_CashSale),
+		Entry("'8' - Works", "\"8\"", Financial_Trades_ClosingPrints),
+		Entry("'9' - Works", "\"9\"", Financial_Trades_CrossTrade),
+		Entry("'10' - Works", "\"10\"", Financial_Trades_DerivativelyPriced),
+		Entry("'11' - Works", "\"11\"", Financial_Trades_Distribution),
+		Entry("'12' - Works", "\"12\"", Financial_Trades_FormT),
+		Entry("'13' - Works", "\"13\"", Financial_Trades_ExtendedTradingHours),
+		Entry("'14' - Works", "\"14\"", Financial_Trades_IntermarketSweep),
+		Entry("'15' - Works", "\"15\"", Financial_Trades_MarketCenterOfficialClose),
+		Entry("'16' - Works", "\"16\"", Financial_Trades_MarketCenterOfficialOpen),
+		Entry("'17' - Works", "\"17\"", Financial_Trades_MarketCenterOpeningTrade),
+		Entry("'18' - Works", "\"18\"", Financial_Trades_MarketCenterReopeningTrade),
+		Entry("'19' - Works", "\"19\"", Financial_Trades_MarketCenterClosingTrade),
+		Entry("'20' - Works", "\"20\"", Financial_Trades_NextDay),
+		Entry("'21' - Works", "\"21\"", Financial_Trades_PriceVariationTrade),
+		Entry("'22' - Works", "\"22\"", Financial_Trades_PriorReferencePrice),
+		Entry("'23' - Works", "\"23\"", Financial_Trades_Rule155Trade),
+		Entry("'24' - Works", "\"24\"", Financial_Trades_Rule127NYSE),
+		Entry("'25' - Works", "\"25\"", Financial_Trades_OpeningPrints),
+		Entry("'26' - Works", "\"26\"", Financial_Trades_Opened),
+		Entry("'27' - Works", "\"27\"", Financial_Trades_StoppedStock),
+		Entry("'28' - Works", "\"28\"", Financial_Trades_ReOpeningPrints),
+		Entry("'29' - Works", "\"29\"", Financial_Trades_Seller),
+		Entry("'30' - Works", "\"30\"", Financial_Trades_SoldLast),
+		Entry("'31' - Works", "\"31\"", Financial_Trades_SoldLastAndStoppedStock),
+		Entry("'32' - Works", "\"32\"", Financial_Trades_SoldOut),
+		Entry("'33' - Works", "\"33\"", Financial_Trades_SoldOutOfSequence),
+		Entry("'34' - Works", "\"34\"", Financial_Trades_SplitTrade),
+		Entry("'35' - Works", "\"35\"", Financial_Trades_StockOption),
+		Entry("'36' - Works", "\"36\"", Financial_Trades_YellowFlagRegularTrade),
+		Entry("'37' - Works", "\"37\"", Financial_Trades_OddLotTrade),
+		Entry("'38' - Works", "\"38\"", Financial_Trades_CorrectedConsolidatedClose),
+		Entry("'39' - Works", "\"39\"", Financial_Trades_Unknown),
+		Entry("'40' - Works", "\"40\"", Financial_Trades_Held),
+		Entry("'41' - Works", "\"41\"", Financial_Trades_TradeThruExempt),
+		Entry("'42' - Works", "\"42\"", Financial_Trades_NonEligible),
+		Entry("'43' - Works", "\"43\"", Financial_Trades_NonEligibleExtended),
+		Entry("'44' - Works", "\"44\"", Financial_Trades_Cancelled),
+		Entry("'45' - Works", "\"45\"", Financial_Trades_Recovery),
+		Entry("'46' - Works", "\"46\"", Financial_Trades_Correction),
+		Entry("'47' - Works", "\"47\"", Financial_Trades_AsOf),
+		Entry("'48' - Works", "\"48\"", Financial_Trades_AsOfCorrection),
+		Entry("'49' - Works", "\"49\"", Financial_Trades_AsOfCancel),
+		Entry("'50' - Works", "\"50\"", Financial_Trades_OOB),
+		Entry("'51' - Works", "\"51\"", Financial_Trades_Summary),
+		Entry("'52' - Works", "\"52\"", Financial_Trades_ContingentTrade),
+		Entry("'53' - Works", "\"53\"", Financial_Trades_QualifiedContingentTrade),
+		Entry("'54' - Works", "\"54\"", Financial_Trades_Errored),
+		Entry("'55' - Works", "\"55\"", Financial_Trades_OpeningReopeningTradeDetail),
+		Entry("'56' - Works", "\"56\"", Financial_Trades_Placeholder),
+		Entry("'57' - Works", "\"57\"", Financial_Trades_ShortSaleRestrictionActivated),
+		Entry("'58' - Works", "\"58\"", Financial_Trades_ShortSaleRestrictionContinued),
+		Entry("'59' - Works", "\"59\"", Financial_Trades_ShortSaleRestrictionDeactivated),
+		Entry("'60' - Works", "\"60\"", Financial_Trades_ShortSaleRestrictionInEffect),
+		Entry("'62' - Works", "\"62\"", Financial_Trades_FinancialStatusBankrupt),
+		Entry("'63' - Works", "\"63\"", Financial_Trades_FinancialStatusDeficient),
+		Entry("'64' - Works", "\"64\"", Financial_Trades_FinancialStatusDelinquent),
+		Entry("'65' - Works", "\"65\"", Financial_Trades_FinancialStatusBankruptAndDeficient),
+		Entry("'66' - Works", "\"66\"", Financial_Trades_FinancialStatusBankruptAndDelinquent),
+		Entry("'67' - Works", "\"67\"", Financial_Trades_FinancialStatusDeficientAndDelinquent),
+		Entry("'68' - Works", "\"68\"", Financial_Trades_FinancialStatusDeficientDelinquentBankrupt),
+		Entry("'69' - Works", "\"69\"", Financial_Trades_FinancialStatusLiquidation),
+		Entry("'70' - Works", "\"70\"", Financial_Trades_FinancialStatusCreationsSuspended),
+		Entry("'71' - Works", "\"71\"", Financial_Trades_FinancialStatusRedemptionsSuspended),
+		Entry("'201' - Works", "\"201\"", Financial_Trades_Canceled),
+		Entry("'202' - Works", "\"202\"", Financial_Trades_LateAndOutOfSequence),
+		Entry("'203' - Works", "\"203\"", Financial_Trades_LastAndCanceled),
+		Entry("'204' - Works", "\"204\"", Financial_Trades_Late),
+		Entry("'205' - Works", "\"205\"", Financial_Trades_OpeningTradeAndCanceled),
+		Entry("'206' - Works", "\"206\"", Financial_Trades_OpeningTradeLateAndOutOfSequence),
+		Entry("'207' - Works", "\"207\"", Financial_Trades_OnlyTradeAndCanceled),
+		Entry("'208' - Works", "\"208\"", Financial_Trades_OpeningTradeAndLate),
+		Entry("'209' - Works", "\"209\"", Financial_Trades_AutomaticExecutionOption),
+		Entry("'210' - Works", "\"210\"", Financial_Trades_ReopeningTrade),
+		Entry("'219' - Works", "\"219\"", Financial_Trades_IntermarketSweepOrder),
+		Entry("'227' - Works", "\"227\"", Financial_Trades_SingleLegAuctionNonISO),
+		Entry("'228' - Works", "\"228\"", Financial_Trades_SingleLegAuctionISO),
+		Entry("'229' - Works", "\"229\"", Financial_Trades_SingleLegCrossNonISO),
+		Entry("'230' - Works", "\"230\"", Financial_Trades_SingleLegCrossISO),
+		Entry("'231' - Works", "\"231\"", Financial_Trades_SingleLegFloorTrade),
+		Entry("'232' - Works", "\"232\"", Financial_Trades_MultiLegAutoElectronicTrade),
+		Entry("'233' - Works", "\"233\"", Financial_Trades_MultiLegAuction),
+		Entry("'234' - Works", "\"234\"", Financial_Trades_MultiLegCross),
+		Entry("'235' - Works", "\"235\"", Financial_Trades_MultiLegFloorTrade),
+		Entry("'236' - Works", "\"236\"", Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg),
+		Entry("'237' - Works", "\"237\"", Financial_Trades_StockOptionsAuction),
+		Entry("'238' - Works", "\"238\"", Financial_Trades_MultiLegAuctionAgainstSingleLeg),
+		Entry("'239' - Works", "\"239\"", Financial_Trades_MultiLegFloorTradeAgainstSingleLeg),
+		Entry("'240' - Works", "\"240\"", Financial_Trades_StockOptionsAutoElectronicTrade),
+		Entry("'241' - Works", "\"241\"", Financial_Trades_StockOptionsCross),
+		Entry("'242' - Works", "\"242\"", Financial_Trades_StockOptionsFloorTrade),
+		Entry("'243' - Works", "\"243\"", Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg),
+		Entry("'244' - Works", "\"244\"", Financial_Trades_StockOptionsAuctionAgainstSingleLeg),
+		Entry("'245' - Works", "\"245\"", Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg),
+		Entry("'246' - Works", "\"246\"", Financial_Trades_MultiLegFloorTradeOfProprietaryProducts),
+		Entry("'247' - Works", "\"247\"", Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts),
+		Entry("'248' - Works", "\"248\"", Financial_Trades_ExtendedHoursTrade),
+		Entry("0 - Works", 0, Financial_Trades_RegularSale),
+		Entry("1 - Works", 1, Financial_Trades_Acquisition),
+		Entry("2 - Works", 2, Financial_Trades_AveragePriceTrade),
+		Entry("3 - Works", 3, Financial_Trades_AutomaticExecution),
+		Entry("4 - Works", 4, Financial_Trades_BunchedTrade),
+		Entry("5 - Works", 5, Financial_Trades_BunchedSoldTrade),
+		Entry("6 - Works", 6, Financial_Trades_CAPElection),
+		Entry("7 - Works", 7, Financial_Trades_CashSale),
+		Entry("8 - Works", 8, Financial_Trades_ClosingPrints),
+		Entry("9 - Works", 9, Financial_Trades_CrossTrade),
+		Entry("10 - Works", 10, Financial_Trades_DerivativelyPriced),
+		Entry("11 - Works", 11, Financial_Trades_Distribution),
+		Entry("12 - Works", 12, Financial_Trades_FormT),
+		Entry("13 - Works", 13, Financial_Trades_ExtendedTradingHours),
+		Entry("14 - Works", 14, Financial_Trades_IntermarketSweep),
+		Entry("15 - Works", 15, Financial_Trades_MarketCenterOfficialClose),
+		Entry("16 - Works", 16, Financial_Trades_MarketCenterOfficialOpen),
+		Entry("17 - Works", 17, Financial_Trades_MarketCenterOpeningTrade),
+		Entry("18 - Works", 18, Financial_Trades_MarketCenterReopeningTrade),
+		Entry("19 - Works", 19, Financial_Trades_MarketCenterClosingTrade),
+		Entry("20 - Works", 20, Financial_Trades_NextDay),
+		Entry("21 - Works", 21, Financial_Trades_PriceVariationTrade),
+		Entry("22 - Works", 22, Financial_Trades_PriorReferencePrice),
+		Entry("23 - Works", 23, Financial_Trades_Rule155Trade),
+		Entry("24 - Works", 24, Financial_Trades_Rule127NYSE),
+		Entry("25 - Works", 25, Financial_Trades_OpeningPrints),
+		Entry("26 - Works", 26, Financial_Trades_Opened),
+		Entry("27 - Works", 27, Financial_Trades_StoppedStock),
+		Entry("28 - Works", 28, Financial_Trades_ReOpeningPrints),
+		Entry("29 - Works", 29, Financial_Trades_Seller),
+		Entry("30 - Works", 30, Financial_Trades_SoldLast),
+		Entry("31 - Works", 31, Financial_Trades_SoldLastAndStoppedStock),
+		Entry("32 - Works", 32, Financial_Trades_SoldOut),
+		Entry("33 - Works", 33, Financial_Trades_SoldOutOfSequence),
+		Entry("34 - Works", 34, Financial_Trades_SplitTrade),
+		Entry("35 - Works", 35, Financial_Trades_StockOption),
+		Entry("36 - Works", 36, Financial_Trades_YellowFlagRegularTrade),
+		Entry("37 - Works", 37, Financial_Trades_OddLotTrade),
+		Entry("38 - Works", 38, Financial_Trades_CorrectedConsolidatedClose),
+		Entry("39 - Works", 39, Financial_Trades_Unknown),
+		Entry("40 - Works", 40, Financial_Trades_Held),
+		Entry("41 - Works", 41, Financial_Trades_TradeThruExempt),
+		Entry("42 - Works", 42, Financial_Trades_NonEligible),
+		Entry("43 - Works", 43, Financial_Trades_NonEligibleExtended),
+		Entry("44 - Works", 44, Financial_Trades_Cancelled),
+		Entry("45 - Works", 45, Financial_Trades_Recovery),
+		Entry("46 - Works", 46, Financial_Trades_Correction),
+		Entry("47 - Works", 47, Financial_Trades_AsOf),
+		Entry("48 - Works", 48, Financial_Trades_AsOfCorrection),
+		Entry("49 - Works", 49, Financial_Trades_AsOfCancel),
+		Entry("50 - Works", 50, Financial_Trades_OOB),
+		Entry("51 - Works", 51, Financial_Trades_Summary),
+		Entry("52 - Works", 52, Financial_Trades_ContingentTrade),
+		Entry("53 - Works", 53, Financial_Trades_QualifiedContingentTrade),
+		Entry("54 - Works", 54, Financial_Trades_Errored),
+		Entry("55 - Works", 55, Financial_Trades_OpeningReopeningTradeDetail),
+		Entry("56 - Works", 56, Financial_Trades_Placeholder),
+		Entry("57 - Works", 57, Financial_Trades_ShortSaleRestrictionActivated),
+		Entry("58 - Works", 58, Financial_Trades_ShortSaleRestrictionContinued),
+		Entry("59 - Works", 59, Financial_Trades_ShortSaleRestrictionDeactivated),
+		Entry("60 - Works", 60, Financial_Trades_ShortSaleRestrictionInEffect),
+		Entry("62 - Works", 62, Financial_Trades_FinancialStatusBankrupt),
+		Entry("63 - Works", 63, Financial_Trades_FinancialStatusDeficient),
+		Entry("64 - Works", 64, Financial_Trades_FinancialStatusDelinquent),
+		Entry("65 - Works", 65, Financial_Trades_FinancialStatusBankruptAndDeficient),
+		Entry("66 - Works", 66, Financial_Trades_FinancialStatusBankruptAndDelinquent),
+		Entry("67 - Works", 67, Financial_Trades_FinancialStatusDeficientAndDelinquent),
+		Entry("68 - Works", 68, Financial_Trades_FinancialStatusDeficientDelinquentBankrupt),
+		Entry("69 - Works", 69, Financial_Trades_FinancialStatusLiquidation),
+		Entry("70 - Works", 70, Financial_Trades_FinancialStatusCreationsSuspended),
+		Entry("71 - Works", 71, Financial_Trades_FinancialStatusRedemptionsSuspended),
+		Entry("201 - Works", 201, Financial_Trades_Canceled),
+		Entry("202 - Works", 202, Financial_Trades_LateAndOutOfSequence),
+		Entry("203 - Works", 203, Financial_Trades_LastAndCanceled),
+		Entry("204 - Works", 204, Financial_Trades_Late),
+		Entry("205 - Works", 205, Financial_Trades_OpeningTradeAndCanceled),
+		Entry("206 - Works", 206, Financial_Trades_OpeningTradeLateAndOutOfSequence),
+		Entry("207 - Works", 207, Financial_Trades_OnlyTradeAndCanceled),
+		Entry("208 - Works", 208, Financial_Trades_OpeningTradeAndLate),
+		Entry("209 - Works", 209, Financial_Trades_AutomaticExecutionOption),
+		Entry("210 - Works", 210, Financial_Trades_ReopeningTrade),
+		Entry("219 - Works", 219, Financial_Trades_IntermarketSweepOrder),
+		Entry("227 - Works", 227, Financial_Trades_SingleLegAuctionNonISO),
+		Entry("228 - Works", 228, Financial_Trades_SingleLegAuctionISO),
+		Entry("229 - Works", 229, Financial_Trades_SingleLegCrossNonISO),
+		Entry("230 - Works", 230, Financial_Trades_SingleLegCrossISO),
+		Entry("231 - Works", 231, Financial_Trades_SingleLegFloorTrade),
+		Entry("232 - Works", 232, Financial_Trades_MultiLegAutoElectronicTrade),
+		Entry("233 - Works", 233, Financial_Trades_MultiLegAuction),
+		Entry("234 - Works", 234, Financial_Trades_MultiLegCross),
+		Entry("235 - Works", 235, Financial_Trades_MultiLegFloorTrade),
+		Entry("236 - Works", 236, Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg),
+		Entry("237 - Works", 237, Financial_Trades_StockOptionsAuction),
+		Entry("238 - Works", 238, Financial_Trades_MultiLegAuctionAgainstSingleLeg),
+		Entry("239 - Works", 239, Financial_Trades_MultiLegFloorTradeAgainstSingleLeg),
+		Entry("240 - Works", 240, Financial_Trades_StockOptionsAutoElectronicTrade),
+		Entry("241 - Works", 241, Financial_Trades_StockOptionsCross),
+		Entry("242 - Works", 242, Financial_Trades_StockOptionsFloorTrade),
+		Entry("243 - Works", 243, Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg),
+		Entry("244 - Works", 244, Financial_Trades_StockOptionsAuctionAgainstSingleLeg),
+		Entry("245 - Works", 245, Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg),
+		Entry("246 - Works", 246, Financial_Trades_MultiLegFloorTradeOfProprietaryProducts),
+		Entry("247 - Works", 247, Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts),
+		Entry("248 - Works", 248, Financial_Trades_ExtendedHoursTrade))
+
+	// Test that attempting to deserialize a Financial.Trades.Condition will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Trades.Condition
+		// This should return an error
+		enum := new(Financial_Trades_Condition)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Trades_Condition"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Trades.Condition
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Trades_Condition) {
+
+			// Attempt to convert the value into a Financial.Trades.Condition
+			// This should not fail
+			var enum Financial_Trades_Condition
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("RegularSale - Works", "RegularSale", Financial_Trades_RegularSale),
+		Entry("Acquisition - Works", "Acquisition", Financial_Trades_Acquisition),
+		Entry("AveragePriceTrade - Works", "AveragePriceTrade", Financial_Trades_AveragePriceTrade),
+		Entry("AutomaticExecution - Works", "AutomaticExecution", Financial_Trades_AutomaticExecution),
+		Entry("BunchedTrade - Works", "BunchedTrade", Financial_Trades_BunchedTrade),
+		Entry("BunchedSoldTrade - Works", "BunchedSoldTrade", Financial_Trades_BunchedSoldTrade),
+		Entry("CAPElection - Works", "CAPElection", Financial_Trades_CAPElection),
+		Entry("CashSale - Works", "CashSale", Financial_Trades_CashSale),
+		Entry("ClosingPrints - Works", "ClosingPrints", Financial_Trades_ClosingPrints),
+		Entry("CrossTrade - Works", "CrossTrade", Financial_Trades_CrossTrade),
+		Entry("DerivativelyPriced - Works", "DerivativelyPriced", Financial_Trades_DerivativelyPriced),
+		Entry("Distribution - Works", "Distribution", Financial_Trades_Distribution),
+		Entry("FormT - Works", "FormT", Financial_Trades_FormT),
+		Entry("ExtendedTradingHours - Works", "ExtendedTradingHours", Financial_Trades_ExtendedTradingHours),
+		Entry("IntermarketSweep - Works", "IntermarketSweep", Financial_Trades_IntermarketSweep),
+		Entry("MarketCenterOfficialClose - Works", "MarketCenterOfficialClose", Financial_Trades_MarketCenterOfficialClose),
+		Entry("MarketCenterOfficialOpen - Works", "MarketCenterOfficialOpen", Financial_Trades_MarketCenterOfficialOpen),
+		Entry("MarketCenterOpeningTrade - Works", "MarketCenterOpeningTrade", Financial_Trades_MarketCenterOpeningTrade),
+		Entry("MarketCenterReopeningTrade - Works", "MarketCenterReopeningTrade", Financial_Trades_MarketCenterReopeningTrade),
+		Entry("MarketCenterClosingTrade - Works", "MarketCenterClosingTrade", Financial_Trades_MarketCenterClosingTrade),
+		Entry("NextDay - Works", "NextDay", Financial_Trades_NextDay),
+		Entry("PriceVariationTrade - Works", "PriceVariationTrade", Financial_Trades_PriceVariationTrade),
+		Entry("PriorReferencePrice - Works", "PriorReferencePrice", Financial_Trades_PriorReferencePrice),
+		Entry("Rule155Trade - Works", "Rule155Trade", Financial_Trades_Rule155Trade),
+		Entry("Rule127NYSE - Works", "Rule127NYSE", Financial_Trades_Rule127NYSE),
+		Entry("OpeningPrints - Works", "OpeningPrints", Financial_Trades_OpeningPrints),
+		Entry("Opened - Works", "Opened", Financial_Trades_Opened),
+		Entry("StoppedStock - Works", "StoppedStock", Financial_Trades_StoppedStock),
+		Entry("ReOpeningPrints - Works", "ReOpeningPrints", Financial_Trades_ReOpeningPrints),
+		Entry("Seller - Works", "Seller", Financial_Trades_Seller),
+		Entry("SoldLast - Works", "SoldLast", Financial_Trades_SoldLast),
+		Entry("SoldLastAndStoppedStock - Works", "SoldLastAndStoppedStock", Financial_Trades_SoldLastAndStoppedStock),
+		Entry("SoldOut - Works", "SoldOut", Financial_Trades_SoldOut),
+		Entry("SoldOutOfSequence - Works", "SoldOutOfSequence", Financial_Trades_SoldOutOfSequence),
+		Entry("SplitTrade - Works", "SplitTrade", Financial_Trades_SplitTrade),
+		Entry("StockOption - Works", "StockOption", Financial_Trades_StockOption),
+		Entry("YellowFlagRegularTrade - Works", "YellowFlagRegularTrade", Financial_Trades_YellowFlagRegularTrade),
+		Entry("OddLotTrade - Works", "OddLotTrade", Financial_Trades_OddLotTrade),
+		Entry("CorrectedConsolidatedClose - Works", "CorrectedConsolidatedClose", Financial_Trades_CorrectedConsolidatedClose),
+		Entry("Unknown - Works", "Unknown", Financial_Trades_Unknown),
+		Entry("Held - Works", "Held", Financial_Trades_Held),
+		Entry("TradeThruExempt - Works", "TradeThruExempt", Financial_Trades_TradeThruExempt),
+		Entry("NonEligible - Works", "NonEligible", Financial_Trades_NonEligible),
+		Entry("NonEligibleExtended - Works", "NonEligibleExtended", Financial_Trades_NonEligibleExtended),
+		Entry("Cancelled - Works", "Cancelled", Financial_Trades_Cancelled),
+		Entry("Recovery - Works", "Recovery", Financial_Trades_Recovery),
+		Entry("Correction - Works", "Correction", Financial_Trades_Correction),
+		Entry("AsOf - Works", "AsOf", Financial_Trades_AsOf),
+		Entry("AsOfCorrection - Works", "AsOfCorrection", Financial_Trades_AsOfCorrection),
+		Entry("AsOfCancel - Works", "AsOfCancel", Financial_Trades_AsOfCancel),
+		Entry("OOB - Works", "OOB", Financial_Trades_OOB),
+		Entry("Summary - Works", "Summary", Financial_Trades_Summary),
+		Entry("ContingentTrade - Works", "ContingentTrade", Financial_Trades_ContingentTrade),
+		Entry("QualifiedContingentTrade - Works", "QualifiedContingentTrade", Financial_Trades_QualifiedContingentTrade),
+		Entry("Errored - Works", "Errored", Financial_Trades_Errored),
+		Entry("OpeningReopeningTradeDetail - Works", "OpeningReopeningTradeDetail", Financial_Trades_OpeningReopeningTradeDetail),
+		Entry("Placeholder - Works", "Placeholder", Financial_Trades_Placeholder),
+		Entry("ShortSaleRestrictionActivated - Works",
+			"ShortSaleRestrictionActivated", Financial_Trades_ShortSaleRestrictionActivated),
+		Entry("ShortSaleRestrictionContinued - Works",
+			"ShortSaleRestrictionContinued", Financial_Trades_ShortSaleRestrictionContinued),
+		Entry("ShortSaleRestrictionDeactivated - Works",
+			"ShortSaleRestrictionDeactivated", Financial_Trades_ShortSaleRestrictionDeactivated),
+		Entry("ShortSaleRestrictionInEffect - Works",
+			"ShortSaleRestrictionInEffect", Financial_Trades_ShortSaleRestrictionInEffect),
+		Entry("FinancialStatusBankrupt - Works", "FinancialStatusBankrupt", Financial_Trades_FinancialStatusBankrupt),
+		Entry("FinancialStatusDeficient - Works", "FinancialStatusDeficient", Financial_Trades_FinancialStatusDeficient),
+		Entry("FinancialStatusDelinquent - Works", "FinancialStatusDelinquent", Financial_Trades_FinancialStatusDelinquent),
+		Entry("FinancialStatusBankruptAndDeficient - Works",
+			"FinancialStatusBankruptAndDeficient", Financial_Trades_FinancialStatusBankruptAndDeficient),
+		Entry("FinancialStatusBankruptAndDelinquent - Works",
+			"FinancialStatusBankruptAndDelinquent", Financial_Trades_FinancialStatusBankruptAndDelinquent),
+		Entry("FinancialStatusDeficientAndDelinquent - Works",
+			"FinancialStatusDeficientAndDelinquent", Financial_Trades_FinancialStatusDeficientAndDelinquent),
+		Entry("FinancialStatusDeficientDelinquentBankrupt - Works",
+			"FinancialStatusDeficientDelinquentBankrupt", Financial_Trades_FinancialStatusDeficientDelinquentBankrupt),
+		Entry("FinancialStatusLiquidation - Works", "FinancialStatusLiquidation", Financial_Trades_FinancialStatusLiquidation),
+		Entry("FinancialStatusCreationsSuspended - Works",
+			"FinancialStatusCreationsSuspended", Financial_Trades_FinancialStatusCreationsSuspended),
+		Entry("FinancialStatusRedemptionsSuspended - Works",
+			"FinancialStatusRedemptionsSuspended", Financial_Trades_FinancialStatusRedemptionsSuspended),
+		Entry("Canceled - Works", "Canceled", Financial_Trades_Canceled),
+		Entry("LateAndOutOfSequence - Works", "LateAndOutOfSequence", Financial_Trades_LateAndOutOfSequence),
+		Entry("LastAndCanceled - Works", "LastAndCanceled", Financial_Trades_LastAndCanceled),
+		Entry("Late - Works", "Late", Financial_Trades_Late),
+		Entry("OpeningTradeAndCanceled - Works", "OpeningTradeAndCanceled", Financial_Trades_OpeningTradeAndCanceled),
+		Entry("OpeningTradeLateAndOutOfSequence - Works",
+			"OpeningTradeLateAndOutOfSequence", Financial_Trades_OpeningTradeLateAndOutOfSequence),
+		Entry("OnlyTradeAndCanceled - Works", "OnlyTradeAndCanceled", Financial_Trades_OnlyTradeAndCanceled),
+		Entry("OpeningTradeAndLate - Works", "OpeningTradeAndLate", Financial_Trades_OpeningTradeAndLate),
+		Entry("AutomaticExecutionOption - Works", "AutomaticExecutionOption", Financial_Trades_AutomaticExecutionOption),
+		Entry("ReopeningTrade - Works", "ReopeningTrade", Financial_Trades_ReopeningTrade),
+		Entry("IntermarketSweepOrder - Works", "IntermarketSweepOrder", Financial_Trades_IntermarketSweepOrder),
+		Entry("SingleLegAuctionNonISO - Works", "SingleLegAuctionNonISO", Financial_Trades_SingleLegAuctionNonISO),
+		Entry("SingleLegAuctionISO - Works", "SingleLegAuctionISO", Financial_Trades_SingleLegAuctionISO),
+		Entry("SingleLegCrossNonISO - Works", "SingleLegCrossNonISO", Financial_Trades_SingleLegCrossNonISO),
+		Entry("SingleLegCrossISO - Works", "SingleLegCrossISO", Financial_Trades_SingleLegCrossISO),
+		Entry("SingleLegFloorTrade - Works", "SingleLegFloorTrade", Financial_Trades_SingleLegFloorTrade),
+		Entry("MultiLegAutoElectronicTrade - Works",
+			"MultiLegAutoElectronicTrade", Financial_Trades_MultiLegAutoElectronicTrade),
+		Entry("MultiLegAuction - Works", "MultiLegAuction", Financial_Trades_MultiLegAuction),
+		Entry("MultiLegCross - Works", "MultiLegCross", Financial_Trades_MultiLegCross),
+		Entry("MultiLegFloorTrade - Works", "MultiLegFloorTrade", Financial_Trades_MultiLegFloorTrade),
+		Entry("MultiLegAutoElectronicTradeAgainstSingleLeg - Works",
+			"MultiLegAutoElectronicTradeAgainstSingleLeg", Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg),
+		Entry("StockOptionsAuction - Works", "StockOptionsAuction", Financial_Trades_StockOptionsAuction),
+		Entry("MultiLegAuctionAgainstSingleLeg - Works",
+			"MultiLegAuctionAgainstSingleLeg", Financial_Trades_MultiLegAuctionAgainstSingleLeg),
+		Entry("MultiLegFloorTradeAgainstSingleLeg - Works",
+			"MultiLegFloorTradeAgainstSingleLeg", Financial_Trades_MultiLegFloorTradeAgainstSingleLeg),
+		Entry("StockOptionsAutoElectronicTrade - Works",
+			"StockOptionsAutoElectronicTrade", Financial_Trades_StockOptionsAutoElectronicTrade),
+		Entry("StockOptionsCross - Works", "StockOptionsCross", Financial_Trades_StockOptionsCross),
+		Entry("StockOptionsFloorTrade - Works", "StockOptionsFloorTrade", Financial_Trades_StockOptionsFloorTrade),
+		Entry("StockOptionsAutoElectronicTradeAgainstSingleLeg - Works",
+			"StockOptionsAutoElectronicTradeAgainstSingleLeg", Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg),
+		Entry("StockOptionsAuctionAgainstSingleLeg - Works",
+			"StockOptionsAuctionAgainstSingleLeg", Financial_Trades_StockOptionsAuctionAgainstSingleLeg),
+		Entry("StockOptionsFloorTradeAgainstSingleLeg - Works",
+			"StockOptionsFloorTradeAgainstSingleLeg", Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg),
+		Entry("MultiLegFloorTradeOfProprietaryProducts - Works",
+			"MultiLegFloorTradeOfProprietaryProducts", Financial_Trades_MultiLegFloorTradeOfProprietaryProducts),
+		Entry("MultilateralCompressionTradeOfProprietaryProducts - Works",
+			"MultilateralCompressionTradeOfProprietaryProducts", Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts),
+		Entry("ExtendedHoursTrade - Works", "ExtendedHoursTrade", Financial_Trades_ExtendedHoursTrade),
+		Entry("0 - Works", "0", Financial_Trades_RegularSale),
+		Entry("1 - Works", "1", Financial_Trades_Acquisition),
+		Entry("2 - Works", "2", Financial_Trades_AveragePriceTrade),
+		Entry("3 - Works", "3", Financial_Trades_AutomaticExecution),
+		Entry("4 - Works", "4", Financial_Trades_BunchedTrade),
+		Entry("5 - Works", "5", Financial_Trades_BunchedSoldTrade),
+		Entry("6 - Works", "6", Financial_Trades_CAPElection),
+		Entry("7 - Works", "7", Financial_Trades_CashSale),
+		Entry("8 - Works", "8", Financial_Trades_ClosingPrints),
+		Entry("9 - Works", "9", Financial_Trades_CrossTrade),
+		Entry("10 - Works", "10", Financial_Trades_DerivativelyPriced),
+		Entry("11 - Works", "11", Financial_Trades_Distribution),
+		Entry("12 - Works", "12", Financial_Trades_FormT),
+		Entry("13 - Works", "13", Financial_Trades_ExtendedTradingHours),
+		Entry("14 - Works", "14", Financial_Trades_IntermarketSweep),
+		Entry("15 - Works", "15", Financial_Trades_MarketCenterOfficialClose),
+		Entry("16 - Works", "16", Financial_Trades_MarketCenterOfficialOpen),
+		Entry("17 - Works", "17", Financial_Trades_MarketCenterOpeningTrade),
+		Entry("18 - Works", "18", Financial_Trades_MarketCenterReopeningTrade),
+		Entry("19 - Works", "19", Financial_Trades_MarketCenterClosingTrade),
+		Entry("20 - Works", "20", Financial_Trades_NextDay),
+		Entry("21 - Works", "21", Financial_Trades_PriceVariationTrade),
+		Entry("22 - Works", "22", Financial_Trades_PriorReferencePrice),
+		Entry("23 - Works", "23", Financial_Trades_Rule155Trade),
+		Entry("24 - Works", "24", Financial_Trades_Rule127NYSE),
+		Entry("25 - Works", "25", Financial_Trades_OpeningPrints),
+		Entry("26 - Works", "26", Financial_Trades_Opened),
+		Entry("27 - Works", "27", Financial_Trades_StoppedStock),
+		Entry("28 - Works", "28", Financial_Trades_ReOpeningPrints),
+		Entry("29 - Works", "29", Financial_Trades_Seller),
+		Entry("30 - Works", "30", Financial_Trades_SoldLast),
+		Entry("31 - Works", "31", Financial_Trades_SoldLastAndStoppedStock),
+		Entry("32 - Works", "32", Financial_Trades_SoldOut),
+		Entry("33 - Works", "33", Financial_Trades_SoldOutOfSequence),
+		Entry("34 - Works", "34", Financial_Trades_SplitTrade),
+		Entry("35 - Works", "35", Financial_Trades_StockOption),
+		Entry("36 - Works", "36", Financial_Trades_YellowFlagRegularTrade),
+		Entry("37 - Works", "37", Financial_Trades_OddLotTrade),
+		Entry("38 - Works", "38", Financial_Trades_CorrectedConsolidatedClose),
+		Entry("39 - Works", "39", Financial_Trades_Unknown),
+		Entry("40 - Works", "40", Financial_Trades_Held),
+		Entry("41 - Works", "41", Financial_Trades_TradeThruExempt),
+		Entry("42 - Works", "42", Financial_Trades_NonEligible),
+		Entry("43 - Works", "43", Financial_Trades_NonEligibleExtended),
+		Entry("44 - Works", "44", Financial_Trades_Cancelled),
+		Entry("45 - Works", "45", Financial_Trades_Recovery),
+		Entry("46 - Works", "46", Financial_Trades_Correction),
+		Entry("47 - Works", "47", Financial_Trades_AsOf),
+		Entry("48 - Works", "48", Financial_Trades_AsOfCorrection),
+		Entry("49 - Works", "49", Financial_Trades_AsOfCancel),
+		Entry("50 - Works", "50", Financial_Trades_OOB),
+		Entry("51 - Works", "51", Financial_Trades_Summary),
+		Entry("52 - Works", "52", Financial_Trades_ContingentTrade),
+		Entry("53 - Works", "53", Financial_Trades_QualifiedContingentTrade),
+		Entry("54 - Works", "54", Financial_Trades_Errored),
+		Entry("55 - Works", "55", Financial_Trades_OpeningReopeningTradeDetail),
+		Entry("56 - Works", "56", Financial_Trades_Placeholder),
+		Entry("57 - Works", "57", Financial_Trades_ShortSaleRestrictionActivated),
+		Entry("58 - Works", "58", Financial_Trades_ShortSaleRestrictionContinued),
+		Entry("59 - Works", "59", Financial_Trades_ShortSaleRestrictionDeactivated),
+		Entry("60 - Works", "60", Financial_Trades_ShortSaleRestrictionInEffect),
+		Entry("62 - Works", "62", Financial_Trades_FinancialStatusBankrupt),
+		Entry("63 - Works", "63", Financial_Trades_FinancialStatusDeficient),
+		Entry("64 - Works", "64", Financial_Trades_FinancialStatusDelinquent),
+		Entry("65 - Works", "65", Financial_Trades_FinancialStatusBankruptAndDeficient),
+		Entry("66 - Works", "66", Financial_Trades_FinancialStatusBankruptAndDelinquent),
+		Entry("67 - Works", "67", Financial_Trades_FinancialStatusDeficientAndDelinquent),
+		Entry("68 - Works", "68", Financial_Trades_FinancialStatusDeficientDelinquentBankrupt),
+		Entry("69 - Works", "69", Financial_Trades_FinancialStatusLiquidation),
+		Entry("70 - Works", "70", Financial_Trades_FinancialStatusCreationsSuspended),
+		Entry("71 - Works", "71", Financial_Trades_FinancialStatusRedemptionsSuspended),
+		Entry("201 - Works", "201", Financial_Trades_Canceled),
+		Entry("202 - Works", "202", Financial_Trades_LateAndOutOfSequence),
+		Entry("203 - Works", "203", Financial_Trades_LastAndCanceled),
+		Entry("204 - Works", "204", Financial_Trades_Late),
+		Entry("205 - Works", "205", Financial_Trades_OpeningTradeAndCanceled),
+		Entry("206 - Works", "206", Financial_Trades_OpeningTradeLateAndOutOfSequence),
+		Entry("207 - Works", "207", Financial_Trades_OnlyTradeAndCanceled),
+		Entry("208 - Works", "208", Financial_Trades_OpeningTradeAndLate),
+		Entry("209 - Works", "209", Financial_Trades_AutomaticExecutionOption),
+		Entry("210 - Works", "210", Financial_Trades_ReopeningTrade),
+		Entry("219 - Works", "219", Financial_Trades_IntermarketSweepOrder),
+		Entry("227 - Works", "227", Financial_Trades_SingleLegAuctionNonISO),
+		Entry("228 - Works", "228", Financial_Trades_SingleLegAuctionISO),
+		Entry("229 - Works", "229", Financial_Trades_SingleLegCrossNonISO),
+		Entry("230 - Works", "230", Financial_Trades_SingleLegCrossISO),
+		Entry("231 - Works", "231", Financial_Trades_SingleLegFloorTrade),
+		Entry("232 - Works", "232", Financial_Trades_MultiLegAutoElectronicTrade),
+		Entry("233 - Works", "233", Financial_Trades_MultiLegAuction),
+		Entry("234 - Works", "234", Financial_Trades_MultiLegCross),
+		Entry("235 - Works", "235", Financial_Trades_MultiLegFloorTrade),
+		Entry("236 - Works", "236", Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg),
+		Entry("237 - Works", "237", Financial_Trades_StockOptionsAuction),
+		Entry("238 - Works", "238", Financial_Trades_MultiLegAuctionAgainstSingleLeg),
+		Entry("239 - Works", "239", Financial_Trades_MultiLegFloorTradeAgainstSingleLeg),
+		Entry("240 - Works", "240", Financial_Trades_StockOptionsAutoElectronicTrade),
+		Entry("241 - Works", "241", Financial_Trades_StockOptionsCross),
+		Entry("242 - Works", "242", Financial_Trades_StockOptionsFloorTrade),
+		Entry("243 - Works", "243", Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg),
+		Entry("244 - Works", "244", Financial_Trades_StockOptionsAuctionAgainstSingleLeg),
+		Entry("245 - Works", "245", Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg),
+		Entry("246 - Works", "246", Financial_Trades_MultiLegFloorTradeOfProprietaryProducts),
+		Entry("247 - Works", "247", Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts),
+		Entry("248 - Works", "248", Financial_Trades_ExtendedHoursTrade))
+
+	// Test that attempting to deserialize a Financial.Trades.Condition will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Trades.Condition
+		// This should return an error
+		var enum *Financial_Trades_Condition
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Trades.Condition
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Trades_Condition) {
+
+			// Attempt to convert the value into a Financial.Trades.Condition
+			// This should not fail
+			var enum Financial_Trades_Condition
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("RegularSale - Works", "RegularSale", Financial_Trades_RegularSale),
+		Entry("Acquisition - Works", "Acquisition", Financial_Trades_Acquisition),
+		Entry("AveragePriceTrade - Works", "AveragePriceTrade", Financial_Trades_AveragePriceTrade),
+		Entry("AutomaticExecution - Works", "AutomaticExecution", Financial_Trades_AutomaticExecution),
+		Entry("BunchedTrade - Works", "BunchedTrade", Financial_Trades_BunchedTrade),
+		Entry("BunchedSoldTrade - Works", "BunchedSoldTrade", Financial_Trades_BunchedSoldTrade),
+		Entry("CAPElection - Works", "CAPElection", Financial_Trades_CAPElection),
+		Entry("CashSale - Works", "CashSale", Financial_Trades_CashSale),
+		Entry("ClosingPrints - Works", "ClosingPrints", Financial_Trades_ClosingPrints),
+		Entry("CrossTrade - Works", "CrossTrade", Financial_Trades_CrossTrade),
+		Entry("DerivativelyPriced - Works", "DerivativelyPriced", Financial_Trades_DerivativelyPriced),
+		Entry("Distribution - Works", "Distribution", Financial_Trades_Distribution),
+		Entry("FormT - Works", "FormT", Financial_Trades_FormT),
+		Entry("ExtendedTradingHours - Works", "ExtendedTradingHours", Financial_Trades_ExtendedTradingHours),
+		Entry("IntermarketSweep - Works", "IntermarketSweep", Financial_Trades_IntermarketSweep),
+		Entry("MarketCenterOfficialClose - Works", "MarketCenterOfficialClose", Financial_Trades_MarketCenterOfficialClose),
+		Entry("MarketCenterOfficialOpen - Works", "MarketCenterOfficialOpen", Financial_Trades_MarketCenterOfficialOpen),
+		Entry("MarketCenterOpeningTrade - Works", "MarketCenterOpeningTrade", Financial_Trades_MarketCenterOpeningTrade),
+		Entry("MarketCenterReopeningTrade - Works", "MarketCenterReopeningTrade", Financial_Trades_MarketCenterReopeningTrade),
+		Entry("MarketCenterClosingTrade - Works", "MarketCenterClosingTrade", Financial_Trades_MarketCenterClosingTrade),
+		Entry("NextDay - Works", "NextDay", Financial_Trades_NextDay),
+		Entry("PriceVariationTrade - Works", "PriceVariationTrade", Financial_Trades_PriceVariationTrade),
+		Entry("PriorReferencePrice - Works", "PriorReferencePrice", Financial_Trades_PriorReferencePrice),
+		Entry("Rule155Trade - Works", "Rule155Trade", Financial_Trades_Rule155Trade),
+		Entry("Rule127NYSE - Works", "Rule127NYSE", Financial_Trades_Rule127NYSE),
+		Entry("OpeningPrints - Works", "OpeningPrints", Financial_Trades_OpeningPrints),
+		Entry("Opened - Works", "Opened", Financial_Trades_Opened),
+		Entry("StoppedStock - Works", "StoppedStock", Financial_Trades_StoppedStock),
+		Entry("ReOpeningPrints - Works", "ReOpeningPrints", Financial_Trades_ReOpeningPrints),
+		Entry("Seller - Works", "Seller", Financial_Trades_Seller),
+		Entry("SoldLast - Works", "SoldLast", Financial_Trades_SoldLast),
+		Entry("SoldLastAndStoppedStock - Works", "SoldLastAndStoppedStock", Financial_Trades_SoldLastAndStoppedStock),
+		Entry("SoldOut - Works", "SoldOut", Financial_Trades_SoldOut),
+		Entry("SoldOutOfSequence - Works", "SoldOutOfSequence", Financial_Trades_SoldOutOfSequence),
+		Entry("SplitTrade - Works", "SplitTrade", Financial_Trades_SplitTrade),
+		Entry("StockOption - Works", "StockOption", Financial_Trades_StockOption),
+		Entry("YellowFlagRegularTrade - Works", "YellowFlagRegularTrade", Financial_Trades_YellowFlagRegularTrade),
+		Entry("OddLotTrade - Works", "OddLotTrade", Financial_Trades_OddLotTrade),
+		Entry("CorrectedConsolidatedClose - Works", "CorrectedConsolidatedClose", Financial_Trades_CorrectedConsolidatedClose),
+		Entry("Unknown - Works", "Unknown", Financial_Trades_Unknown),
+		Entry("Held - Works", "Held", Financial_Trades_Held),
+		Entry("TradeThruExempt - Works", "TradeThruExempt", Financial_Trades_TradeThruExempt),
+		Entry("NonEligible - Works", "NonEligible", Financial_Trades_NonEligible),
+		Entry("NonEligibleExtended - Works", "NonEligibleExtended", Financial_Trades_NonEligibleExtended),
+		Entry("Cancelled - Works", "Cancelled", Financial_Trades_Cancelled),
+		Entry("Recovery - Works", "Recovery", Financial_Trades_Recovery),
+		Entry("Correction - Works", "Correction", Financial_Trades_Correction),
+		Entry("AsOf - Works", "AsOf", Financial_Trades_AsOf),
+		Entry("AsOfCorrection - Works", "AsOfCorrection", Financial_Trades_AsOfCorrection),
+		Entry("AsOfCancel - Works", "AsOfCancel", Financial_Trades_AsOfCancel),
+		Entry("OOB - Works", "OOB", Financial_Trades_OOB),
+		Entry("Summary - Works", "Summary", Financial_Trades_Summary),
+		Entry("ContingentTrade - Works", "ContingentTrade", Financial_Trades_ContingentTrade),
+		Entry("QualifiedContingentTrade - Works", "QualifiedContingentTrade", Financial_Trades_QualifiedContingentTrade),
+		Entry("Errored - Works", "Errored", Financial_Trades_Errored),
+		Entry("OpeningReopeningTradeDetail - Works", "OpeningReopeningTradeDetail", Financial_Trades_OpeningReopeningTradeDetail),
+		Entry("Placeholder - Works", "Placeholder", Financial_Trades_Placeholder),
+		Entry("ShortSaleRestrictionActivated - Works",
+			"ShortSaleRestrictionActivated", Financial_Trades_ShortSaleRestrictionActivated),
+		Entry("ShortSaleRestrictionContinued - Works",
+			"ShortSaleRestrictionContinued", Financial_Trades_ShortSaleRestrictionContinued),
+		Entry("ShortSaleRestrictionDeactivated - Works",
+			"ShortSaleRestrictionDeactivated", Financial_Trades_ShortSaleRestrictionDeactivated),
+		Entry("ShortSaleRestrictionInEffect - Works",
+			"ShortSaleRestrictionInEffect", Financial_Trades_ShortSaleRestrictionInEffect),
+		Entry("FinancialStatusBankrupt - Works", "FinancialStatusBankrupt", Financial_Trades_FinancialStatusBankrupt),
+		Entry("FinancialStatusDeficient - Works", "FinancialStatusDeficient", Financial_Trades_FinancialStatusDeficient),
+		Entry("FinancialStatusDelinquent - Works", "FinancialStatusDelinquent", Financial_Trades_FinancialStatusDelinquent),
+		Entry("FinancialStatusBankruptAndDeficient - Works",
+			"FinancialStatusBankruptAndDeficient", Financial_Trades_FinancialStatusBankruptAndDeficient),
+		Entry("FinancialStatusBankruptAndDelinquent - Works",
+			"FinancialStatusBankruptAndDelinquent", Financial_Trades_FinancialStatusBankruptAndDelinquent),
+		Entry("FinancialStatusDeficientAndDelinquent - Works",
+			"FinancialStatusDeficientAndDelinquent", Financial_Trades_FinancialStatusDeficientAndDelinquent),
+		Entry("FinancialStatusDeficientDelinquentBankrupt - Works",
+			"FinancialStatusDeficientDelinquentBankrupt", Financial_Trades_FinancialStatusDeficientDelinquentBankrupt),
+		Entry("FinancialStatusLiquidation - Works", "FinancialStatusLiquidation", Financial_Trades_FinancialStatusLiquidation),
+		Entry("FinancialStatusCreationsSuspended - Works",
+			"FinancialStatusCreationsSuspended", Financial_Trades_FinancialStatusCreationsSuspended),
+		Entry("FinancialStatusRedemptionsSuspended - Works",
+			"FinancialStatusRedemptionsSuspended", Financial_Trades_FinancialStatusRedemptionsSuspended),
+		Entry("Canceled - Works", "Canceled", Financial_Trades_Canceled),
+		Entry("LateAndOutOfSequence - Works", "LateAndOutOfSequence", Financial_Trades_LateAndOutOfSequence),
+		Entry("LastAndCanceled - Works", "LastAndCanceled", Financial_Trades_LastAndCanceled),
+		Entry("Late - Works", "Late", Financial_Trades_Late),
+		Entry("OpeningTradeAndCanceled - Works", "OpeningTradeAndCanceled", Financial_Trades_OpeningTradeAndCanceled),
+		Entry("OpeningTradeLateAndOutOfSequence - Works",
+			"OpeningTradeLateAndOutOfSequence", Financial_Trades_OpeningTradeLateAndOutOfSequence),
+		Entry("OnlyTradeAndCanceled - Works", "OnlyTradeAndCanceled", Financial_Trades_OnlyTradeAndCanceled),
+		Entry("OpeningTradeAndLate - Works", "OpeningTradeAndLate", Financial_Trades_OpeningTradeAndLate),
+		Entry("AutomaticExecutionOption - Works", "AutomaticExecutionOption", Financial_Trades_AutomaticExecutionOption),
+		Entry("ReopeningTrade - Works", "ReopeningTrade", Financial_Trades_ReopeningTrade),
+		Entry("IntermarketSweepOrder - Works", "IntermarketSweepOrder", Financial_Trades_IntermarketSweepOrder),
+		Entry("SingleLegAuctionNonISO - Works", "SingleLegAuctionNonISO", Financial_Trades_SingleLegAuctionNonISO),
+		Entry("SingleLegAuctionISO - Works", "SingleLegAuctionISO", Financial_Trades_SingleLegAuctionISO),
+		Entry("SingleLegCrossNonISO - Works", "SingleLegCrossNonISO", Financial_Trades_SingleLegCrossNonISO),
+		Entry("SingleLegCrossISO - Works", "SingleLegCrossISO", Financial_Trades_SingleLegCrossISO),
+		Entry("SingleLegFloorTrade - Works", "SingleLegFloorTrade", Financial_Trades_SingleLegFloorTrade),
+		Entry("MultiLegAutoElectronicTrade - Works",
+			"MultiLegAutoElectronicTrade", Financial_Trades_MultiLegAutoElectronicTrade),
+		Entry("MultiLegAuction - Works", "MultiLegAuction", Financial_Trades_MultiLegAuction),
+		Entry("MultiLegCross - Works", "MultiLegCross", Financial_Trades_MultiLegCross),
+		Entry("MultiLegFloorTrade - Works", "MultiLegFloorTrade", Financial_Trades_MultiLegFloorTrade),
+		Entry("MultiLegAutoElectronicTradeAgainstSingleLeg - Works",
+			"MultiLegAutoElectronicTradeAgainstSingleLeg", Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg),
+		Entry("StockOptionsAuction - Works", "StockOptionsAuction", Financial_Trades_StockOptionsAuction),
+		Entry("MultiLegAuctionAgainstSingleLeg - Works",
+			"MultiLegAuctionAgainstSingleLeg", Financial_Trades_MultiLegAuctionAgainstSingleLeg),
+		Entry("MultiLegFloorTradeAgainstSingleLeg - Works",
+			"MultiLegFloorTradeAgainstSingleLeg", Financial_Trades_MultiLegFloorTradeAgainstSingleLeg),
+		Entry("StockOptionsAutoElectronicTrade - Works",
+			"StockOptionsAutoElectronicTrade", Financial_Trades_StockOptionsAutoElectronicTrade),
+		Entry("StockOptionsCross - Works", "StockOptionsCross", Financial_Trades_StockOptionsCross),
+		Entry("StockOptionsFloorTrade - Works", "StockOptionsFloorTrade", Financial_Trades_StockOptionsFloorTrade),
+		Entry("StockOptionsAutoElectronicTradeAgainstSingleLeg - Works",
+			"StockOptionsAutoElectronicTradeAgainstSingleLeg", Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg),
+		Entry("StockOptionsAuctionAgainstSingleLeg - Works",
+			"StockOptionsAuctionAgainstSingleLeg", Financial_Trades_StockOptionsAuctionAgainstSingleLeg),
+		Entry("StockOptionsFloorTradeAgainstSingleLeg - Works",
+			"StockOptionsFloorTradeAgainstSingleLeg", Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg),
+		Entry("MultiLegFloorTradeOfProprietaryProducts - Works",
+			"MultiLegFloorTradeOfProprietaryProducts", Financial_Trades_MultiLegFloorTradeOfProprietaryProducts),
+		Entry("MultilateralCompressionTradeOfProprietaryProducts - Works",
+			"MultilateralCompressionTradeOfProprietaryProducts", Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts),
+		Entry("ExtendedHoursTrade - Works", "ExtendedHoursTrade", Financial_Trades_ExtendedHoursTrade),
+		Entry("0 - Works", 0, Financial_Trades_RegularSale),
+		Entry("1 - Works", 1, Financial_Trades_Acquisition),
+		Entry("2 - Works", 2, Financial_Trades_AveragePriceTrade),
+		Entry("3 - Works", 3, Financial_Trades_AutomaticExecution),
+		Entry("4 - Works", 4, Financial_Trades_BunchedTrade),
+		Entry("5 - Works", 5, Financial_Trades_BunchedSoldTrade),
+		Entry("6 - Works", 6, Financial_Trades_CAPElection),
+		Entry("7 - Works", 7, Financial_Trades_CashSale),
+		Entry("8 - Works", 8, Financial_Trades_ClosingPrints),
+		Entry("9 - Works", 9, Financial_Trades_CrossTrade),
+		Entry("10 - Works", 10, Financial_Trades_DerivativelyPriced),
+		Entry("11 - Works", 11, Financial_Trades_Distribution),
+		Entry("12 - Works", 12, Financial_Trades_FormT),
+		Entry("13 - Works", 13, Financial_Trades_ExtendedTradingHours),
+		Entry("14 - Works", 14, Financial_Trades_IntermarketSweep),
+		Entry("15 - Works", 15, Financial_Trades_MarketCenterOfficialClose),
+		Entry("16 - Works", 16, Financial_Trades_MarketCenterOfficialOpen),
+		Entry("17 - Works", 17, Financial_Trades_MarketCenterOpeningTrade),
+		Entry("18 - Works", 18, Financial_Trades_MarketCenterReopeningTrade),
+		Entry("19 - Works", 19, Financial_Trades_MarketCenterClosingTrade),
+		Entry("20 - Works", 20, Financial_Trades_NextDay),
+		Entry("21 - Works", 21, Financial_Trades_PriceVariationTrade),
+		Entry("22 - Works", 22, Financial_Trades_PriorReferencePrice),
+		Entry("23 - Works", 23, Financial_Trades_Rule155Trade),
+		Entry("24 - Works", 24, Financial_Trades_Rule127NYSE),
+		Entry("25 - Works", 25, Financial_Trades_OpeningPrints),
+		Entry("26 - Works", 26, Financial_Trades_Opened),
+		Entry("27 - Works", 27, Financial_Trades_StoppedStock),
+		Entry("28 - Works", 28, Financial_Trades_ReOpeningPrints),
+		Entry("29 - Works", 29, Financial_Trades_Seller),
+		Entry("30 - Works", 30, Financial_Trades_SoldLast),
+		Entry("31 - Works", 31, Financial_Trades_SoldLastAndStoppedStock),
+		Entry("32 - Works", 32, Financial_Trades_SoldOut),
+		Entry("33 - Works", 33, Financial_Trades_SoldOutOfSequence),
+		Entry("34 - Works", 34, Financial_Trades_SplitTrade),
+		Entry("35 - Works", 35, Financial_Trades_StockOption),
+		Entry("36 - Works", 36, Financial_Trades_YellowFlagRegularTrade),
+		Entry("37 - Works", 37, Financial_Trades_OddLotTrade),
+		Entry("38 - Works", 38, Financial_Trades_CorrectedConsolidatedClose),
+		Entry("39 - Works", 39, Financial_Trades_Unknown),
+		Entry("40 - Works", 40, Financial_Trades_Held),
+		Entry("41 - Works", 41, Financial_Trades_TradeThruExempt),
+		Entry("42 - Works", 42, Financial_Trades_NonEligible),
+		Entry("43 - Works", 43, Financial_Trades_NonEligibleExtended),
+		Entry("44 - Works", 44, Financial_Trades_Cancelled),
+		Entry("45 - Works", 45, Financial_Trades_Recovery),
+		Entry("46 - Works", 46, Financial_Trades_Correction),
+		Entry("47 - Works", 47, Financial_Trades_AsOf),
+		Entry("48 - Works", 48, Financial_Trades_AsOfCorrection),
+		Entry("49 - Works", 49, Financial_Trades_AsOfCancel),
+		Entry("50 - Works", 50, Financial_Trades_OOB),
+		Entry("51 - Works", 51, Financial_Trades_Summary),
+		Entry("52 - Works", 52, Financial_Trades_ContingentTrade),
+		Entry("53 - Works", 53, Financial_Trades_QualifiedContingentTrade),
+		Entry("54 - Works", 54, Financial_Trades_Errored),
+		Entry("55 - Works", 55, Financial_Trades_OpeningReopeningTradeDetail),
+		Entry("56 - Works", 56, Financial_Trades_Placeholder),
+		Entry("57 - Works", 57, Financial_Trades_ShortSaleRestrictionActivated),
+		Entry("58 - Works", 58, Financial_Trades_ShortSaleRestrictionContinued),
+		Entry("59 - Works", 59, Financial_Trades_ShortSaleRestrictionDeactivated),
+		Entry("60 - Works", 60, Financial_Trades_ShortSaleRestrictionInEffect),
+		Entry("62 - Works", 62, Financial_Trades_FinancialStatusBankrupt),
+		Entry("63 - Works", 63, Financial_Trades_FinancialStatusDeficient),
+		Entry("64 - Works", 64, Financial_Trades_FinancialStatusDelinquent),
+		Entry("65 - Works", 65, Financial_Trades_FinancialStatusBankruptAndDeficient),
+		Entry("66 - Works", 66, Financial_Trades_FinancialStatusBankruptAndDelinquent),
+		Entry("67 - Works", 67, Financial_Trades_FinancialStatusDeficientAndDelinquent),
+		Entry("68 - Works", 68, Financial_Trades_FinancialStatusDeficientDelinquentBankrupt),
+		Entry("69 - Works", 69, Financial_Trades_FinancialStatusLiquidation),
+		Entry("70 - Works", 70, Financial_Trades_FinancialStatusCreationsSuspended),
+		Entry("71 - Works", 71, Financial_Trades_FinancialStatusRedemptionsSuspended),
+		Entry("201 - Works", 201, Financial_Trades_Canceled),
+		Entry("202 - Works", 202, Financial_Trades_LateAndOutOfSequence),
+		Entry("203 - Works", 203, Financial_Trades_LastAndCanceled),
+		Entry("204 - Works", 204, Financial_Trades_Late),
+		Entry("205 - Works", 205, Financial_Trades_OpeningTradeAndCanceled),
+		Entry("206 - Works", 206, Financial_Trades_OpeningTradeLateAndOutOfSequence),
+		Entry("207 - Works", 207, Financial_Trades_OnlyTradeAndCanceled),
+		Entry("208 - Works", 208, Financial_Trades_OpeningTradeAndLate),
+		Entry("209 - Works", 209, Financial_Trades_AutomaticExecutionOption),
+		Entry("210 - Works", 210, Financial_Trades_ReopeningTrade),
+		Entry("219 - Works", 219, Financial_Trades_IntermarketSweepOrder),
+		Entry("227 - Works", 227, Financial_Trades_SingleLegAuctionNonISO),
+		Entry("228 - Works", 228, Financial_Trades_SingleLegAuctionISO),
+		Entry("229 - Works", 229, Financial_Trades_SingleLegCrossNonISO),
+		Entry("230 - Works", 230, Financial_Trades_SingleLegCrossISO),
+		Entry("231 - Works", 231, Financial_Trades_SingleLegFloorTrade),
+		Entry("232 - Works", 232, Financial_Trades_MultiLegAutoElectronicTrade),
+		Entry("233 - Works", 233, Financial_Trades_MultiLegAuction),
+		Entry("234 - Works", 234, Financial_Trades_MultiLegCross),
+		Entry("235 - Works", 235, Financial_Trades_MultiLegFloorTrade),
+		Entry("236 - Works", 236, Financial_Trades_MultiLegAutoElectronicTradeAgainstSingleLeg),
+		Entry("237 - Works", 237, Financial_Trades_StockOptionsAuction),
+		Entry("238 - Works", 238, Financial_Trades_MultiLegAuctionAgainstSingleLeg),
+		Entry("239 - Works", 239, Financial_Trades_MultiLegFloorTradeAgainstSingleLeg),
+		Entry("240 - Works", 240, Financial_Trades_StockOptionsAutoElectronicTrade),
+		Entry("241 - Works", 241, Financial_Trades_StockOptionsCross),
+		Entry("242 - Works", 242, Financial_Trades_StockOptionsFloorTrade),
+		Entry("243 - Works", 243, Financial_Trades_StockOptionsAutoElectronicTradeAgainstSingleLeg),
+		Entry("244 - Works", 244, Financial_Trades_StockOptionsAuctionAgainstSingleLeg),
+		Entry("245 - Works", 245, Financial_Trades_StockOptionsFloorTradeAgainstSingleLeg),
+		Entry("246 - Works", 246, Financial_Trades_MultiLegFloorTradeOfProprietaryProducts),
+		Entry("247 - Works", 247, Financial_Trades_MultilateralCompressionTradeOfProprietaryProducts),
+		Entry("248 - Works", 248, Financial_Trades_ExtendedHoursTrade))
+})
+
+var _ = Describe("Financial.Trades.CorrectionCode Marshal/Unmarshal Tests", func() {
+
+	// Test that converting the Financial.Trades.CorrectionCode enum to JSON works for all values
+	DescribeTable("MarshalJSON Tests",
+		func(enum Financial_Trades_CorrectionCode, value string) {
+			data, err := json.Marshal(enum)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("NotCorrected - Works", Financial_Trades_NotCorrected, "\"NotCorrected\""),
+		Entry("LateCorrected - Works", Financial_Trades_LateCorrected, "\"LateCorrected\""),
+		Entry("Erroneous - Works", Financial_Trades_Erroneous, "\"Erroneous\""),
+		Entry("Cancel - Works", Financial_Trades_Cancel, "\"Cancel\""),
+		Entry("CancelRecord - Works", Financial_Trades_CancelRecord, "\"CancelRecord\""),
+		Entry("ErrorRecord - Works", Financial_Trades_ErrorRecord, "\"ErrorRecord\""),
+		Entry("CorrectionRecord - Works", Financial_Trades_CorrectionRecord, "\"CorrectionRecord\""))
+
+	// Test that converting the Financial.Trades.CorrectionCode enum to a CSV column works for all values
+	DescribeTable("MarshalCSV Tests",
+		func(enum Financial_Trades_CorrectionCode, value string) {
+			data, err := enum.MarshalCSV()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(data)).Should(Equal(value))
+		},
+		Entry("NotCorrected - Works", Financial_Trades_NotCorrected, "00"),
+		Entry("LateCorrected - Works", Financial_Trades_LateCorrected, "01"),
+		Entry("Erroneous - Works", Financial_Trades_Erroneous, "07"),
+		Entry("Cancel - Works", Financial_Trades_Cancel, "08"),
+		Entry("CancelRecord - Works", Financial_Trades_CancelRecord, "10"),
+		Entry("ErrorRecord - Works", Financial_Trades_ErrorRecord, "11"),
+		Entry("CorrectionRecord - Works", Financial_Trades_CorrectionRecord, "12"))
+
+	// Test that converting the Financial.Trades.CorrectionCode enum to a AttributeValue works for all values
+	DescribeTable("MarshalDynamoDBAttributeValue Tests",
+		func(enum Financial_Trades_CorrectionCode, value string) {
+			data, err := enum.MarshalDynamoDBAttributeValue()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
+		},
+		Entry("NotCorrected - Works", Financial_Trades_NotCorrected, "NotCorrected"),
+		Entry("LateCorrected - Works", Financial_Trades_LateCorrected, "LateCorrected"),
+		Entry("Erroneous - Works", Financial_Trades_Erroneous, "Erroneous"),
+		Entry("Cancel - Works", Financial_Trades_Cancel, "Cancel"),
+		Entry("CancelRecord - Works", Financial_Trades_CancelRecord, "CancelRecord"),
+		Entry("ErrorRecord - Works", Financial_Trades_ErrorRecord, "ErrorRecord"),
+		Entry("CorrectionRecord - Works", Financial_Trades_CorrectionRecord, "CorrectionRecord"))
+
+	// Test that attempting to deserialize a Financial.Trades.CorrectionCode will fail and
+	// return an error if the value canno be deserialized from a JSON value to a string
+	It("UnmarshalJSON fails - Error", func() {
+
+		// Attempt to convert a non-parseable string value into a Financial.Trades.CorrectionCode
+		// This should return an error
+		enum := new(Financial_Trades_CorrectionCode)
+		err := enum.UnmarshalJSON([]byte("derp"))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Trades_CorrectionCode"))
+	})
+
+	// Test that attempting to deserialize a Financial.Trades.CorrectionCode will fail and
+	// return an error if the value cannot be converted to either the name value or integer
+	// value of the enum option
+	It("UnmarshalJSON - Value is invalid - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Trades.CorrectionCode
+		// This should return an error
+		enum := new(Financial_Trades_CorrectionCode)
+		err := enum.UnmarshalJSON([]byte("\"derp\""))
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Trades_CorrectionCode"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Trades.CorrectionCode
+	DescribeTable("UnmarshalJSON Tests",
+		func(value interface{}, shouldBe Financial_Trades_CorrectionCode) {
+
+			// Attempt to convert the string value into a Financial.Trades.CorrectionCode
+			// This should not fail
+			var enum Financial_Trades_CorrectionCode
+			err := enum.UnmarshalJSON([]byte(fmt.Sprintf("%v", value)))
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NotCorrected - Works", "\"NotCorrected\"", Financial_Trades_NotCorrected),
+		Entry("LateCorrected - Works", "\"LateCorrected\"", Financial_Trades_LateCorrected),
+		Entry("Erroneous - Works", "\"Erroneous\"", Financial_Trades_Erroneous),
+		Entry("Cancel - Works", "\"Cancel\"", Financial_Trades_Cancel),
+		Entry("CancelRecord - Works", "\"CancelRecord\"", Financial_Trades_CancelRecord),
+		Entry("ErrorRecord - Works", "\"ErrorRecord\"", Financial_Trades_ErrorRecord),
+		Entry("CorrectionRecord - Works", "\"CorrectionRecord\"", Financial_Trades_CorrectionRecord),
+		Entry("00 - Works", "\"00\"", Financial_Trades_NotCorrected),
+		Entry("01 - Works", "\"01\"", Financial_Trades_LateCorrected),
+		Entry("07 - Works", "\"07\"", Financial_Trades_Erroneous),
+		Entry("08 - Works", "\"08\"", Financial_Trades_Cancel),
+		Entry("'0' - Works", "\"0\"", Financial_Trades_NotCorrected),
+		Entry("'1' - Works", "\"1\"", Financial_Trades_LateCorrected),
+		Entry("'7' - Works", "\"7\"", Financial_Trades_Erroneous),
+		Entry("'8' - Works", "\"8\"", Financial_Trades_Cancel),
+		Entry("'10' - Works", "\"10\"", Financial_Trades_CancelRecord),
+		Entry("'11' - Works", "\"11\"", Financial_Trades_ErrorRecord),
+		Entry("'12' - Works", "\"12\"", Financial_Trades_CorrectionRecord),
+		Entry("0 - Works", 0, Financial_Trades_NotCorrected),
+		Entry("1 - Works", 1, Financial_Trades_LateCorrected),
+		Entry("7 - Works", 7, Financial_Trades_Erroneous),
+		Entry("8 - Works", 8, Financial_Trades_Cancel),
+		Entry("10 - Works", 10, Financial_Trades_CancelRecord),
+		Entry("11 - Works", 11, Financial_Trades_ErrorRecord),
+		Entry("12 - Works", 12, Financial_Trades_CorrectionRecord))
+
+	// Test that attempting to deserialize a Financial.Trades.CorrectionCode will fial and return an
+	// error if the value cannot be converted to either the name value or integer value
+	// of the enum option
+	It("UnmarshalCSV - Value is empty - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Trades.CorrectionCode
+		// This should return an error
+		enum := new(Financial_Trades_CorrectionCode)
+		err := enum.UnmarshalCSV("")
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Trades_CorrectionCode"))
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Trades.CorrectionCode
+	DescribeTable("UnmarshalCSV Tests",
+		func(value string, shouldBe Financial_Trades_CorrectionCode) {
+
+			// Attempt to convert the value into a Financial.Trades.CorrectionCode
+			// This should not fail
+			var enum Financial_Trades_CorrectionCode
+			err := enum.UnmarshalCSV(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NotCorrected - Works", "NotCorrected", Financial_Trades_NotCorrected),
+		Entry("LateCorrected - Works", "LateCorrected", Financial_Trades_LateCorrected),
+		Entry("Erroneous - Works", "Erroneous", Financial_Trades_Erroneous),
+		Entry("Cancel - Works", "Cancel", Financial_Trades_Cancel),
+		Entry("CancelRecord - Works", "CancelRecord", Financial_Trades_CancelRecord),
+		Entry("ErrorRecord - Works", "ErrorRecord", Financial_Trades_ErrorRecord),
+		Entry("CorrectionRecord - Works", "CorrectionRecord", Financial_Trades_CorrectionRecord),
+		Entry("00 - Works", "00", Financial_Trades_NotCorrected),
+		Entry("01 - Works", "01", Financial_Trades_LateCorrected),
+		Entry("07 - Works", "07", Financial_Trades_Erroneous),
+		Entry("08 - Works", "08", Financial_Trades_Cancel),
+		Entry("0 - Works", "0", Financial_Trades_NotCorrected),
+		Entry("1 - Works", "1", Financial_Trades_LateCorrected),
+		Entry("7 - Works", "7", Financial_Trades_Erroneous),
+		Entry("8 - Works", "8", Financial_Trades_Cancel),
+		Entry("10 - Works", "10", Financial_Trades_CancelRecord),
+		Entry("11 - Works", "11", Financial_Trades_ErrorRecord),
+		Entry("12 - Works", "12", Financial_Trades_CorrectionRecord))
+
+	// Test that attempting to deserialize a Financial.Trades.CorrectionCode will fial and return an
+	// error if the value cannot be converted to either the name value or integer value of the enum option
+	It("Scan - Value is nil - Error", func() {
+
+		// Attempt to convert a fake string value into a Financial.Trades.CorrectionCode
+		// This should return an error
+		var enum *Financial_Trades_CorrectionCode
+		err := enum.Scan(nil)
+
+		// Verify the error
+		Expect(err).Should(HaveOccurred())
+		Expect(err.Error()).Should(Equal("value of %!q(<nil>) had an invalid type of <nil>"))
+		Expect(enum).Should(BeNil())
+	})
+
+	// Test the conditions under which values should be convertible to a Financial.Trades.CorrectionCode
+	DescribeTable("Scan Tests",
+		func(value interface{}, shouldBe Financial_Trades_CorrectionCode) {
+
+			// Attempt to convert the value into a Financial.Trades.CorrectionCode
+			// This should not fail
+			var enum Financial_Trades_CorrectionCode
+			err := enum.Scan(value)
+
+			// Verify that the deserialization was successful
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(enum).Should(Equal(shouldBe))
+		},
+		Entry("NotCorrected - Works", "NotCorrected", Financial_Trades_NotCorrected),
+		Entry("LateCorrected - Works", "LateCorrected", Financial_Trades_LateCorrected),
+		Entry("Erroneous - Works", "Erroneous", Financial_Trades_Erroneous),
+		Entry("Cancel - Works", "Cancel", Financial_Trades_Cancel),
+		Entry("CancelRecord - Works", "CancelRecord", Financial_Trades_CancelRecord),
+		Entry("ErrorRecord - Works", "ErrorRecord", Financial_Trades_ErrorRecord),
+		Entry("CorrectionRecord - Works", "CorrectionRecord", Financial_Trades_CorrectionRecord),
+		Entry("00 - Works", "00", Financial_Trades_NotCorrected),
+		Entry("01 - Works", "01", Financial_Trades_LateCorrected),
+		Entry("07 - Works", "07", Financial_Trades_Erroneous),
+		Entry("08 - Works", "08", Financial_Trades_Cancel),
+		Entry("0 - Works", 0, Financial_Trades_NotCorrected),
+		Entry("1 - Works", 1, Financial_Trades_LateCorrected),
+		Entry("7 - Works", 7, Financial_Trades_Erroneous),
+		Entry("8 - Works", 8, Financial_Trades_Cancel),
+		Entry("10 - Works", 10, Financial_Trades_CancelRecord),
+		Entry("11 - Works", 11, Financial_Trades_ErrorRecord),
+		Entry("12 - Works", 12, Financial_Trades_CorrectionRecord))
 })

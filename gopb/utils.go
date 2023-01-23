@@ -385,54 +385,6 @@ func (duration *UnixDuration) Scan(value interface{}) error {
 	return duration.FromString(value.(string))
 }
 
-// MarhsalJSON converts a Financial.Common.AssetType to JSON
-func (enum Financial_Common_AssetType) MarshalJSON() ([]byte, error) {
-	return []byte(utils.MarshalString(enum, Financial_Common_AssetClass_name, utils.Ignore, true)), nil
-}
-
-// MarshalCSV converts a Financial.Common.AssetType to a CSV format
-func (enum Financial_Common_AssetType) MarshalCSV() (string, error) {
-	return strconv.FormatInt(int64(enum), 10), nil
-}
-
-// Marshaler converts a Financial.Common.AssetType to a DynamoDB attribute value
-func (enum Financial_Common_AssetType) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
-	return &types.AttributeValueMemberS{
-		Value: utils.MarshalString(enum, Financial_Common_AssetClass_name, utils.Ignore, false),
-	}, nil
-}
-
-// UnmarshalJSON converts JSON data into a Financial.Common.AssetType
-func (enum *Financial_Common_AssetType) UnmarshalJSON(data []byte) error {
-	return utils.UnmarshalValue(data, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
-}
-
-// UnmarshalCSV converts a CSV column into a Financial.Common.AssetType
-func (enum *Financial_Common_AssetType) UnmarshalCSV(raw string) error {
-	return utils.UnmarshalString(raw, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
-}
-
-// UnmarshalDynamoDBAttributeValue converts a DynamoDB attribute value to a Financial.Common.AssetType
-func (enum *Financial_Common_AssetType) UnmarshalDynamoDBAttributeValue(value types.AttributeValue) error {
-	switch casted := value.(type) {
-	case *types.AttributeValueMemberB:
-		return utils.UnmarshalValue(casted.Value, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
-	case *types.AttributeValueMemberN:
-		return utils.UnmarshalString(casted.Value, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
-	case *types.AttributeValueMemberNULL:
-		return nil
-	case *types.AttributeValueMemberS:
-		return utils.UnmarshalString(casted.Value, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
-	default:
-		return fmt.Errorf("Attribute value of %T could not be converted to a Financial.Common.AssetType", value)
-	}
-}
-
-// Scan converts an SQL value into a Financial.Common.AssetType
-func (enum *Financial_Common_AssetType) Scan(value interface{}) error {
-	return utils.ScanValue(value, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
-}
-
 // MarhsalJSON converts a Financial.Common.AssetClass to JSON
 func (enum Financial_Common_AssetClass) MarshalJSON() ([]byte, error) {
 	return []byte(utils.MarshalString(enum, Financial_Common_AssetClass_name, utils.Ignore, true)), nil
@@ -479,6 +431,54 @@ func (enum *Financial_Common_AssetClass) UnmarshalDynamoDBAttributeValue(value t
 // Scan converts an SQL value into a Financial.Common.AssetClass
 func (enum *Financial_Common_AssetClass) Scan(value interface{}) error {
 	return utils.ScanValue(value, Financial_Common_AssetClass_value, AssetClassAlternates, enum)
+}
+
+// MarhsalJSON converts a Financial.Common.AssetType to JSON
+func (enum Financial_Common_AssetType) MarshalJSON() ([]byte, error) {
+	return []byte(utils.MarshalString(enum, Financial_Common_AssetType_name, utils.Ignore, true)), nil
+}
+
+// MarshalCSV converts a Financial.Common.AssetType to a CSV format
+func (enum Financial_Common_AssetType) MarshalCSV() (string, error) {
+	return strconv.FormatInt(int64(enum), 10), nil
+}
+
+// Marshaler converts a Financial.Common.AssetType to a DynamoDB attribute value
+func (enum Financial_Common_AssetType) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
+	return &types.AttributeValueMemberS{
+		Value: utils.MarshalString(enum, Financial_Common_AssetType_name, utils.Ignore, false),
+	}, nil
+}
+
+// UnmarshalJSON converts JSON data into a Financial.Common.AssetType
+func (enum *Financial_Common_AssetType) UnmarshalJSON(data []byte) error {
+	return utils.UnmarshalValue(data, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
+}
+
+// UnmarshalCSV converts a CSV column into a Financial.Common.AssetType
+func (enum *Financial_Common_AssetType) UnmarshalCSV(raw string) error {
+	return utils.UnmarshalString(raw, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
+}
+
+// UnmarshalDynamoDBAttributeValue converts a DynamoDB attribute value to a Financial.Common.AssetType
+func (enum *Financial_Common_AssetType) UnmarshalDynamoDBAttributeValue(value types.AttributeValue) error {
+	switch casted := value.(type) {
+	case *types.AttributeValueMemberB:
+		return utils.UnmarshalValue(casted.Value, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
+	case *types.AttributeValueMemberN:
+		return utils.UnmarshalString(casted.Value, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
+	case *types.AttributeValueMemberNULL:
+		return nil
+	case *types.AttributeValueMemberS:
+		return utils.UnmarshalString(casted.Value, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
+	default:
+		return fmt.Errorf("Attribute value of %T could not be converted to a Financial.Common.AssetType", value)
+	}
+}
+
+// Scan converts an SQL value into a Financial.Common.AssetType
+func (enum *Financial_Common_AssetType) Scan(value interface{}) error {
+	return utils.ScanValue(value, Financial_Common_AssetType_value, AssetTypeAlternates, enum)
 }
 
 // MarhsalJSON converts a Financial.Common.Locale to JSON
