@@ -1081,8 +1081,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Stock - Works", Financial_Common_Stock, "\"Stock\""),
 		Entry("Option - Works", Financial_Common_Option, "\"Option\""),
 		Entry("Crypto - Works", Financial_Common_Crypto, "\"Crypto\""),
-		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "\"ForeignExchange\""),
-		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "\"OverTheCounter\""))
+		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "\"Foreign Exchange\""),
+		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "\"OTC\""))
 
 	// Test that converting the Financial.Common.AssetClass enum to a CSV column works for all values
 	DescribeTable("MarshalCSV Tests",
@@ -1107,8 +1107,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Stock - Works", Financial_Common_Stock, "Stock"),
 		Entry("Option - Works", Financial_Common_Option, "Option"),
 		Entry("Crypto - Works", Financial_Common_Crypto, "Crypto"),
-		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "ForeignExchange"),
-		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "OverTheCounter"))
+		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "Foreign Exchange"),
+		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "OTC"))
 
 	// Test that attempting to deserialize a Financial.Common.AssetClass will fail and
 	// return an error if the value canno be deserialized from a JSON value to a string
@@ -1157,6 +1157,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Crypto - Works", "\"Crypto\"", Financial_Common_Crypto),
 		Entry("ForeignExchange - Works", "\"ForeignExchange\"", Financial_Common_ForeignExchange),
 		Entry("OverTheCounter - Works", "\"OverTheCounter\"", Financial_Common_OverTheCounter),
+		Entry("Foreign Exchange - Works", "\"Foreign Exchange\"", Financial_Common_ForeignExchange),
+		Entry("OTC - Works", "\"OTC\"", Financial_Common_OverTheCounter),
 		Entry("stocks - Works", "\"stocks\"", Financial_Common_Stock),
 		Entry("options - Works", "\"options\"", Financial_Common_Option),
 		Entry("crypto - Works", "\"crypto\"", Financial_Common_Crypto),
@@ -1201,6 +1203,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Crypto - Works", "Crypto", Financial_Common_Crypto),
 		Entry("ForeignExchange - Works", "ForeignExchange", Financial_Common_ForeignExchange),
 		Entry("OverTheCounter - Works", "OverTheCounter", Financial_Common_OverTheCounter),
+		Entry("Foreign Exchange - Works", "Foreign Exchange", Financial_Common_ForeignExchange),
+		Entry("OTC - Works", "OTC", Financial_Common_OverTheCounter),
 		Entry("stocks - Works", "stocks", Financial_Common_Stock),
 		Entry("options - Works", "options", Financial_Common_Option),
 		Entry("crypto - Works", "crypto", Financial_Common_Crypto),
@@ -1239,6 +1243,10 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberB{Value: []byte("fx")}, Financial_Common_ForeignExchange),
 		Entry("Value is []bytes, otc - Works",
 			&types.AttributeValueMemberB{Value: []byte("otc")}, Financial_Common_OverTheCounter),
+		Entry("Value is []bytes, Foreign Exchange - Works",
+			&types.AttributeValueMemberB{Value: []byte("Foreign Exchange")}, Financial_Common_ForeignExchange),
+		Entry("Value is []bytes, OTC - Works",
+			&types.AttributeValueMemberB{Value: []byte("OTC")}, Financial_Common_OverTheCounter),
 		Entry("Value is []bytes, Stock - Works",
 			&types.AttributeValueMemberB{Value: []byte("Stock")}, Financial_Common_Stock),
 		Entry("Value is []bytes, Option - Works",
@@ -1270,6 +1278,10 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberS{Value: "fx"}, Financial_Common_ForeignExchange),
 		Entry("Value is string, otc - Works",
 			&types.AttributeValueMemberS{Value: "otc"}, Financial_Common_OverTheCounter),
+		Entry("Value is string, Foreign Exchange - Works",
+			&types.AttributeValueMemberS{Value: "Foreign Exchange"}, Financial_Common_ForeignExchange),
+		Entry("Value is string, OTC - Works",
+			&types.AttributeValueMemberS{Value: "OTC"}, Financial_Common_OverTheCounter),
 		Entry("Value is string, Stock - Works",
 			&types.AttributeValueMemberS{Value: "Stock"}, Financial_Common_Stock),
 		Entry("Value is string, Option - Works",
@@ -1314,6 +1326,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Crypto - Works", "Crypto", Financial_Common_Crypto),
 		Entry("ForeignExchange - Works", "ForeignExchange", Financial_Common_ForeignExchange),
 		Entry("OverTheCounter - Works", "OverTheCounter", Financial_Common_OverTheCounter),
+		Entry("Foreign Exchange - Works", "Foreign Exchange", Financial_Common_ForeignExchange),
+		Entry("OTC - Works", "OTC", Financial_Common_OverTheCounter),
 		Entry("stocks - Works", "stocks", Financial_Common_Stock),
 		Entry("options - Works", "options", Financial_Common_Option),
 		Entry("crypto - Works", "crypto", Financial_Common_Crypto),

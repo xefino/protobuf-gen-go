@@ -25,11 +25,19 @@ var ProviderMapping = map[Provider]string{
 
 // AssetClassAlternates contains alternative values for the Financial.Common.AssetClass enum
 var AssetClassAlternates = map[string]Financial_Common_AssetClass{
-	"stocks":  Financial_Common_Stock,
-	"options": Financial_Common_Option,
-	"crypto":  Financial_Common_Crypto,
-	"fx":      Financial_Common_ForeignExchange,
-	"otc":     Financial_Common_OverTheCounter,
+	"stocks":           Financial_Common_Stock,
+	"options":          Financial_Common_Option,
+	"crypto":           Financial_Common_Crypto,
+	"fx":               Financial_Common_ForeignExchange,
+	"Foreign Exchange": Financial_Common_ForeignExchange,
+	"otc":              Financial_Common_OverTheCounter,
+	"OTC":              Financial_Common_OverTheCounter,
+}
+
+// AssetClassMapping contains alternate names for the Financial.Common.AssetClass enum
+var AssetClassMapping = map[Financial_Common_AssetClass]string{
+	Financial_Common_ForeignExchange: "Foreign Exchange",
+	Financial_Common_OverTheCounter:  "OTC",
 }
 
 // AssetTypeAlternates contains alternative values for the Financial.Common.AssetType enum
@@ -425,7 +433,7 @@ func (duration *UnixDuration) Scan(value interface{}) error {
 
 // MarhsalJSON converts a Financial.Common.AssetClass to JSON
 func (enum Financial_Common_AssetClass) MarshalJSON() ([]byte, error) {
-	return []byte(utils.MarshalString(enum, Financial_Common_AssetClass_name, utils.Ignore, true)), nil
+	return []byte(utils.MarshalString(enum, Financial_Common_AssetClass_name, AssetClassMapping, true)), nil
 }
 
 // MarshalCSV converts a Financial.Common.AssetClass to a CSV format
@@ -436,7 +444,7 @@ func (enum Financial_Common_AssetClass) MarshalCSV() (string, error) {
 // Marshaler converts a Financial.Common.AssetClass to a DynamoDB attribute value
 func (enum Financial_Common_AssetClass) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 	return &types.AttributeValueMemberS{
-		Value: utils.MarshalString(enum, Financial_Common_AssetClass_name, utils.Ignore, false),
+		Value: utils.MarshalString(enum, Financial_Common_AssetClass_name, AssetClassMapping, false),
 	}, nil
 }
 
