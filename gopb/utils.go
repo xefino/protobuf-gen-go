@@ -112,6 +112,22 @@ var LocaleAlternates = map[string]Financial_Common_Locale{
 	"global": Financial_Common_Global,
 }
 
+// ExchangeTypeAlternates contains alternative values for the Financial.Dividends.Frequency enum
+var DividendFrequencyAlternates = map[string]Financial_Dividends_Frequency{
+	"None": Financial_Dividends_NoFrequency,
+	"":     Financial_Dividends_NoFrequency,
+}
+
+// DividendFrequencyMapping contains alternate names for the Financial.Dividends.Frequency enum
+var DividendFrequencyMapping = map[Financial_Dividends_Frequency]string{
+	Financial_Dividends_NoFrequency: "",
+}
+
+// ExchangeTypeAlternates contains alternative values for the Financial.Exchanges.Type enum
+var ExchangeTypeAlternates = map[string]Financial_Exchanges_Type{
+	"exchange": Financial_Exchanges_Exchange,
+}
+
 // OptionContractTypeAlternates contains alternative values for the Financial.Options.ContractType enum
 var OptionContractTypeAlternates = map[string]Financial_Options_ContractType{
 	"call":  Financial_Options_Call,
@@ -132,9 +148,9 @@ var OptionUnderlyingTypeAlternates = map[string]Financial_Options_UnderlyingType
 	"currency": Financial_Options_Currency,
 }
 
-// ExchangeTypeAlternates contains alternative values for the Financial.Exchanges.Type enum
-var ExchangeTypeAlternates = map[string]Financial_Exchanges_Type{
-	"exchange": Financial_Exchanges_Exchange,
+// QuoteConditionAlternates contains alternative values for the Financial.Quotes.Condition enum
+var QuoteConditionAlternates = map[string]Financial_Quotes_Condition{
+	"-1": Financial_Quotes_Invalid,
 }
 
 // TradeCorrectionAlternates contains alternative valus for the Financial.Trades.CorrectionCode enum
@@ -143,11 +159,6 @@ var TradeCorrectionAlternates = map[string]Financial_Trades_CorrectionCode{
 	"01": Financial_Trades_LateCorrected,
 	"07": Financial_Trades_Erroneous,
 	"08": Financial_Trades_Cancel,
-}
-
-// QuoteConditionAlternates contains alternative values for the Financial.Quotes.Condition enum
-var QuoteConditionAlternates = map[string]Financial_Quotes_Condition{
-	"-1": Financial_Quotes_Invalid,
 }
 
 // MarhsalJSON converts a Decimal to JSON
@@ -630,7 +641,7 @@ func (enum *Financial_Common_Tape) Scan(value interface{}) error {
 
 // MarhsalJSON converts a Financial.Dividends.Frequency to JSON
 func (enum Financial_Dividends_Frequency) MarshalJSON() ([]byte, error) {
-	return []byte(utils.MarshalString(enum, Financial_Dividends_Frequency_name, utils.Ignore, true)), nil
+	return []byte(utils.MarshalString(enum, Financial_Dividends_Frequency_name, DividendFrequencyMapping, true)), nil
 }
 
 // MarshalCSV converts a Financial.Dividends.Frequency to a CSV format
@@ -641,31 +652,31 @@ func (enum Financial_Dividends_Frequency) MarshalCSV() (string, error) {
 // Marshaler converts a Financial.Dividends.Frequency to a DynamoDB attribute value
 func (enum Financial_Dividends_Frequency) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 	return &types.AttributeValueMemberS{
-		Value: utils.MarshalString(enum, Financial_Dividends_Frequency_name, utils.Ignore, false),
+		Value: utils.MarshalString(enum, Financial_Dividends_Frequency_name, DividendFrequencyMapping, false),
 	}, nil
 }
 
 // UnmarshalJSON converts JSON data into a Financial.Dividends.Frequency
 func (enum *Financial_Dividends_Frequency) UnmarshalJSON(data []byte) error {
-	return utils.UnmarshalValue(data, Financial_Dividends_Frequency_value, utils.None, enum)
+	return utils.UnmarshalValue(data, Financial_Dividends_Frequency_value, DividendFrequencyAlternates, enum)
 }
 
 // UnmarshalCSV converts a CSV column into a Financial.Dividends.Frequency
 func (enum *Financial_Dividends_Frequency) UnmarshalCSV(raw string) error {
-	return utils.UnmarshalString(raw, Financial_Dividends_Frequency_value, utils.None, enum)
+	return utils.UnmarshalString(raw, Financial_Dividends_Frequency_value, DividendFrequencyAlternates, enum)
 }
 
 // UnmarshalDynamoDBAttributeValue converts a DynamoDB attribute value to a Financial.Dividends.Frequency
 func (enum *Financial_Dividends_Frequency) UnmarshalDynamoDBAttributeValue(value types.AttributeValue) error {
 	switch casted := value.(type) {
 	case *types.AttributeValueMemberB:
-		return utils.UnmarshalValue(casted.Value, Financial_Dividends_Frequency_value, utils.None, enum)
+		return utils.UnmarshalValue(casted.Value, Financial_Dividends_Frequency_value, DividendFrequencyAlternates, enum)
 	case *types.AttributeValueMemberN:
-		return utils.UnmarshalString(casted.Value, Financial_Dividends_Frequency_value, utils.None, enum)
+		return utils.UnmarshalString(casted.Value, Financial_Dividends_Frequency_value, DividendFrequencyAlternates, enum)
 	case *types.AttributeValueMemberNULL:
 		return nil
 	case *types.AttributeValueMemberS:
-		return utils.UnmarshalString(casted.Value, Financial_Dividends_Frequency_value, utils.None, enum)
+		return utils.UnmarshalString(casted.Value, Financial_Dividends_Frequency_value, DividendFrequencyAlternates, enum)
 	default:
 		return fmt.Errorf("Attribute value of %T could not be converted to a Financial.Dividends.Frequency", value)
 	}
@@ -673,7 +684,7 @@ func (enum *Financial_Dividends_Frequency) UnmarshalDynamoDBAttributeValue(value
 
 // Scan converts an SQL value into a Financial.Dividends.Frequency
 func (enum *Financial_Dividends_Frequency) Scan(value interface{}) error {
-	return utils.ScanValue(value, Financial_Dividends_Frequency_value, utils.None, enum)
+	return utils.ScanValue(value, Financial_Dividends_Frequency_value, DividendFrequencyAlternates, enum)
 }
 
 // MarhsalJSON converts a Financial.Dividends.Type to JSON

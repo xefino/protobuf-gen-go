@@ -2535,7 +2535,7 @@ var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func()
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(string(data)).Should(Equal(value))
 		},
-		Entry("NoFrequency - Works", Financial_Dividends_NoFrequency, "\"NoFrequency\""),
+		Entry("NoFrequency - Works", Financial_Dividends_NoFrequency, "\"\""),
 		Entry("Annually - Works", Financial_Dividends_Annually, "\"Annually\""),
 		Entry("SemiAnnually - Works", Financial_Dividends_SemiAnnually, "\"SemiAnnually\""),
 		Entry("Quarterly - Works", Financial_Dividends_Quarterly, "\"Quarterly\""),
@@ -2563,7 +2563,7 @@ var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func()
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
 		},
-		Entry("NoFrequency - Works", Financial_Dividends_NoFrequency, "NoFrequency"),
+		Entry("NoFrequency - Works", Financial_Dividends_NoFrequency, ""),
 		Entry("Annually - Works", Financial_Dividends_Annually, "Annually"),
 		Entry("SemiAnnually - Works", Financial_Dividends_SemiAnnually, "SemiAnnually"),
 		Entry("Quarterly - Works", Financial_Dividends_Quarterly, "Quarterly"),
@@ -2612,6 +2612,8 @@ var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func()
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(enum).Should(Equal(shouldBe))
 		},
+		Entry("None - Works", "\"None\"", Financial_Dividends_NoFrequency),
+		Entry("Empty string - Works", "\"\"", Financial_Dividends_NoFrequency),
 		Entry("NoFrequency - Works", "\"NoFrequency\"", Financial_Dividends_NoFrequency),
 		Entry("Annually - Works", "\"Annually\"", Financial_Dividends_Annually),
 		Entry("SemiAnnually - Works", "\"SemiAnnually\"", Financial_Dividends_SemiAnnually),
@@ -2634,16 +2636,16 @@ var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func()
 	// Test that attempting to deserialize a Financial.Dividends.Frequency will fial and return an
 	// error if the value cannot be converted to either the name value or integer value
 	// of the enum option
-	It("UnmarshalCSV - Value is empty - Error", func() {
+	It("UnmarshalCSV - Value is invalid - Error", func() {
 
 		// Attempt to convert a fake string value into a Financial.Dividends.Frequency
 		// This should return an error
 		enum := new(Financial_Dividends_Frequency)
-		err := enum.UnmarshalCSV("")
+		err := enum.UnmarshalCSV("derp")
 
 		// Verify the error
 		Expect(err).Should(HaveOccurred())
-		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Dividends_Frequency"))
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Dividends_Frequency"))
 	})
 
 	// Test the conditions under which values should be convertible to a Financial.Dividends.Frequency
@@ -2659,6 +2661,8 @@ var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func()
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(enum).Should(Equal(shouldBe))
 		},
+		Entry("None - Works", "None", Financial_Dividends_NoFrequency),
+		Entry("Empty string - Works", "", Financial_Dividends_NoFrequency),
 		Entry("NoFrequency - Works", "NoFrequency", Financial_Dividends_NoFrequency),
 		Entry("Annually - Works", "Annually", Financial_Dividends_Annually),
 		Entry("SemiAnnually - Works", "SemiAnnually", Financial_Dividends_SemiAnnually),
@@ -2689,6 +2693,10 @@ var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func()
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(value).Should(Equal(expected))
 		},
+		Entry("Value is []bytes, None - Works",
+			&types.AttributeValueMemberB{Value: []byte("None")}, Financial_Dividends_NoFrequency),
+		Entry("Value is []bytes, Empty string - Works",
+			&types.AttributeValueMemberB{Value: []byte("")}, Financial_Dividends_NoFrequency),
 		Entry("Value is []bytes, NoFrequency - Works",
 			&types.AttributeValueMemberB{Value: []byte("NoFrequency")}, Financial_Dividends_NoFrequency),
 		Entry("Value is []bytes, Annually - Works",
@@ -2714,6 +2722,10 @@ var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func()
 		Entry("Value is numeric, 13 - Works",
 			&types.AttributeValueMemberN{Value: "13"}, Financial_Dividends_Invalid),
 		Entry("Value is NULL - Works", new(types.AttributeValueMemberNULL), Financial_Dividends_Frequency(0)),
+		Entry("Value is string, None - Works",
+			&types.AttributeValueMemberS{Value: "None"}, Financial_Dividends_NoFrequency),
+		Entry("Value is string, Empty string - Works",
+			&types.AttributeValueMemberS{Value: ""}, Financial_Dividends_NoFrequency),
 		Entry("Value is string, NoFrequency - Works",
 			&types.AttributeValueMemberS{Value: "NoFrequency"}, Financial_Dividends_NoFrequency),
 		Entry("Value is string, Annually - Works",
@@ -2755,6 +2767,8 @@ var _ = Describe("Financial.Dividends.Frequency Marshal/Unmarshal Tests", func()
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(enum).Should(Equal(shouldBe))
 		},
+		Entry("None - Works", "None", Financial_Dividends_NoFrequency),
+		Entry("Empty string - Works", "", Financial_Dividends_NoFrequency),
 		Entry("NoFrequency - Works", "NoFrequency", Financial_Dividends_NoFrequency),
 		Entry("Annually - Works", "Annually", Financial_Dividends_Annually),
 		Entry("SemiAnnually - Works", "SemiAnnually", Financial_Dividends_SemiAnnually),
