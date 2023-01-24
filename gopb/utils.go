@@ -23,34 +23,6 @@ var ProviderMapping = map[Provider]string{
 	Provider_Polygon: "polygon",
 }
 
-// AssetTypeAlternates contains alternative values for the Financial.Common.AssetType enum
-var AssetTypeAlternates = map[string]Financial_Common_AssetType{
-	"CS":      Financial_Common_CommonShare,
-	"OS":      Financial_Common_OrdinaryShare,
-	"NYRS":    Financial_Common_NewYorkRegistryShares,
-	"ADRC":    Financial_Common_AmericanDepositoryReceiptCommon,
-	"ADRP":    Financial_Common_AmericanDepositoryReceiptPreferred,
-	"ADRR":    Financial_Common_AmericanDepositoryReceiptRights,
-	"ADRW":    Financial_Common_AmericanDepositoryReceiptWarrants,
-	"GDR":     Financial_Common_GlobalDepositoryReceipts,
-	"UNIT":    Financial_Common_Unit,
-	"RIGHT":   Financial_Common_Rights,
-	"PFD":     Financial_Common_PreferredStock,
-	"FUND":    Financial_Common_Fund,
-	"SP":      Financial_Common_StructuredProduct,
-	"WARRANT": Financial_Common_Warrant,
-	"INDEX":   Financial_Common_Index,
-	"ETF":     Financial_Common_ExchangeTradedFund,
-	"ETN":     Financial_Common_ExchangeTradedNote,
-	"BOND":    Financial_Common_CorporateBond,
-	"AGEN":    Financial_Common_AgencyBond,
-	"EQLK":    Financial_Common_EquityLinkedBond,
-	"BASKET":  Financial_Common_Basket,
-	"LT":      Financial_Common_LiquidatingTrust,
-	"OTHER":   Financial_Common_Others,
-	"":        Financial_Common_None,
-}
-
 // AssetClassAlternates contains alternative values for the Financial.Common.AssetClass enum
 var AssetClassAlternates = map[string]Financial_Common_AssetClass{
 	"stocks":  Financial_Common_Stock,
@@ -58,6 +30,72 @@ var AssetClassAlternates = map[string]Financial_Common_AssetClass{
 	"crypto":  Financial_Common_Crypto,
 	"fx":      Financial_Common_ForeignExchange,
 	"otc":     Financial_Common_OverTheCounter,
+}
+
+// AssetTypeAlternates contains alternative values for the Financial.Common.AssetType enum
+var AssetTypeAlternates = map[string]Financial_Common_AssetType{
+	"CS":                      Financial_Common_CommonShare,
+	"Common Share":            Financial_Common_CommonShare,
+	"OS":                      Financial_Common_OrdinaryShare,
+	"Ordinary Share":          Financial_Common_OrdinaryShare,
+	"NYRS":                    Financial_Common_NewYorkRegistryShares,
+	"New York Registry Share": Financial_Common_NewYorkRegistryShares,
+	"ADRC":                    Financial_Common_AmericanDepositoryReceiptCommon,
+	"Common ADR":              Financial_Common_AmericanDepositoryReceiptCommon,
+	"ADRP":                    Financial_Common_AmericanDepositoryReceiptPreferred,
+	"Preferred ADR":           Financial_Common_AmericanDepositoryReceiptPreferred,
+	"ADRR":                    Financial_Common_AmericanDepositoryReceiptRights,
+	"ADR Right":               Financial_Common_AmericanDepositoryReceiptRights,
+	"ADRW":                    Financial_Common_AmericanDepositoryReceiptWarrants,
+	"ADR Warrant":             Financial_Common_AmericanDepositoryReceiptWarrants,
+	"GDR":                     Financial_Common_GlobalDepositoryReceipts,
+	"UNIT":                    Financial_Common_Unit,
+	"RIGHT":                   Financial_Common_Rights,
+	"Right":                   Financial_Common_Rights,
+	"PFD":                     Financial_Common_PreferredStock,
+	"Preferred Stock":         Financial_Common_PreferredStock,
+	"FUND":                    Financial_Common_Fund,
+	"SP":                      Financial_Common_StructuredProduct,
+	"Structured Product":      Financial_Common_StructuredProduct,
+	"WARRANT":                 Financial_Common_Warrant,
+	"INDEX":                   Financial_Common_Index,
+	"ETF":                     Financial_Common_ExchangeTradedFund,
+	"ETN":                     Financial_Common_ExchangeTradedNote,
+	"BOND":                    Financial_Common_CorporateBond,
+	"Corporate Bond":          Financial_Common_CorporateBond,
+	"AGEN":                    Financial_Common_AgencyBond,
+	"Agency Bond":             Financial_Common_AgencyBond,
+	"EQLK":                    Financial_Common_EquityLinkedBond,
+	"Equity-Linked Bond":      Financial_Common_EquityLinkedBond,
+	"BASKET":                  Financial_Common_Basket,
+	"LT":                      Financial_Common_LiquidatingTrust,
+	"Liquidating Trust":       Financial_Common_LiquidatingTrust,
+	"OTHER":                   Financial_Common_Others,
+	"Other":                   Financial_Common_Others,
+	"":                        Financial_Common_None,
+}
+
+// AssetTypeMapping contains alternate names for the Financial.Common.AssetType enum
+var AssetTypeMapping = map[Financial_Common_AssetType]string{
+	Financial_Common_CommonShare:                        "Common Share",
+	Financial_Common_OrdinaryShare:                      "Ordinary Share",
+	Financial_Common_NewYorkRegistryShares:              "New York Registry Share",
+	Financial_Common_AmericanDepositoryReceiptCommon:    "Common ADR",
+	Financial_Common_AmericanDepositoryReceiptPreferred: "Preferred ADR",
+	Financial_Common_AmericanDepositoryReceiptRights:    "ADR Right",
+	Financial_Common_AmericanDepositoryReceiptWarrants:  "ADR Warrant",
+	Financial_Common_GlobalDepositoryReceipts:           "GDR",
+	Financial_Common_Rights:                             "Right",
+	Financial_Common_PreferredStock:                     "Preferred Stock",
+	Financial_Common_StructuredProduct:                  "Structured Product",
+	Financial_Common_ExchangeTradedFund:                 "ETF",
+	Financial_Common_ExchangeTradedNote:                 "ETN",
+	Financial_Common_CorporateBond:                      "Corporate Bond",
+	Financial_Common_AgencyBond:                         "Agency Bond",
+	Financial_Common_EquityLinkedBond:                   "Equity-Linked Bond",
+	Financial_Common_LiquidatingTrust:                   "Liquidating Trust",
+	Financial_Common_Others:                             "Other",
+	Financial_Common_None:                               "",
 }
 
 // LocalAlternates contains alternative values for the Financial.Common.Locale enum
@@ -435,7 +473,7 @@ func (enum *Financial_Common_AssetClass) Scan(value interface{}) error {
 
 // MarhsalJSON converts a Financial.Common.AssetType to JSON
 func (enum Financial_Common_AssetType) MarshalJSON() ([]byte, error) {
-	return []byte(utils.MarshalString(enum, Financial_Common_AssetType_name, utils.Ignore, true)), nil
+	return []byte(utils.MarshalString(enum, Financial_Common_AssetType_name, AssetTypeMapping, true)), nil
 }
 
 // MarshalCSV converts a Financial.Common.AssetType to a CSV format
@@ -446,7 +484,7 @@ func (enum Financial_Common_AssetType) MarshalCSV() (string, error) {
 // Marshaler converts a Financial.Common.AssetType to a DynamoDB attribute value
 func (enum Financial_Common_AssetType) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 	return &types.AttributeValueMemberS{
-		Value: utils.MarshalString(enum, Financial_Common_AssetType_name, utils.Ignore, false),
+		Value: utils.MarshalString(enum, Financial_Common_AssetType_name, AssetTypeMapping, false),
 	}, nil
 }
 
