@@ -870,10 +870,26 @@ var TradeConditionMapping = map[Financial_Trades_Condition]string{
 
 // TradeCorrectionAlternates contains alternative valus for the Financial.Trades.CorrectionCode enum
 var TradeCorrectionAlternates = map[string]Financial_Trades_CorrectionCode{
-	"00": Financial_Trades_NotCorrected,
-	"01": Financial_Trades_LateCorrected,
-	"07": Financial_Trades_Erroneous,
-	"08": Financial_Trades_Cancel,
+	"Not Corrected":     Financial_Trades_NotCorrected,
+	"Late, Corrected":   Financial_Trades_LateCorrected,
+	"Cancelled":         Financial_Trades_Cancel,
+	"Cancel Record":     Financial_Trades_CancelRecord,
+	"Error Record":      Financial_Trades_ErrorRecord,
+	"Correction Record": Financial_Trades_CorrectionRecord,
+	"00":                Financial_Trades_NotCorrected,
+	"01":                Financial_Trades_LateCorrected,
+	"07":                Financial_Trades_Erroneous,
+	"08":                Financial_Trades_Cancel,
+}
+
+// TradeCorrectionMapping contains alternate names for the Financial.Trades.CorrectionCode enum
+var TradeCorrectionMapping = map[Financial_Trades_CorrectionCode]string{
+	Financial_Trades_NotCorrected:     "Not Corrected",
+	Financial_Trades_LateCorrected:    "Late, Corrected",
+	Financial_Trades_Cancel:           "Cancelled",
+	Financial_Trades_CancelRecord:     "Cancel Record",
+	Financial_Trades_ErrorRecord:      "Error Record",
+	Financial_Trades_CorrectionRecord: "Correction Record",
 }
 
 // MarhsalJSON converts a Decimal to JSON
@@ -1820,7 +1836,7 @@ func (enum *Financial_Trades_Condition) Scan(value interface{}) error {
 
 // MarhsalJSON converts a Financial.Trades.CorrectionCode to JSON
 func (enum Financial_Trades_CorrectionCode) MarshalJSON() ([]byte, error) {
-	return []byte(utils.MarshalString(enum, Financial_Trades_CorrectionCode_name, utils.Ignore, true)), nil
+	return []byte(utils.MarshalString(enum, Financial_Trades_CorrectionCode_name, TradeCorrectionMapping, true)), nil
 }
 
 // MarshalCSV converts a Financial.Trades.CorrectionCode to a CSV format
@@ -1831,7 +1847,7 @@ func (enum Financial_Trades_CorrectionCode) MarshalCSV() (string, error) {
 // Marshaler converts a Financial.Trades.CorrectionCode to a DynamoDB attribute value
 func (enum Financial_Trades_CorrectionCode) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 	return &types.AttributeValueMemberS{
-		Value: utils.MarshalString(enum, Financial_Trades_CorrectionCode_name, utils.Ignore, false),
+		Value: utils.MarshalString(enum, Financial_Trades_CorrectionCode_name, TradeCorrectionMapping, false),
 	}, nil
 }
 

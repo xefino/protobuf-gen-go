@@ -12322,13 +12322,13 @@ var _ = Describe("Financial.Trades.CorrectionCode Marshal/Unmarshal Tests", func
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(string(data)).Should(Equal(value))
 		},
-		Entry("NotCorrected - Works", Financial_Trades_NotCorrected, "\"NotCorrected\""),
-		Entry("LateCorrected - Works", Financial_Trades_LateCorrected, "\"LateCorrected\""),
+		Entry("NotCorrected - Works", Financial_Trades_NotCorrected, "\"Not Corrected\""),
+		Entry("LateCorrected - Works", Financial_Trades_LateCorrected, "\"Late, Corrected\""),
 		Entry("Erroneous - Works", Financial_Trades_Erroneous, "\"Erroneous\""),
-		Entry("Cancel - Works", Financial_Trades_Cancel, "\"Cancel\""),
-		Entry("CancelRecord - Works", Financial_Trades_CancelRecord, "\"CancelRecord\""),
-		Entry("ErrorRecord - Works", Financial_Trades_ErrorRecord, "\"ErrorRecord\""),
-		Entry("CorrectionRecord - Works", Financial_Trades_CorrectionRecord, "\"CorrectionRecord\""))
+		Entry("Cancel - Works", Financial_Trades_Cancel, "\"Cancelled\""),
+		Entry("CancelRecord - Works", Financial_Trades_CancelRecord, "\"Cancel Record\""),
+		Entry("ErrorRecord - Works", Financial_Trades_ErrorRecord, "\"Error Record\""),
+		Entry("CorrectionRecord - Works", Financial_Trades_CorrectionRecord, "\"Correction Record\""))
 
 	// Test that converting the Financial.Trades.CorrectionCode enum to a CSV column works for all values
 	DescribeTable("MarshalCSV Tests",
@@ -12352,13 +12352,13 @@ var _ = Describe("Financial.Trades.CorrectionCode Marshal/Unmarshal Tests", func
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(data.(*types.AttributeValueMemberS).Value).Should(Equal(value))
 		},
-		Entry("NotCorrected - Works", Financial_Trades_NotCorrected, "NotCorrected"),
-		Entry("LateCorrected - Works", Financial_Trades_LateCorrected, "LateCorrected"),
+		Entry("NotCorrected - Works", Financial_Trades_NotCorrected, "Not Corrected"),
+		Entry("LateCorrected - Works", Financial_Trades_LateCorrected, "Late, Corrected"),
 		Entry("Erroneous - Works", Financial_Trades_Erroneous, "Erroneous"),
-		Entry("Cancel - Works", Financial_Trades_Cancel, "Cancel"),
-		Entry("CancelRecord - Works", Financial_Trades_CancelRecord, "CancelRecord"),
-		Entry("ErrorRecord - Works", Financial_Trades_ErrorRecord, "ErrorRecord"),
-		Entry("CorrectionRecord - Works", Financial_Trades_CorrectionRecord, "CorrectionRecord"))
+		Entry("Cancel - Works", Financial_Trades_Cancel, "Cancelled"),
+		Entry("CancelRecord - Works", Financial_Trades_CancelRecord, "Cancel Record"),
+		Entry("ErrorRecord - Works", Financial_Trades_ErrorRecord, "Error Record"),
+		Entry("CorrectionRecord - Works", Financial_Trades_CorrectionRecord, "Correction Record"))
 
 	// Test that attempting to deserialize a Financial.Trades.CorrectionCode will fail and
 	// return an error if the value canno be deserialized from a JSON value to a string
@@ -12402,6 +12402,12 @@ var _ = Describe("Financial.Trades.CorrectionCode Marshal/Unmarshal Tests", func
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(enum).Should(Equal(shouldBe))
 		},
+		Entry("Not Corrected - Works", "\"Not Corrected\"", Financial_Trades_NotCorrected),
+		Entry("Late, Corrected - Works", "\"Late, Corrected\"", Financial_Trades_LateCorrected),
+		Entry("Cancelled - Works", "\"Cancelled\"", Financial_Trades_Cancel),
+		Entry("Cancel Record - Works", "\"Cancel Record\"", Financial_Trades_CancelRecord),
+		Entry("Error Record - Works", "\"Error Record\"", Financial_Trades_ErrorRecord),
+		Entry("Correction Record - Works", "\"Correction Record\"", Financial_Trades_CorrectionRecord),
 		Entry("NotCorrected - Works", "\"NotCorrected\"", Financial_Trades_NotCorrected),
 		Entry("LateCorrected - Works", "\"LateCorrected\"", Financial_Trades_LateCorrected),
 		Entry("Erroneous - Works", "\"Erroneous\"", Financial_Trades_Erroneous),
@@ -12456,6 +12462,12 @@ var _ = Describe("Financial.Trades.CorrectionCode Marshal/Unmarshal Tests", func
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(enum).Should(Equal(shouldBe))
 		},
+		Entry("Not Corrected - Works", "Not Corrected", Financial_Trades_NotCorrected),
+		Entry("Late, Corrected - Works", "Late, Corrected", Financial_Trades_LateCorrected),
+		Entry("Cancelled - Works", "Cancelled", Financial_Trades_Cancel),
+		Entry("Cancel Record - Works", "Cancel Record", Financial_Trades_CancelRecord),
+		Entry("Error Record - Works", "Error Record", Financial_Trades_ErrorRecord),
+		Entry("Correction Record - Works", "Correction Record", Financial_Trades_CorrectionRecord),
 		Entry("NotCorrected - Works", "NotCorrected", Financial_Trades_NotCorrected),
 		Entry("LateCorrected - Works", "LateCorrected", Financial_Trades_LateCorrected),
 		Entry("Erroneous - Works", "Erroneous", Financial_Trades_Erroneous),
@@ -12492,6 +12504,18 @@ var _ = Describe("Financial.Trades.CorrectionCode Marshal/Unmarshal Tests", func
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(value).Should(Equal(expected))
 		},
+		Entry("Value is []bytes, Not Corrected - Works",
+			&types.AttributeValueMemberB{Value: []byte("Not Corrected")}, Financial_Trades_NotCorrected),
+		Entry("Value is []bytes, Late, Corrected - Works",
+			&types.AttributeValueMemberB{Value: []byte("Late, Corrected")}, Financial_Trades_LateCorrected),
+		Entry("Value is []bytes, Cancelled - Works",
+			&types.AttributeValueMemberB{Value: []byte("Cancelled")}, Financial_Trades_Cancel),
+		Entry("Value is []bytes, Cancel Record - Works",
+			&types.AttributeValueMemberB{Value: []byte("Cancel Record")}, Financial_Trades_CancelRecord),
+		Entry("Value is []bytes, Error Record - Works",
+			&types.AttributeValueMemberB{Value: []byte("Error Record")}, Financial_Trades_ErrorRecord),
+		Entry("Value is []bytes, Correction Record - Works",
+			&types.AttributeValueMemberB{Value: []byte("Correction Record")}, Financial_Trades_CorrectionRecord),
 		Entry("Value is []bytes, NotCorrected - Works",
 			&types.AttributeValueMemberB{Value: []byte("NotCorrected")}, Financial_Trades_NotCorrected),
 		Entry("Value is []bytes, LateCorrected - Works",
@@ -12521,6 +12545,18 @@ var _ = Describe("Financial.Trades.CorrectionCode Marshal/Unmarshal Tests", func
 		Entry("Value is numeric, 12 - Works",
 			&types.AttributeValueMemberN{Value: "12"}, Financial_Trades_CorrectionRecord),
 		Entry("Value is NULL - Works", new(types.AttributeValueMemberNULL), Financial_Trades_CorrectionCode(0)),
+		Entry("Value is string, Not Corrected - Works",
+			&types.AttributeValueMemberS{Value: "Not Corrected"}, Financial_Trades_NotCorrected),
+		Entry("Value is string, Late, Corrected - Works",
+			&types.AttributeValueMemberS{Value: "Late, Corrected"}, Financial_Trades_LateCorrected),
+		Entry("Value is string, Cancelled - Works",
+			&types.AttributeValueMemberS{Value: "Cancelled"}, Financial_Trades_Cancel),
+		Entry("Value is string, Cancel Record - Works",
+			&types.AttributeValueMemberS{Value: "Cancel Record"}, Financial_Trades_CancelRecord),
+		Entry("Value is string, Error Record - Works",
+			&types.AttributeValueMemberS{Value: "Error Record"}, Financial_Trades_ErrorRecord),
+		Entry("Value is string, Correction Record - Works",
+			&types.AttributeValueMemberS{Value: "Correction Record"}, Financial_Trades_CorrectionRecord),
 		Entry("Value is string, NotCorrected - Works",
 			&types.AttributeValueMemberS{Value: "NotCorrected"}, Financial_Trades_NotCorrected),
 		Entry("Value is string, LateCorrected - Works",
@@ -12564,6 +12600,12 @@ var _ = Describe("Financial.Trades.CorrectionCode Marshal/Unmarshal Tests", func
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(enum).Should(Equal(shouldBe))
 		},
+		Entry("Not Corrected - Works", "Not Corrected", Financial_Trades_NotCorrected),
+		Entry("Late, Corrected - Works", "Late, Corrected", Financial_Trades_LateCorrected),
+		Entry("Cancelled - Works", "Cancelled", Financial_Trades_Cancel),
+		Entry("Cancel Record - Works", "Cancel Record", Financial_Trades_CancelRecord),
+		Entry("Error Record - Works", "Error Record", Financial_Trades_ErrorRecord),
+		Entry("Correction Record - Works", "Correction Record", Financial_Trades_CorrectionRecord),
 		Entry("NotCorrected - Works", "NotCorrected", Financial_Trades_NotCorrected),
 		Entry("LateCorrected - Works", "LateCorrected", Financial_Trades_LateCorrected),
 		Entry("Erroneous - Works", "Erroneous", Financial_Trades_Erroneous),
