@@ -355,7 +355,7 @@ var QuoteIndicatorAlternates = map[string]Financial_Quotes_Indicator{
 	"MWCB - Level 3":                                                Financial_Quotes_MWCBLevel3,
 	"Halt: Sub-Penny Trading":                                       Financial_Quotes_HaltSubPennyTrading,
 	"Order Imbalance":                                               Financial_Quotes_OrderImbalanceInd,
-	"LULD Trading Pause":                                            Financial_Quotes_LULDTradingPaused,
+	"LULD Trading Paused":                                           Financial_Quotes_LULDTradingPaused,
 	"Security Status: None":                                         Financial_Quotes_NONE,
 	"Short Sales Restriction Activated":                             Financial_Quotes_ShortSalesRestrictionActivated,
 	"Short Sales Restriction Continued":                             Financial_Quotes_ShortSalesRestrictionContinued,
@@ -473,7 +473,7 @@ var QuoteIndicatorMapping = map[Financial_Quotes_Indicator]string{
 	Financial_Quotes_VolatilityTradingPause:                      "Volatility Trading Pause",
 	Financial_Quotes_HaltNewsPending:                             "Halt: News Pending",
 	Financial_Quotes_UpdateNewsDissemination:                     "Update: News Dissemination",
-	Financial_Quotes_HaltSingleStockTradingPause:                 "Halt: Single Stock Trading Pause In Affect",
+	Financial_Quotes_HaltSingleStockTradingPause:                 "Halt: Single Stock Trading Pause in Affect",
 	Financial_Quotes_HaltRegulatoryExtraordinaryMarketActivity:   "Halt: Regulatory Extraordinary Market Activity",
 	Financial_Quotes_HaltETF:                                     "Halt: ETF",
 	Financial_Quotes_HaltInformationRequested:                    "Halt: Information Requested",
@@ -506,7 +506,7 @@ var QuoteIndicatorMapping = map[Financial_Quotes_Indicator]string{
 	Financial_Quotes_MWCBLevel3:                                  "MWCB - Level 3",
 	Financial_Quotes_HaltSubPennyTrading:                         "Halt: Sub-Penny Trading",
 	Financial_Quotes_OrderImbalanceInd:                           "Order Imbalance",
-	Financial_Quotes_LULDTradingPaused:                           "LULD Trading Pause",
+	Financial_Quotes_LULDTradingPaused:                           "LULD Trading Paused",
 	Financial_Quotes_NONE:                                        "Security Status: None",
 	Financial_Quotes_ShortSalesRestrictionActivated:              "Short Sales Restriction Activated",
 	Financial_Quotes_ShortSalesRestrictionContinued:              "Short Sales Restriction Continued",
@@ -1396,7 +1396,7 @@ func (enum *Financial_Quotes_Condition) Scan(value interface{}) error {
 
 // MarhsalJSON converts a Financial.Quotes.Indicator to JSON
 func (enum Financial_Quotes_Indicator) MarshalJSON() ([]byte, error) {
-	return []byte(utils.MarshalString(enum, Financial_Quotes_Indicator_name, utils.Ignore, true)), nil
+	return []byte(utils.MarshalString(enum, Financial_Quotes_Indicator_name, QuoteIndicatorMapping, true)), nil
 }
 
 // MarshalCSV converts a Financial.Quotes.Indicator to a CSV format
@@ -1407,31 +1407,31 @@ func (enum Financial_Quotes_Indicator) MarshalCSV() (string, error) {
 // Marshaler converts a Financial.Quotes.Indicator to a DynamoDB attribute value
 func (enum Financial_Quotes_Indicator) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 	return &types.AttributeValueMemberS{
-		Value: utils.MarshalString(enum, Financial_Quotes_Indicator_name, utils.Ignore, false),
+		Value: utils.MarshalString(enum, Financial_Quotes_Indicator_name, QuoteIndicatorMapping, false),
 	}, nil
 }
 
 // UnmarshalJSON converts JSON data into a Financial.Quotes.Indicator
 func (enum *Financial_Quotes_Indicator) UnmarshalJSON(data []byte) error {
-	return utils.UnmarshalValue(data, Financial_Quotes_Indicator_value, utils.None, enum)
+	return utils.UnmarshalValue(data, Financial_Quotes_Indicator_value, QuoteIndicatorAlternates, enum)
 }
 
 // UnmarshalCSV converts a CSV column into a Financial.Quotes.Indicator
 func (enum *Financial_Quotes_Indicator) UnmarshalCSV(raw string) error {
-	return utils.UnmarshalString(raw, Financial_Quotes_Indicator_value, utils.None, enum)
+	return utils.UnmarshalString(raw, Financial_Quotes_Indicator_value, QuoteIndicatorAlternates, enum)
 }
 
 // UnmarshalDynamoDBAttributeValue converts a DynamoDB attribute value to a Financial.Quotes.Indicator
 func (enum *Financial_Quotes_Indicator) UnmarshalDynamoDBAttributeValue(value types.AttributeValue) error {
 	switch casted := value.(type) {
 	case *types.AttributeValueMemberB:
-		return utils.UnmarshalValue(casted.Value, Financial_Quotes_Indicator_value, utils.None, enum)
+		return utils.UnmarshalValue(casted.Value, Financial_Quotes_Indicator_value, QuoteIndicatorAlternates, enum)
 	case *types.AttributeValueMemberN:
-		return utils.UnmarshalString(casted.Value, Financial_Quotes_Indicator_value, utils.None, enum)
+		return utils.UnmarshalString(casted.Value, Financial_Quotes_Indicator_value, QuoteIndicatorAlternates, enum)
 	case *types.AttributeValueMemberNULL:
 		return nil
 	case *types.AttributeValueMemberS:
-		return utils.UnmarshalString(casted.Value, Financial_Quotes_Indicator_value, utils.None, enum)
+		return utils.UnmarshalString(casted.Value, Financial_Quotes_Indicator_value, QuoteIndicatorAlternates, enum)
 	default:
 		return fmt.Errorf("Attribute value of %T could not be converted to a Financial.Quotes.Indicator", value)
 	}
@@ -1439,7 +1439,7 @@ func (enum *Financial_Quotes_Indicator) UnmarshalDynamoDBAttributeValue(value ty
 
 // Scan converts an SQL value into a Financial.Quotes.Indicator
 func (enum *Financial_Quotes_Indicator) Scan(value interface{}) error {
-	return utils.ScanValue(value, Financial_Quotes_Indicator_value, utils.None, enum)
+	return utils.ScanValue(value, Financial_Quotes_Indicator_value, QuoteIndicatorAlternates, enum)
 }
 
 // MarhsalJSON converts a Financial.Trades.Condition to JSON
