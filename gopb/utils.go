@@ -1689,7 +1689,7 @@ func (enum Financial_Quotes_Condition) MarshalJSON() ([]byte, error) {
 
 // MarshalCSV converts a Financial.Quotes.Condition to a CSV format
 func (enum Financial_Quotes_Condition) MarshalCSV() (string, error) {
-	return fmt.Sprintf("%03d", enum), nil
+	return strconv.FormatInt(int64(enum), 10), nil
 }
 
 // Marshaler converts a Financial.Quotes.Condition to a DynamoDB attribute value
