@@ -2,6 +2,7 @@ package gopb
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -1064,8 +1065,21 @@ func (timestamp *UnixTimestamp) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
+	// Attempt to deserialize the value to a string to remove any escapes or
+	// quotes that aren't needed; if this fails then return an error. If the
+	// string isn't already quoted then we probably don't have any work to do
+	// here so just trim the whitespace off and set it directly
+	var asStr string
+	if runes := []rune(string(data)); len(runes) >= 2 && runes[0] == '"' && runes[len(runes)-1] == '"' {
+		if err := json.Unmarshal(data, &asStr); err != nil {
+			return err
+		}
+	} else {
+		asStr = string(data)
+	}
+
 	// Otherwise, convert the data from a string into a timestamp
-	return timestamp.FromString(string(data))
+	return timestamp.FromString(asStr)
 }
 
 // UnmarshalCSV converts a CSV column into a Timestamp
@@ -1140,8 +1154,21 @@ func (duration *UnixDuration) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
+	// Attempt to deserialize the value to a string to remove any escapes or
+	// quotes that aren't needed; if this fails then return an error. If the
+	// string isn't already quoted then we probably don't have any work to do
+	// here so just trim the whitespace off and set it directly
+	var asStr string
+	if runes := []rune(string(data)); len(runes) >= 2 && runes[0] == '"' && runes[len(runes)-1] == '"' {
+		if err := json.Unmarshal(data, &asStr); err != nil {
+			return err
+		}
+	} else {
+		asStr = string(data)
+	}
+
 	// Otherwise, convert the data from a string into a duration
-	return duration.FromString(string(data))
+	return duration.FromString(asStr)
 }
 
 // UnmarshalCSV converts a CSV column into a Duration

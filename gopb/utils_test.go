@@ -547,6 +547,21 @@ var _ = Describe("UnixTimestamp Marshal/Unmarshal Tests", func() {
 		Expect(timestamp).Should(BeNil())
 	})
 
+	// Test that, if UnmarshalJSON is called with a quoted string then the timestamp will be parsed
+	It("UnmarshalJSON - Quoted string - Works", func() {
+
+		// Attempt to convert a non-parseable string value into a timestamp
+		// This should not return an error
+		var timestamp *UnixTimestamp
+		err := json.Unmarshal([]byte("\"1654127993983651350\""), &timestamp)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		// Verify the timestamp
+		Expect(timestamp).ShouldNot(BeNil())
+		Expect(timestamp.Seconds).Should(Equal(int64(1654127993)))
+		Expect(timestamp.Nanoseconds).Should(Equal(int32(983651350)))
+	})
+
 	// Test that, if the UnmarshalJSON function is called with a valid UNIX timestamp, then it
 	// will be parsed into a Timestamp object
 	It("UnmarshalJSON - Non-empty string - Works", func() {
@@ -851,6 +866,21 @@ var _ = Describe("UnixDuration Marshal/Unmarshal Tests", func() {
 
 		// Verify the duration
 		Expect(duration).Should(BeNil())
+	})
+
+	// Test that, if UnmarshalJSON is called with a quoted string then the duration will be parsed
+	It("UnmarshalJSON - Quoted string - Works", func() {
+
+		// Attempt to convert a non-parseable string value into a duration
+		// This should not return an error
+		var duration *UnixDuration
+		err := json.Unmarshal([]byte("\"1654127993983651350\""), &duration)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		// Verify the duration
+		Expect(duration).ShouldNot(BeNil())
+		Expect(duration.Seconds).Should(Equal(int64(1654127993)))
+		Expect(duration.Nanoseconds).Should(Equal(int32(983651350)))
 	})
 
 	// Test that, if the UnmarshalJSON function is called with a valid UNIX duration, then it
