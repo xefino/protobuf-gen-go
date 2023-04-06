@@ -34,6 +34,9 @@ var AssetClassAlternates = map[string]Financial_Common_AssetClass{
 	"Foreign Exchange": Financial_Common_ForeignExchange,
 	"otc":              Financial_Common_OverTheCounter,
 	"OTC":              Financial_Common_OverTheCounter,
+	"indices":          Financial_Common_Indices,
+	"index":            Financial_Common_Indices,
+	"Index":            Financial_Common_Indices,
 }
 
 // AssetClassMapping contains alternate names for the Financial.Common.AssetClass enum

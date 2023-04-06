@@ -1113,7 +1113,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Option - Works", Financial_Common_Option, "\"Option\""),
 		Entry("Crypto - Works", Financial_Common_Crypto, "\"Crypto\""),
 		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "\"Foreign Exchange\""),
-		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "\"OTC\""))
+		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "\"OTC\""),
+		Entry("Indices - Works", Financial_Common_Indices, "\"Indices\""))
 
 	// Test that converting the Financial.Common.AssetClass enum to a CSV column works for all values
 	DescribeTable("MarshalCSV Tests",
@@ -1126,7 +1127,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Options - Works", Financial_Common_Option, "1"),
 		Entry("Crypto - Works", Financial_Common_Crypto, "2"),
 		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "3"),
-		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "4"))
+		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "4"),
+		Entry("Indices - Works", Financial_Common_Indices, "5"))
 
 	// Test that converting the Financial.Common.AssetClass enum to a AttributeValue works for all values
 	DescribeTable("MarshalDynamoDBAttributeValue Tests",
@@ -1139,7 +1141,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Option - Works", Financial_Common_Option, "Option"),
 		Entry("Crypto - Works", Financial_Common_Crypto, "Crypto"),
 		Entry("ForeignExchange - Works", Financial_Common_ForeignExchange, "Foreign Exchange"),
-		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "OTC"))
+		Entry("OverTheCounter - Works", Financial_Common_OverTheCounter, "OTC"),
+		Entry("Indices - Works", Financial_Common_Indices, "Indices"))
 
 	// Test that attempting to deserialize a Financial.Common.AssetClass will fail and
 	// return an error if the value canno be deserialized from a JSON value to a string
@@ -1188,20 +1191,25 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Crypto - Works", "\"Crypto\"", Financial_Common_Crypto),
 		Entry("ForeignExchange - Works", "\"ForeignExchange\"", Financial_Common_ForeignExchange),
 		Entry("OverTheCounter - Works", "\"OverTheCounter\"", Financial_Common_OverTheCounter),
+		Entry("Indices - Works", "\"Indices\"", Financial_Common_Indices),
 		Entry("Foreign Exchange - Works", "\"Foreign Exchange\"", Financial_Common_ForeignExchange),
 		Entry("OTC - Works", "\"OTC\"", Financial_Common_OverTheCounter),
+		Entry("Index - Works", "\"Index\"", Financial_Common_Indices),
 		Entry("Empty String - Works", "\"\"", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("stocks - Works", "\"stocks\"", Financial_Common_Stock),
 		Entry("options - Works", "\"options\"", Financial_Common_Option),
 		Entry("crypto - Works", "\"crypto\"", Financial_Common_Crypto),
-		Entry("otc - Works", "\"otc\"", Financial_Common_OverTheCounter),
 		Entry("fx - Works", "\"fx\"", Financial_Common_ForeignExchange),
+		Entry("otc - Works", "\"otc\"", Financial_Common_OverTheCounter),
+		Entry("index - Works", "\"index\"", Financial_Common_Indices),
+		Entry("indices - Works", "\"indices\"", Financial_Common_Indices),
 		Entry("-1 - Works", "\"-1\"", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("0 - Works", "\"0\"", Financial_Common_Stock),
 		Entry("1 - Works", "\"1\"", Financial_Common_Option),
 		Entry("2 - Works", "\"2\"", Financial_Common_Crypto),
 		Entry("3 - Works", "\"3\"", Financial_Common_ForeignExchange),
-		Entry("4 - Works", "\"4\"", Financial_Common_OverTheCounter))
+		Entry("4 - Works", "\"4\"", Financial_Common_OverTheCounter),
+		Entry("5 - Works", "\"5\"", Financial_Common_Indices))
 
 	// Test that attempting to deserialize a Financial.Common.AssetClass will fail and return an
 	// error if the value cannot be converted to either the name value or integer value
@@ -1236,20 +1244,25 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Crypto - Works", "Crypto", Financial_Common_Crypto),
 		Entry("ForeignExchange - Works", "ForeignExchange", Financial_Common_ForeignExchange),
 		Entry("OverTheCounter - Works", "OverTheCounter", Financial_Common_OverTheCounter),
+		Entry("Indices - Works", "Indices", Financial_Common_Indices),
 		Entry("Foreign Exchange - Works", "Foreign Exchange", Financial_Common_ForeignExchange),
 		Entry("OTC - Works", "OTC", Financial_Common_OverTheCounter),
+		Entry("Index - Works", "Index", Financial_Common_Indices),
 		Entry("Empty String - Works", "", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("stocks - Works", "stocks", Financial_Common_Stock),
 		Entry("options - Works", "options", Financial_Common_Option),
 		Entry("crypto - Works", "crypto", Financial_Common_Crypto),
 		Entry("fx - Works", "fx", Financial_Common_ForeignExchange),
 		Entry("otc - Works", "otc", Financial_Common_OverTheCounter),
+		Entry("index - Works", "index", Financial_Common_Indices),
+		Entry("indices - Works", "indices", Financial_Common_Indices),
 		Entry("-1 - Works", "-1", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("0 - Works", "0", Financial_Common_Stock),
 		Entry("1 - Works", "1", Financial_Common_Option),
 		Entry("2 - Works", "2", Financial_Common_Crypto),
 		Entry("3 - Works", "3", Financial_Common_ForeignExchange),
-		Entry("4 - Works", "4", Financial_Common_OverTheCounter))
+		Entry("4 - Works", "4", Financial_Common_OverTheCounter),
+		Entry("5 - Works", "5", Financial_Common_Indices))
 
 	// Tests that, if the attribute type submitted to UnmarshalDynamoDBAttributeValue is not one we
 	// recognize, then the function will return an error
@@ -1280,10 +1293,16 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberB{Value: []byte("fx")}, Financial_Common_ForeignExchange),
 		Entry("Value is []bytes, otc - Works",
 			&types.AttributeValueMemberB{Value: []byte("otc")}, Financial_Common_OverTheCounter),
+		Entry("Value is []bytes, index - Works",
+			&types.AttributeValueMemberB{Value: []byte("index")}, Financial_Common_Indices),
+		Entry("Value is []bytes, indices - Works",
+			&types.AttributeValueMemberB{Value: []byte("indices")}, Financial_Common_Indices),
 		Entry("Value is []bytes, Foreign Exchange - Works",
 			&types.AttributeValueMemberB{Value: []byte("Foreign Exchange")}, Financial_Common_ForeignExchange),
 		Entry("Value is []bytes, OTC - Works",
 			&types.AttributeValueMemberB{Value: []byte("OTC")}, Financial_Common_OverTheCounter),
+		Entry("Value is []bytes, Index - Works",
+			&types.AttributeValueMemberB{Value: []byte("Index")}, Financial_Common_Indices),
 		Entry("Value is []bytes, Stock - Works",
 			&types.AttributeValueMemberB{Value: []byte("Stock")}, Financial_Common_Stock),
 		Entry("Value is []bytes, Option - Works",
@@ -1294,6 +1313,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberB{Value: []byte("ForeignExchange")}, Financial_Common_ForeignExchange),
 		Entry("Value is []bytes, OverTheCounter - Works",
 			&types.AttributeValueMemberB{Value: []byte("OverTheCounter")}, Financial_Common_OverTheCounter),
+		Entry("Value is []bytes, Indices - Works",
+			&types.AttributeValueMemberB{Value: []byte("Indices")}, Financial_Common_Indices),
 		Entry("Value is numeric, -1 - Works",
 			&types.AttributeValueMemberN{Value: "-1"}, utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("Value is numeric, 0 - Works",
@@ -1306,6 +1327,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberN{Value: "3"}, Financial_Common_ForeignExchange),
 		Entry("Value is numeric, 4 - Works",
 			&types.AttributeValueMemberN{Value: "4"}, Financial_Common_OverTheCounter),
+		Entry("Value is numeric, 5 - Works",
+			&types.AttributeValueMemberN{Value: "5"}, Financial_Common_Indices),
 		Entry("Value is NULL - Works", new(types.AttributeValueMemberNULL), Financial_Common_AssetClass(0)),
 		Entry("Value is string, stocks - Works",
 			&types.AttributeValueMemberS{Value: "stocks"}, Financial_Common_Stock),
@@ -1317,12 +1340,18 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberS{Value: "fx"}, Financial_Common_ForeignExchange),
 		Entry("Value is string, otc - Works",
 			&types.AttributeValueMemberS{Value: "otc"}, Financial_Common_OverTheCounter),
+		Entry("Value is index - Works",
+			&types.AttributeValueMemberS{Value: "index"}, Financial_Common_Indices),
+		Entry("Value is indices - Works",
+			&types.AttributeValueMemberS{Value: "indices"}, Financial_Common_Indices),
 		Entry("Value is string, Empty String - Works",
 			&types.AttributeValueMemberS{Value: ""}, utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("Value is string, Foreign Exchange - Works",
 			&types.AttributeValueMemberS{Value: "Foreign Exchange"}, Financial_Common_ForeignExchange),
 		Entry("Value is string, OTC - Works",
 			&types.AttributeValueMemberS{Value: "OTC"}, Financial_Common_OverTheCounter),
+		Entry("Value is string, Index - Works",
+			&types.AttributeValueMemberS{Value: "Index"}, Financial_Common_Indices),
 		Entry("Value is string, Stock - Works",
 			&types.AttributeValueMemberS{Value: "Stock"}, Financial_Common_Stock),
 		Entry("Value is string, Option - Works",
@@ -1332,7 +1361,9 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Value is string, ForeignExchange - Works",
 			&types.AttributeValueMemberS{Value: "ForeignExchange"}, Financial_Common_ForeignExchange),
 		Entry("Value is string, OverTheCounter - Works",
-			&types.AttributeValueMemberS{Value: "OverTheCounter"}, Financial_Common_OverTheCounter))
+			&types.AttributeValueMemberS{Value: "OverTheCounter"}, Financial_Common_OverTheCounter),
+		Entry("Value is string, Indices - Works",
+			&types.AttributeValueMemberS{Value: "Indices"}, Financial_Common_Indices))
 
 	// Test that attempting to deserialize a Financial.Common.AssetClass will fial and return an
 	// error if the value cannot be converted to either the name value or integer value of the enum option
@@ -1367,20 +1398,25 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Crypto - Works", "Crypto", Financial_Common_Crypto),
 		Entry("ForeignExchange - Works", "ForeignExchange", Financial_Common_ForeignExchange),
 		Entry("OverTheCounter - Works", "OverTheCounter", Financial_Common_OverTheCounter),
+		Entry("Indices - Works", "Indices", Financial_Common_Indices),
 		Entry("Empty String - Works", "", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("Foreign Exchange - Works", "Foreign Exchange", Financial_Common_ForeignExchange),
 		Entry("OTC - Works", "OTC", Financial_Common_OverTheCounter),
+		Entry("Index - Works", "Index", Financial_Common_Indices),
 		Entry("stocks - Works", "stocks", Financial_Common_Stock),
 		Entry("options - Works", "options", Financial_Common_Option),
 		Entry("crypto - Works", "crypto", Financial_Common_Crypto),
 		Entry("fx - Works", "fx", Financial_Common_ForeignExchange),
 		Entry("otc - Works", "otc", Financial_Common_OverTheCounter),
+		Entry("index - Works", "index", Financial_Common_Indices),
+		Entry("indices - Works", "indices", Financial_Common_Indices),
 		Entry("-1 - Works", -1, utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("0 - Works", 0, Financial_Common_Stock),
 		Entry("1 - Works", 1, Financial_Common_Option),
 		Entry("2 - Works", 2, Financial_Common_Crypto),
 		Entry("3 - Works", 3, Financial_Common_ForeignExchange),
-		Entry("4 - Works", 4, Financial_Common_OverTheCounter))
+		Entry("4 - Works", 4, Financial_Common_OverTheCounter),
+		Entry("5 - Works", 5, Financial_Common_Indices))
 })
 
 var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
