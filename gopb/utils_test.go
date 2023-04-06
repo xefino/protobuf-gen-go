@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/xefino/protobuf-gen-go/utils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -1189,30 +1190,32 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("OverTheCounter - Works", "\"OverTheCounter\"", Financial_Common_OverTheCounter),
 		Entry("Foreign Exchange - Works", "\"Foreign Exchange\"", Financial_Common_ForeignExchange),
 		Entry("OTC - Works", "\"OTC\"", Financial_Common_OverTheCounter),
+		Entry("Empty String - Works", "\"\"", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("stocks - Works", "\"stocks\"", Financial_Common_Stock),
 		Entry("options - Works", "\"options\"", Financial_Common_Option),
 		Entry("crypto - Works", "\"crypto\"", Financial_Common_Crypto),
 		Entry("otc - Works", "\"otc\"", Financial_Common_OverTheCounter),
 		Entry("fx - Works", "\"fx\"", Financial_Common_ForeignExchange),
+		Entry("-1 - Works", "\"-1\"", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("0 - Works", "\"0\"", Financial_Common_Stock),
 		Entry("1 - Works", "\"1\"", Financial_Common_Option),
 		Entry("2 - Works", "\"2\"", Financial_Common_Crypto),
 		Entry("3 - Works", "\"3\"", Financial_Common_ForeignExchange),
 		Entry("4 - Works", "\"4\"", Financial_Common_OverTheCounter))
 
-	// Test that attempting to deserialize a Financial.Common.AssetClass will fial and return an
+	// Test that attempting to deserialize a Financial.Common.AssetClass will fail and return an
 	// error if the value cannot be converted to either the name value or integer value
 	// of the enum option
-	It("UnmarshalCSV - Value is empty - Error", func() {
+	It("UnmarshalCSV - Value is invalid - Error", func() {
 
 		// Attempt to convert a fake string value into a Financial.Common.AssetClass
 		// This should return an error
 		enum := new(Financial_Common_AssetClass)
-		err := enum.UnmarshalCSV("")
+		err := enum.UnmarshalCSV("derp")
 
 		// Verify the error
 		Expect(err).Should(HaveOccurred())
-		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Common_AssetClass"))
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_AssetClass"))
 	})
 
 	// Test the conditions under which values should be convertible to a Financial.Common.AssetClass
@@ -1235,11 +1238,13 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("OverTheCounter - Works", "OverTheCounter", Financial_Common_OverTheCounter),
 		Entry("Foreign Exchange - Works", "Foreign Exchange", Financial_Common_ForeignExchange),
 		Entry("OTC - Works", "OTC", Financial_Common_OverTheCounter),
+		Entry("Empty String - Works", "", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("stocks - Works", "stocks", Financial_Common_Stock),
 		Entry("options - Works", "options", Financial_Common_Option),
 		Entry("crypto - Works", "crypto", Financial_Common_Crypto),
 		Entry("fx - Works", "fx", Financial_Common_ForeignExchange),
 		Entry("otc - Works", "otc", Financial_Common_OverTheCounter),
+		Entry("-1 - Works", "-1", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("0 - Works", "0", Financial_Common_Stock),
 		Entry("1 - Works", "1", Financial_Common_Option),
 		Entry("2 - Works", "2", Financial_Common_Crypto),
@@ -1263,6 +1268,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(value).Should(Equal(expected))
 		},
+		Entry("Value is []bytes, Empty String - Works",
+			&types.AttributeValueMemberB{Value: []byte("")}, utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("Value is []bytes, stocks - Works",
 			&types.AttributeValueMemberB{Value: []byte("stocks")}, Financial_Common_Stock),
 		Entry("Value is []bytes, options - Works",
@@ -1287,6 +1294,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberB{Value: []byte("ForeignExchange")}, Financial_Common_ForeignExchange),
 		Entry("Value is []bytes, OverTheCounter - Works",
 			&types.AttributeValueMemberB{Value: []byte("OverTheCounter")}, Financial_Common_OverTheCounter),
+		Entry("Value is numeric, -1 - Works",
+			&types.AttributeValueMemberN{Value: "-1"}, utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("Value is numeric, 0 - Works",
 			&types.AttributeValueMemberN{Value: "0"}, Financial_Common_Stock),
 		Entry("Value is numeric, 1 - Works",
@@ -1308,6 +1317,8 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberS{Value: "fx"}, Financial_Common_ForeignExchange),
 		Entry("Value is string, otc - Works",
 			&types.AttributeValueMemberS{Value: "otc"}, Financial_Common_OverTheCounter),
+		Entry("Value is string, Empty String - Works",
+			&types.AttributeValueMemberS{Value: ""}, utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("Value is string, Foreign Exchange - Works",
 			&types.AttributeValueMemberS{Value: "Foreign Exchange"}, Financial_Common_ForeignExchange),
 		Entry("Value is string, OTC - Works",
@@ -1356,6 +1367,7 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("Crypto - Works", "Crypto", Financial_Common_Crypto),
 		Entry("ForeignExchange - Works", "ForeignExchange", Financial_Common_ForeignExchange),
 		Entry("OverTheCounter - Works", "OverTheCounter", Financial_Common_OverTheCounter),
+		Entry("Empty String - Works", "", utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("Foreign Exchange - Works", "Foreign Exchange", Financial_Common_ForeignExchange),
 		Entry("OTC - Works", "OTC", Financial_Common_OverTheCounter),
 		Entry("stocks - Works", "stocks", Financial_Common_Stock),
@@ -1363,6 +1375,7 @@ var _ = Describe("Financial.Common.AssetClass Marshal/Unmarshal Tests", func() {
 		Entry("crypto - Works", "crypto", Financial_Common_Crypto),
 		Entry("fx - Works", "fx", Financial_Common_ForeignExchange),
 		Entry("otc - Works", "otc", Financial_Common_OverTheCounter),
+		Entry("-1 - Works", -1, utils.NoValue[Financial_Common_AssetClass]()),
 		Entry("0 - Works", 0, Financial_Common_Stock),
 		Entry("1 - Works", 1, Financial_Common_Option),
 		Entry("2 - Works", 2, Financial_Common_Crypto),
@@ -1546,7 +1559,7 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 		Entry("BASKET - Works", "\"BASKET\"", Financial_Common_Basket),
 		Entry("LT - Works", "\"LT\"", Financial_Common_LiquidatingTrust),
 		Entry("OTHER - Works", "\"OTHER\"", Financial_Common_Others),
-		Entry("Empty string - Works", "\"\"", Financial_Common_None),
+		Entry("Empty String - Works", "\"\"", utils.NoValue[Financial_Common_AssetType]()),
 		Entry("Common Share - Works", "\"Common Share\"", Financial_Common_CommonShare),
 		Entry("Ordinary Share - Works", "\"Ordinary Share\"", Financial_Common_OrdinaryShare),
 		Entry("New York Registry Share - Works", "\"New York Registry Share\"", Financial_Common_NewYorkRegistryShares),
@@ -1592,6 +1605,7 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 		Entry("LiquidatingTrust - Works", "\"LiquidatingTrust\"", Financial_Common_LiquidatingTrust),
 		Entry("Others - Works", "\"Others\"", Financial_Common_Others),
 		Entry("None - Works", "\"None\"", Financial_Common_None),
+		Entry("-1 - Works", "\"-1\"", utils.NoValue[Financial_Common_AssetType]()),
 		Entry("0 - Works", "\"0\"", Financial_Common_CommonShare),
 		Entry("1 - Works", "\"1\"", Financial_Common_OrdinaryShare),
 		Entry("2 - Works", "\"2\"", Financial_Common_NewYorkRegistryShares),
@@ -1672,7 +1686,7 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 		Entry("BASKET - Works", "BASKET", Financial_Common_Basket),
 		Entry("LT - Works", "LT", Financial_Common_LiquidatingTrust),
 		Entry("OTHER - Works", "OTHER", Financial_Common_Others),
-		Entry("Empty string - Works", "", Financial_Common_None),
+		Entry("Empty String - Works", "", utils.NoValue[Financial_Common_AssetType]()),
 		Entry("Common Share - Works", "Common Share", Financial_Common_CommonShare),
 		Entry("Ordinary Share - Works", "Ordinary Share", Financial_Common_OrdinaryShare),
 		Entry("New York Registry Share - Works", "New York Registry Share", Financial_Common_NewYorkRegistryShares),
@@ -1718,6 +1732,7 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 		Entry("LiquidatingTrust - Works", "LiquidatingTrust", Financial_Common_LiquidatingTrust),
 		Entry("Others - Works", "Others", Financial_Common_Others),
 		Entry("None - Works", "None", Financial_Common_None),
+		Entry("-1 - Works", "-1", utils.NoValue[Financial_Common_AssetType]()),
 		Entry("0 - Works", "0", Financial_Common_CommonShare),
 		Entry("1 - Works", "1", Financial_Common_OrdinaryShare),
 		Entry("2 - Works", "2", Financial_Common_NewYorkRegistryShares),
@@ -1812,8 +1827,8 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberB{Value: []byte("LT")}, Financial_Common_LiquidatingTrust),
 		Entry("Value is []bytes, OTHER - Works",
 			&types.AttributeValueMemberB{Value: []byte("OTHER")}, Financial_Common_Others),
-		Entry("Value is []bytes, Empty string - Works",
-			&types.AttributeValueMemberB{Value: []byte("")}, Financial_Common_None),
+		Entry("Value is []bytes, Empty String - Works",
+			&types.AttributeValueMemberB{Value: []byte("")}, utils.NoValue[Financial_Common_AssetType]()),
 		Entry("Value is []bytes, Common Share - Works",
 			&types.AttributeValueMemberB{Value: []byte("Common Share")}, Financial_Common_CommonShare),
 		Entry("Value is []bytes, Ordinary Share - Works",
@@ -1896,6 +1911,8 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberB{Value: []byte("Others")}, Financial_Common_Others),
 		Entry("Value is []bytes, None - Works",
 			&types.AttributeValueMemberB{Value: []byte("None")}, Financial_Common_None),
+		Entry("Value is numeric, -1 - Works",
+			&types.AttributeValueMemberN{Value: "-1"}, utils.NoValue[Financial_Common_AssetType]()),
 		Entry("Value is numeric, 0 - Works",
 			&types.AttributeValueMemberN{Value: "0"}, Financial_Common_CommonShare),
 		Entry("Value is numeric, 1 - Works",
@@ -1999,8 +2016,8 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberS{Value: "LT"}, Financial_Common_LiquidatingTrust),
 		Entry("Value is string, OTHER - Works",
 			&types.AttributeValueMemberS{Value: "OTHER"}, Financial_Common_Others),
-		Entry("Value is string, Empty string - Works",
-			&types.AttributeValueMemberS{Value: ""}, Financial_Common_None),
+		Entry("Value is string, Empty String - Works",
+			&types.AttributeValueMemberS{Value: ""}, utils.NoValue[Financial_Common_AssetType]()),
 		Entry("Value is string, Common Share - Works",
 			&types.AttributeValueMemberS{Value: "Common Share"}, Financial_Common_CommonShare),
 		Entry("Value is string, Ordinary Share - Works",
@@ -2137,7 +2154,7 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 		Entry("LT - Works", "LT", Financial_Common_LiquidatingTrust),
 		Entry("BASKET - Works", "BASKET", Financial_Common_Basket),
 		Entry("OTHER - Works", "OTHER", Financial_Common_Others),
-		Entry("Empty string - Works", "", Financial_Common_None),
+		Entry("Empty String - Works", "", utils.NoValue[Financial_Common_AssetType]()),
 		Entry("Common Share - Works", "Common Share", Financial_Common_CommonShare),
 		Entry("Ordinary Share - Works", "Ordinary Share", Financial_Common_OrdinaryShare),
 		Entry("New York Registry Share - Works", "New York Registry Share", Financial_Common_NewYorkRegistryShares),
@@ -2183,6 +2200,7 @@ var _ = Describe("Financial.Common.AssetType Marshal/Unmarshal Tests", func() {
 		Entry("LiquidatingTrust - Works", "LiquidatingTrust", Financial_Common_LiquidatingTrust),
 		Entry("Others - Works", "Others", Financial_Common_Others),
 		Entry("None - Works", "None", Financial_Common_None),
+		Entry("-1 - Works", -1, utils.NoValue[Financial_Common_AssetType]()),
 		Entry("0 - Works", 0, Financial_Common_CommonShare),
 		Entry("1 - Works", 1, Financial_Common_OrdinaryShare),
 		Entry("2 - Works", 2, Financial_Common_NewYorkRegistryShares),
@@ -2287,24 +2305,26 @@ var _ = Describe("Financial.Common.Locale Marshal/Unmarshal Tests", func() {
 		},
 		Entry("US - Works", "\"US\"", Financial_Common_US),
 		Entry("Global - Works", "\"Global\"", Financial_Common_Global),
+		Entry("Empty String - Works", "\"\"", utils.NoValue[Financial_Common_Locale]()),
 		Entry("us - Works", "\"us\"", Financial_Common_US),
 		Entry("global - Works", "\"global\"", Financial_Common_Global),
+		Entry("-1 - Works", "\"-1\"", utils.NoValue[Financial_Common_Locale]()),
 		Entry("0 - Works", "\"0\"", Financial_Common_US),
 		Entry("1 - Works", "\"1\"", Financial_Common_Global))
 
-	// Test that attempting to deserialize a Financial.Common.Locale will fial and return an
+	// Test that attempting to deserialize a Financial.Common.Locale will fail and return an
 	// error if the value cannot be converted to either the name value or integer value
 	// of the enum option
-	It("UnmarshalCSV - Value is empty - Error", func() {
+	It("UnmarshalCSV - Value is invalid - Error", func() {
 
 		// Attempt to convert a fake string value into a Financial.Common.Locale
 		// This should return an error
 		enum := new(Financial_Common_Locale)
-		err := enum.UnmarshalCSV("")
+		err := enum.UnmarshalCSV("derp")
 
 		// Verify the error
 		Expect(err).Should(HaveOccurred())
-		Expect(err.Error()).Should(Equal("value of \"\" cannot be mapped to a gopb.Financial_Common_Locale"))
+		Expect(err.Error()).Should(Equal("value of \"derp\" cannot be mapped to a gopb.Financial_Common_Locale"))
 	})
 
 	// Test the conditions under which values should be convertible to a Financial.Common.Locale
@@ -2322,8 +2342,10 @@ var _ = Describe("Financial.Common.Locale Marshal/Unmarshal Tests", func() {
 		},
 		Entry("US - Works", "US", Financial_Common_US),
 		Entry("Global - Works", "Global", Financial_Common_Global),
+		Entry("Empty String - Works", "", utils.NoValue[Financial_Common_Locale]()),
 		Entry("us - Works", "us", Financial_Common_US),
 		Entry("global - Works", "global", Financial_Common_Global),
+		Entry("-1 - Works", "-1", utils.NoValue[Financial_Common_Locale]()),
 		Entry("0 - Works", "0", Financial_Common_US),
 		Entry("1 - Works", "1", Financial_Common_Global))
 
@@ -2348,6 +2370,10 @@ var _ = Describe("Financial.Common.Locale Marshal/Unmarshal Tests", func() {
 			&types.AttributeValueMemberB{Value: []byte("US")}, Financial_Common_US),
 		Entry("Value is []bytes, Global - Works",
 			&types.AttributeValueMemberB{Value: []byte("Global")}, Financial_Common_Global),
+		Entry("Value is []bytes, Empty String - Works",
+			&types.AttributeValueMemberB{Value: []byte("")}, utils.NoValue[Financial_Common_Locale]()),
+		Entry("Value is numeric, -1 - Works",
+			&types.AttributeValueMemberN{Value: "-1"}, utils.NoValue[Financial_Common_Locale]()),
 		Entry("Value is numeric, 0 - Works",
 			&types.AttributeValueMemberN{Value: "0"}, Financial_Common_US),
 		Entry("Value is numeric, 1 - Works",
@@ -2356,7 +2382,9 @@ var _ = Describe("Financial.Common.Locale Marshal/Unmarshal Tests", func() {
 		Entry("Value is string, US - Works",
 			&types.AttributeValueMemberS{Value: "US"}, Financial_Common_US),
 		Entry("Value is string, Global - Works",
-			&types.AttributeValueMemberS{Value: "Global"}, Financial_Common_Global))
+			&types.AttributeValueMemberS{Value: "Global"}, Financial_Common_Global),
+		Entry("Value is string, Empty String - Works",
+			&types.AttributeValueMemberS{Value: ""}, utils.NoValue[Financial_Common_Locale]()))
 
 	// Test that attempting to deserialize a Financial.Common.Locale will fial and return an
 	// error if the value cannot be converted to either the name value or integer value of the enum option
@@ -2388,8 +2416,10 @@ var _ = Describe("Financial.Common.Locale Marshal/Unmarshal Tests", func() {
 		},
 		Entry("US - Works", "US", Financial_Common_US),
 		Entry("Global - Works", "Global", Financial_Common_Global),
+		Entry("Empty String - Works", "", utils.NoValue[Financial_Common_Locale]()),
 		Entry("us - Works", "us", Financial_Common_US),
 		Entry("global - Works", "global", Financial_Common_Global),
+		Entry("-1 - Works", -1, utils.NoValue[Financial_Common_Locale]()),
 		Entry("0 - Works", 0, Financial_Common_US),
 		Entry("1 - Works", 1, Financial_Common_Global))
 })

@@ -26,6 +26,7 @@ var ProviderMapping = map[Provider]string{
 
 // AssetClassAlternates contains alternative values for the Financial.Common.AssetClass enum
 var AssetClassAlternates = map[string]Financial_Common_AssetClass{
+	"":                 utils.NoValue[Financial_Common_AssetClass](),
 	"stocks":           Financial_Common_Stock,
 	"options":          Financial_Common_Option,
 	"crypto":           Financial_Common_Crypto,
@@ -43,6 +44,7 @@ var AssetClassMapping = map[Financial_Common_AssetClass]string{
 
 // AssetTypeAlternates contains alternative values for the Financial.Common.AssetType enum
 var AssetTypeAlternates = map[string]Financial_Common_AssetType{
+	"":                        utils.NoValue[Financial_Common_AssetType](),
 	"CS":                      Financial_Common_CommonShare,
 	"Common Share":            Financial_Common_CommonShare,
 	"OS":                      Financial_Common_OrdinaryShare,
@@ -83,7 +85,7 @@ var AssetTypeAlternates = map[string]Financial_Common_AssetType{
 	"Liquidating Trust":       Financial_Common_LiquidatingTrust,
 	"OTHER":                   Financial_Common_Others,
 	"Other":                   Financial_Common_Others,
-	"":                        Financial_Common_None,
+	"None":                    Financial_Common_None,
 }
 
 // AssetTypeMapping contains alternate names for the Financial.Common.AssetType enum
@@ -113,6 +115,7 @@ var AssetTypeMapping = map[Financial_Common_AssetType]string{
 
 // LocalAlternates contains alternative values for the Financial.Common.Locale enum
 var LocaleAlternates = map[string]Financial_Common_Locale{
+	"":       utils.NoValue[Financial_Common_Locale](),
 	"us":     Financial_Common_US,
 	"global": Financial_Common_Global,
 }

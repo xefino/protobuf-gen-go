@@ -13,6 +13,12 @@ var None = make(map[string]int32)
 // Ignore is an empty map that can be used in place of alternate values for the marshaller
 var Ignore = make(map[int32]string)
 
+// NoValue returns the equivalent of no-value for one of the common financial enums. This function can
+// be used when the user wants to deactivate a filter that relies on an enum message type
+func NoValue[TEnum ~int32]() TEnum {
+	return TEnum(-1)
+}
+
 // MarshalString converts an enum value to a string based on the _value mapping and a possible alternative mapping
 func MarshalString[TIn ~int32, TMap ~int32, TAlt ~int32](data TIn, mapping map[TMap]string, alternates map[TAlt]string, quote bool) string {
 	var asStr string
