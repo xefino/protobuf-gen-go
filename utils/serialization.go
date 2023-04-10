@@ -19,6 +19,12 @@ func NoValue[TEnum ~int32]() TEnum {
 	return TEnum(-1)
 }
 
+// HasValue returns true if the value provided represents an actual enum value, or false if the value is
+// equivalent to what would be produced by calling NoValue for that enum
+func HasValue[TEnum ~int32](value TEnum) bool {
+	return value != NoValue[TEnum]()
+}
+
 // MarshalString converts an enum value to a string based on the _value mapping and a possible alternative mapping
 func MarshalString[TIn ~int32, TMap ~int32, TAlt ~int32](data TIn, mapping map[TMap]string, alternates map[TAlt]string, quote bool) string {
 	var asStr string
